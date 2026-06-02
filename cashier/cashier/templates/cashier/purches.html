@@ -1,1504 +1,846 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eBilling | Point of Sale</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
-    <style>
-        :root {
-            --gold: #C9A84C;
-            --gold-light: #E8C96A;
-            --gold-dim: rgba(201,168,76,0.12);
-            --gold-border: rgba(201,168,76,0.22);
-            --gold-focus: rgba(201,168,76,0.35);
-            --bg: #050505;
-            --bg2: #0A0A0A;
-            --sidebar-bg: #080808;
-            --panel: #0F0F0F;
-            --panel2: #141414;
-            --border: rgba(255,255,255,0.07);
-            --border2: rgba(255,255,255,0.04);
-            --text: #E8E6E1;
-            --text2: #A0A0A0;
-            --muted: #555;
-            --green: #22c55e;
-            --green-dim: rgba(34,197,94,0.12);
-            --red: #ef4444;
-            --red-dim: rgba(239,68,68,0.1);
-            --purple: #8b5cf6;
-            --purple-dim: rgba(139,92,246,0.1);
-            --purple-border: rgba(139,92,246,0.2);
-        }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            overflow: hidden;
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBilling | Cashier POS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:flex;height:100vh;}
 
-        /* ── SIDEBAR ─────────────────────────────────── */
-        .sidebar {
-            width: 230px;
-            min-width: 230px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            height: 100vh;
-            position: fixed;
-            left: 0; top: 0;
-            z-index: 200;
-        }
-        /* Shop brand block */
-        .sidebar-brand {
-            padding: 22px 20px 18px;
-            border-bottom: 1px solid var(--border);
-        }
-        .brand-name {
-            font-size: 1.45rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            line-height: 1;
-            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, #a07830 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .brand-sub {
-            font-size: 0.6rem;
-            font-weight: 600;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-top: 3px;
-        }
-        /* Cashier info block */
-        .cashier-info {
-            margin: 14px 14px 0;
-            background: var(--gold-dim);
-            border: 1px solid var(--gold-border);
-            border-radius: 10px;
-            padding: 12px 14px;
-        }
-        .cashier-info-label {
-            font-size: 0.58rem;
-            font-weight: 700;
-            letter-spacing: 1.8px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
-        .cashier-info-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .cashier-avatar {
-            width: 30px; height: 30px;
-            background: linear-gradient(135deg, var(--gold), #a07830);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #000;
-            flex-shrink: 0;
-        }
-        .cashier-details { min-width: 0; }
-        .cashier-name {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--gold-light);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .cashier-id-text {
-            font-size: 0.68rem;
-            color: var(--muted);
-            margin-top: 1px;
-        }
-        /* Nav */
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding: 16px 10px;
-            flex: 1;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 12px;
-            border-radius: 8px;
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.82rem;
-            font-weight: 500;
-            transition: all 0.18s;
-            position: relative;
-        }
-        .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text2); }
-        .nav-item.active {
-            background: var(--gold-dim);
-            color: var(--gold-light);
-            border: 1px solid var(--gold-border);
-        }
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 20%; bottom: 20%;
-            width: 3px;
-            background: var(--gold);
-            border-radius: 0 3px 3px 0;
-        }
-        .nav-icon { font-size: 0.9rem; width: 16px; text-align: center; flex-shrink: 0; }
-        /* Footer */
-        .sidebar-footer {
-            padding: 14px 10px;
-            border-top: 1px solid var(--border);
-        }
-        .btn-logout {
-            width: 100%;
-            padding: 10px 12px;
-            background: var(--red-dim);
-            color: #f87171;
-            border: 1px solid rgba(239,68,68,0.18);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.82rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-logout:hover { background: rgba(239,68,68,0.18); color: #fca5a5; }
+/*  SIDEBAR  */
+.sidebar{width:260px;min-width:260px;background:#FFFFFF;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;height:100vh;overflow-y:auto;box-shadow:2px 0 12px rgba(0,0,0,0.06);}
+.sidebar-brand{padding:24px 20px;border-bottom:2px solid #F1F5F9;background:linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);}
+.sidebar-brand .logo{font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#2563EB,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:2px;}
+.sidebar-brand .pos-label{font-size:0.7rem;font-weight:600;color:#64748B;letter-spacing:0.8px;text-transform:uppercase;}
+.cashier-card{margin:16px 12px;background:linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);border:2px solid #BFDBFE;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;}
+.cashier-card .avatar{width:42px;height:42px;min-width:42px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#0EA5E9);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.cashier-info-text{flex:1;min-width:0;}
+.cashier-card .cashier-name{font-size:0.95rem;font-weight:700;color:#1E40AF;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cashier-card .cashier-label{font-size:0.7rem;color:#3B82F6;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.sidebar-nav{padding:8px 12px;flex:1;}
+.nav-section-label{font-size:0.65rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;padding:12px 14px 6px;margin-top:4px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;text-decoration:none;color:#64748B;font-size:0.875rem;font-weight:500;margin-bottom:3px;transition:all 0.2s ease;position:relative;overflow:hidden;}
+.nav-item:hover{background:linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);color:#1E293B;transform:translateX(3px);}
+.nav-item.active{background:linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(37,99,235,0.25);}
+.nav-item.active .nav-icon{stroke:#fff;}
+.nav-item .nav-icon{width:20px;height:20px;min-width:20px;stroke:#64748B;transition:stroke 0.2s;}
+.nav-item:hover .nav-icon{stroke:#2563EB;}
+.nav-item span{flex:1;}
+.sidebar-footer{padding:12px;border-top:2px solid #F1F5F9;background:#F8FAFC;}
+.btn-logout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 14px;border-radius:12px;border:2px solid #FEE2E2;background:linear-gradient(135deg, #FFF 0%, #FEF2F2 100%);color:#DC2626;font-size:0.875rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s ease;}
+.btn-logout:hover{background:linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);border-color:#FCA5A5;transform:translateY(-2px);box-shadow:0 4px 12px rgba(220,38,38,0.2);}
 
-        /* ── MAIN LAYOUT ─────────────────────────────── */
-        .main-content {
-            margin-left: 230px;
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 310px;
-            gap: 12px;
-            padding: 12px;
-            height: 100vh;
-            overflow: hidden;
-        }
+/*  MAIN LAYOUT  */
+.main{flex:1;display:grid;grid-template-columns:1fr 320px;gap:16px;padding:16px;height:100vh;overflow:hidden;}
 
-        /*  LEFT: CHECKOUT AREA  */
-        .checkout-area {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            overflow: hidden;
-            min-height: 0;
-        }
+/*  LEFT COLUMN  */
+.left-col{display:flex;flex-direction:column;gap:16px;overflow:hidden;}
 
-        /* Scan bar */
-        .scan-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px 18px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-            flex-shrink: 0;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
-        }
-        .scan-panel .input-wrap { flex: 1; }
-        .scan-panel label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--muted);
-            margin-bottom: 7px;
-        }
-        .scan-input-wrap { position: relative; }
-        .scan-input {
-            width: 100%;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 14px 12px 42px;
-            color: var(--text);
-            font-size: 0.92rem;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.25s;
-        }
-        .scan-input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(212,175,55,0.08); }
-        .scan-input::placeholder { color: var(--muted); }
-        .scan-icon {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            color: var(--muted);
-            pointer-events: none;
-        }
-        .btn-camera {
-            padding: 12px 16px;
-            background: rgba(99,102,241,0.08);
-            border: 1px solid rgba(99,102,241,0.2);
-            border-radius: 10px;
-            color: #818cf8;
-            font-size: 0.83rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            white-space: nowrap;
-            flex-shrink: 0;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-camera:hover { background: rgba(99,102,241,0.15); color: #a5b4fc; border-color: rgba(99,102,241,0.35); }
+/*  CARDS  */
+.card{background:#FFFFFF;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);padding:20px;border:1px solid #F1F5F9;}
 
-        /* Camera scanner overlay */
-        .scanner-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(16px);
-            z-index: 500;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .scanner-overlay.active { display: flex; }
-        .scanner-box {
-            position: relative;
-            width: 340px;
-            height: 240px;
-            border-radius: 14px;
-            overflow: hidden;
-            border: 2px solid #10b981;
-            box-shadow: 0 0 40px rgba(16,185,129,0.25), 0 0 80px rgba(16,185,129,0.1);
-        }
-        .scanner-box #interactive { width: 100%; height: 100%; }
-        .scanner-box #interactive canvas, .scanner-box #interactive video { width: 100% !important; height: 100% !important; object-fit: cover; }
-        .scanner-corners { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
-        .scanner-corners::before, .scanner-corners::after {
-            content: '';
-            position: absolute;
-            width: 26px; height: 26px;
-            border-color: #10b981;
-            border-style: solid;
-        }
-        .scanner-corners::before { top: 8px; left: 8px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-        .scanner-corners::after { bottom: 8px; right: 8px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-        .scanner-line {
-            position: absolute;
-            left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(to right, transparent, #10b981, transparent);
-            animation: scanLine 2s ease-in-out infinite;
-            z-index: 9;
-        }
-        @keyframes scanLine { 0%,100% { top: 15%; } 50% { top: 80%; } }
-        .scanner-label {
-            color: var(--text);
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-align: center;
-            opacity: 0.7;
-        }
-        .btn-close-scanner {
-            padding: 10px 26px;
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.25);
-            border-radius: 9px;
-            color: #f87171;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.88rem;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-close-scanner:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
+/*  SCAN PANEL  */
+.scan-panel{background:linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);}
+.panel-label{font-size:0.75rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;}
+.panel-label svg{stroke:#2563EB;}
+.scan-row{display:flex;gap:10px;align-items:center;}
+.scan-input-wrap{position:relative;flex:1;}
+.scan-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;stroke:#94A3B8;transition:stroke 0.2s;}
+#barcodeInput{width:100%;background:#F8FAFC;border:2px solid #E2E8F0;border-radius:12px;padding:12px 14px 12px 42px;font-size:0.9rem;font-family:'Inter',sans-serif;color:#1E293B;outline:none;transition:all 0.2s;}
+#barcodeInput::placeholder{color:#CBD5E1;}
+#barcodeInput:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.1);background:#fff;}
+#barcodeInput:focus ~ .scan-icon{stroke:#2563EB;}
+#barcodeInput.state-valid{border-color:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,0.1);background:#F0FDF4;}
+#barcodeInput.state-invalid{border-color:#DC2626;box-shadow:0 0 0 3px rgba(220,38,38,0.1);background:#FEF2F2;}
+#barcodeInput.state-checking{border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,0.1);background:#FFFBEB;}
+.btn-camera{display:flex;align-items:center;gap:8px;padding:12px 20px;border:2px solid #2563EB;border-radius:12px;background:linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%);color:#2563EB;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;white-space:nowrap;transition:all 0.25s ease;box-shadow:0 2px 8px rgba(37,99,235,0.15);}
+.btn-camera:hover{background:linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);color:#fff;border-color:#1D4ED8;transform:translateY(-2px);box-shadow:0 4px 14px rgba(37,99,235,0.35);}
+.btn-camera:hover svg{stroke:#fff;}
+.btn-camera:active{transform:translateY(0);box-shadow:0 2px 8px rgba(37,99,235,0.25);}
+#barcodeStatus{margin-top:10px;font-size:0.8125rem;font-weight:500;min-height:22px;padding:6px 10px;border-radius:8px;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+.status-valid{color:#16A34A;background:#F0FDF4;border:1px solid #BBF7D0;}
+.status-invalid{color:#DC2626;background:#FEF2F2;border:1px solid #FECACA;}
+.status-checking{color:#F59E0B;background:#FFFBEB;border:1px solid #FDE68A;}
+.status-notfound{color:#7C3AED;background:#F5F3FF;border:1px solid #E9D5FF;}
+.status-outofstock{color:#EA580C;background:#FFF7ED;border:1px solid #FED7AA;}
+#barcodeStatus:empty{display:none;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
-        /* Cart table */
-        .cart-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
-        }
-        .cart-panel-header {
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-        .cart-panel-header h3 { font-size: 0.88rem; font-weight: 700; letter-spacing: 0.2px; }
-        .cart-count {
-            background: rgba(212,175,55,0.1);
-            color: var(--gold-light);
-            border: 1px solid rgba(212,175,55,0.2);
-            border-radius: 20px;
-            padding: 2px 10px;
-            font-size: 0.72rem;
-            font-weight: 700;
-        }
-        .cart-scroll { flex: 1; overflow-y: auto; }
-        .cart-scroll::-webkit-scrollbar { width: 3px; }
-        .cart-scroll::-webkit-scrollbar-track { background: transparent; }
-        .cart-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-        .cart-table { width: 100%; border-collapse: collapse; }
-        .cart-table th {
-            padding: 10px 16px;
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-            color: var(--muted);
-            background: rgba(0,0,0,0.25);
-            position: sticky; top: 0;
-            text-align: left;
-        }
-        .cart-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.87rem; vertical-align: middle; }
-        .cart-table tbody tr { transition: background 0.15s; }
-        .cart-table tbody tr:hover { background: rgba(255,255,255,0.02); }
-        .cart-table tbody tr:last-child td { border-bottom: none; }
-        .product-name { font-weight: 600; font-size: 0.88rem; }
-        .product-cat { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-        .qty-ctrl { display: flex; align-items: center; gap: 5px; }
-        .qty-btn {
-            width: 24px; height: 24px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.15s;
-            line-height: 1;
-        }
-        .qty-btn:hover { background: rgba(212,175,55,0.1); border-color: var(--border-gold); color: var(--gold-light); }
-        .qty-num {
-            width: 32px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            padding: 3px;
-            color: var(--text);
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.85rem;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-remove {
-            background: none; border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 4px 5px;
-            border-radius: 5px;
-            transition: all 0.15s;
-        }
-        .btn-remove:hover { color: var(--danger); background: rgba(239,68,68,0.08); }
-        .empty-cart {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 20px;
-            color: var(--muted);
-            gap: 10px;
-        }
-        .empty-cart .empty-icon { font-size: 2.2rem; opacity: 0.3; }
-        .empty-cart p { font-size: 0.85rem; }
+/*  CART PANEL  */
+.cart-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.cart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cart-header h2{font-size:1rem;font-weight:700;color:#1E293B;}
+.count-badge{background:#2563EB;color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px;min-width:24px;text-align:center;}
+.cart-table-wrap{flex:1;overflow-y:auto;}
+.cart-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.cart-table thead th{background:#F8FAFC;color:#64748B;font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;padding:10px 12px;border-bottom:1px solid #E2E8F0;position:sticky;top:0;}
+.cart-table td{padding:10px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;color:#1E293B;}
+.cart-table tbody tr:hover{background:#F8FAFC;}
+.product-name{font-weight:600;color:#1E293B;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.product-cat{font-size:0.7rem;color:#94A3B8;margin-top:2px;}
+.qty-ctrl{display:flex;align-items:center;gap:6px;}
+.qty-btn{width:26px;height:26px;border-radius:6px;border:1.5px solid #E2E8F0;background:#F8FAFC;color:#374151;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.qty-btn:hover{background:#2563EB;border-color:#2563EB;color:#fff;}
+.qty-input{width:42px;text-align:center;border:1.5px solid #E2E8F0;border-radius:6px;padding:4px 2px;font-size:0.82rem;font-family:'Inter',sans-serif;color:#1E293B;background:#fff;outline:none;}
+.qty-input:focus{border-color:#2563EB;}
+.btn-remove{width:26px;height:26px;border-radius:6px;border:none;background:#FFF1F2;color:#EF4444;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.btn-remove:hover{background:#EF4444;color:#fff;}
+.empty-cart{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:#CBD5E1;}
+.empty-cart .cart-icon{font-size:2.5rem;margin-bottom:10px;}
+.empty-cart p{font-size:0.875rem;color:#94A3B8;}
 
-        /*  RIGHT: TRANSACTION PANEL  */
-        .transaction-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 40px);
-            overflow-y: auto;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
-        }
-        .transaction-panel::-webkit-scrollbar { width: 3px; }
-        .transaction-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
-        .tp-title {
-            font-size: 0.92rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            letter-spacing: 0.2px;
-        }
-        .tp-title-accent {
-            height: 2px;
-            width: 36px;
-            background: linear-gradient(to right, var(--gold), var(--gold-light));
-            border-radius: 2px;
-            margin-bottom: 18px;
-        }
-        .form-group { margin-bottom: 14px; }
-        .form-group label {
-            display: block;
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
-        .form-input {
-            width: 100%;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            padding: 10px 12px;
-            color: var(--text);
-            font-size: 0.88rem;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .form-input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(212,175,55,0.07); }
-        select.form-input { cursor: pointer; }
-        select.form-input option { background: #111; color: var(--text); }
+/*  RIGHT COLUMN — TRANSACTION PANEL  */
+.right-col{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.txn-panel{flex:1;display:flex;flex-direction:column;overflow-y:auto;}
+.txn-title{font-size:1.05rem;font-weight:700;color:#1E293B;margin-bottom:4px;}
+.txn-accent{width:36px;height:2.5px;background:linear-gradient(135deg,#2563EB,#0EA5E9);border-radius:2px;margin-bottom:18px;}
+.field-label{font-size:0.72rem;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.field-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.select-customer{width:100%;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:0.875rem;font-family:'Inter',sans-serif;color:#1E293B;outline:none;transition:border-color 0.18s;}
+.select-customer:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.10);}
+.input-row{display:flex;align-items:center;gap:0;margin-bottom:6px;}
+.input-badge{padding:9px 12px;background:#F1F5F9;border:1.5px solid #E2E8F0;font-size:0.8rem;font-weight:600;color:#64748B;}
+.input-badge.left{border-right:none;border-radius:10px 0 0 10px;}
+.input-badge.right{border-left:none;border-radius:0 10px 10px 0;}
+.input-badge.blue{background:#EFF6FF;color:#2563EB;border-color:#BFDBFE;}
+.inner-input{flex:1;border:1.5px solid #E2E8F0;padding:9px 10px;font-size:0.875rem;font-family:'Inter',sans-serif;color:#1E293B;background:#fff;outline:none;transition:border-color 0.18s,box-shadow 0.18s;}
+.inner-input:focus{border-color:#2563EB;box-shadow:0 0 0 2px rgba(37,99,235,0.08);}
+.inner-input[readonly]{background:#F8FAFC;color:#64748B;cursor:not-allowed;}
+.disc-calc{font-size:0.75rem;color:#64748B;margin-top:4px;min-height:16px;}
+.field-spacer{height:14px;}
+.totals-section{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:14px;margin:16px 0 14px;}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:0.875rem;}
+.total-row .label{color:#64748B;}
+.total-row .val{font-weight:600;color:#1E293B;}
+.total-row .val.red{color:#DC2626;}
+.total-row .val.amber{color:#D97706;}
+.total-divider{height:1px;background:#E2E8F0;margin:8px 0;}
+.grand-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.grand-row .label{font-size:0.95rem;font-weight:700;color:#1E293B;}
+.grand-row .val{font-size:1.25rem;font-weight:800;color:#2563EB;}
+.action-btns{display:flex;flex-direction:column;gap:10px;padding-bottom:8px;}
+.btn-generate{padding:14px;background:linear-gradient(135deg,#2563EB,#0EA5E9);color:#fff;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;box-shadow:0 4px 16px rgba(37,99,235,0.28);}
+.btn-generate:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(37,99,235,0.38);}
+.btn-credit{padding:13px;background:transparent;color:#7C3AED;border:1.5px solid #7C3AED;border-radius:12px;font-size:0.9rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.18s;}
+.btn-credit:hover{background:#F5F3FF;border-color:#6D28D9;}
+.btn-clear{padding:11px;background:transparent;color:#94A3B8;border:none;border-radius:12px;font-size:0.875rem;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:color 0.18s;}
+.btn-clear:hover{color:#EF4444;}
 
-        /* Totals */
-        .totals-block {
-            margin-top: auto;
-            padding-top: 14px;
-            border-top: 1px solid var(--border);
-        }
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-        .total-row .val { color: var(--text); font-weight: 500; }
-        .total-row .disc { color: #f87171; font-weight: 500; }
-        .total-row .tax-val { color: #fbbf24; font-weight: 500; }
-        .total-row.grand {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: var(--gold);
-            padding: 12px 0 0;
-            margin-top: 6px;
-            border-top: 1px solid var(--border);
-        }
-        .total-row.grand .grand-val { color: var(--gold); }
+/*  CAMERA OVERLAY  */
+.camera-overlay{position:fixed;inset:0;background:rgba(248,250,252,0.95);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+.camera-overlay.open{display:flex;}
+.scanner-box{width:320px;height:220px;border:3px solid #2563EB;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 0 0 4px rgba(37,99,235,0.15),0 8px 32px rgba(37,99,235,0.2);}
+#interactive{width:100%;height:100%;}
+#interactive video{width:100%;height:100%;object-fit:cover;}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#2563EB,transparent);animation:scanAnim 2s linear infinite;top:0;}
+@keyframes scanAnim{0%{top:0;}100%{top:100%;}}
+.btn-stop-scan{padding:12px 28px;background:#EF4444;color:#fff;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+.scanner-hint{font-size:0.875rem;color:#64748B;}
 
-        /* Action buttons */
-        .action-buttons { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; }
-        .btn-generate {
-            padding: 13px;
-            background: linear-gradient(135deg, #059669, #10b981);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 4px 16px rgba(16,185,129,0.2);
-            display: flex; align-items: center; justify-content: center; gap: 7px;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
-        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-credit {
-            padding: 12px;
-            background: rgba(139,92,246,0.08);
-            color: #a78bfa;
-            border: 1px solid rgba(139,92,246,0.2);
-            border-radius: 10px;
-            font-size: 0.88rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s;
-            display: flex; align-items: center; justify-content: center; gap: 7px;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-credit:hover { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.35); color: #c4b5fd; }
-        .btn-credit:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-clear {
-            padding: 9px;
-            background: transparent;
-            color: var(--muted);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-clear:hover { color: var(--danger); border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); }
+/*  RECEIPT MODAL  */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-card{background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.18);padding:32px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes popIn{from{opacity:0;transform:scale(0.92);}to{opacity:1;transform:scale(1);}}
+.receipt-header{text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed #E2E8F0;}
+.receipt-brand{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#2563EB,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px;}
+.receipt-sub{font-size:0.78rem;color:#94A3B8;font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px;}
+.receipt-meta{font-size:0.8rem;color:#64748B;margin-top:8px;}
+.receipt-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:16px;}
+.receipt-table th{color:#64748B;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.4px;padding:6px 8px;border-bottom:1px solid #E2E8F0;text-align:left;}
+.receipt-table td{padding:7px 8px;border-bottom:1px solid #F1F5F9;color:#1E293B;}
+.receipt-totals{background:#F8FAFC;border-radius:10px;padding:12px;font-size:0.85rem;}
+.receipt-total-row{display:flex;justify-content:space-between;padding:4px 0;color:#64748B;}
+.receipt-total-row.grand{font-weight:800;font-size:1rem;color:#2563EB;border-top:1px solid #E2E8F0;margin-top:6px;padding-top:8px;}
+.receipt-credit-note{margin-top:12px;padding:10px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;font-size:0.8rem;color:#1D4ED8;font-weight:500;}
+.receipt-actions{display:flex;gap:10px;margin-top:20px;}
+.btn-print{flex:1;padding:12px;background:linear-gradient(135deg,#2563EB,#0EA5E9);color:#fff;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;}
+.btn-new-sale{flex:1;padding:12px;background:#F1F5F9;color:#1E293B;border:none;border-radius:10px;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.18s;}
+.btn-new-sale:hover{background:#E2E8F0;}
 
-        /*  TOAST  */
-        .toast {
-            position: fixed;
-            bottom: 24px; right: 24px;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            z-index: 9999;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-            max-width: 300px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
-        .toast.error { background: rgba(127,29,29,0.95); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
-        .toast.success { background: rgba(6,78,59,0.95); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
-        .toast.info { background: rgba(30,27,75,0.95); border: 1px solid rgba(99,102,241,0.3); color: #a5b4fc; }
+/*  CREDIT CONFIRMATION MODAL  */
+.credit-modal-card{background:#fff;border:2px solid #7C3AED;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.18);padding:32px;width:100%;max-width:400px;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;}
+.credit-title{font-size:1.1rem;font-weight:700;color:#1E293B;margin-bottom:4px;}
+.credit-sub{font-size:0.85rem;color:#64748B;margin-bottom:18px;}
+.credit-summary{background:#F5F3FF;border:1px solid #DDD6FE;border-radius:10px;padding:14px;margin-bottom:18px;font-size:0.875rem;}
+.credit-summary-row{display:flex;justify-content:space-between;padding:3px 0;color:#4C1D95;}
+.credit-summary-row.total{font-weight:700;font-size:1rem;border-top:1px solid #DDD6FE;margin-top:6px;padding-top:8px;}
+.credit-actions{display:flex;gap:10px;}
+.btn-confirm-credit{flex:1;padding:12px;background:linear-gradient(135deg,#6366F1,#A855F7);color:#fff;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;}
+.btn-cancel-credit{flex:1;padding:12px;background:#F1F5F9;color:#374151;border:none;border-radius:10px;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
 
-        /*  RECEIPT MODAL  */
-        .modal {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(16px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.open { display: flex; }
-        .modal-card {
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 18px;
-            padding: 32px 28px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.7);
-            animation: popIn 0.3s cubic-bezier(0.16,1,0.3,1);
-        }
-        .modal-card::-webkit-scrollbar { width: 3px; }
-        .modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-        @keyframes popIn { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .receipt-shop { text-align: center; margin-bottom: 4px; }
-        .receipt-shop h3 { font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-        .receipt-shop p { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
-        .receipt-meta { text-align: center; margin: 10px 0; font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
-        .receipt-meta strong { color: var(--text); }
-        .r-divider { border: none; border-top: 1px dashed rgba(255,255,255,0.1); margin: 12px 0; }
-        .receipt-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-        .receipt-table th { color: var(--muted); font-weight: 600; padding-bottom: 7px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .receipt-table th:last-child, .receipt-table td:last-child { text-align: right; }
-        .receipt-table td { padding: 5px 0; color: var(--text); border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .receipt-totals { font-size: 0.83rem; text-align: right; line-height: 2; margin-top: 6px; color: var(--muted); }
-        .receipt-totals span { color: var(--text); font-weight: 500; }
-        .receipt-totals .grand-line { font-size: 1rem; font-weight: 800; color: var(--gold); display: block; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
-        .credit-badge {
-            background: rgba(139,92,246,0.08);
-            border: 1px solid rgba(139,92,246,0.2);
-            color: #c4b5fd;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .receipt-actions { display: flex; gap: 9px; margin-top: 18px; }
-        .receipt-actions button {
-            flex: 1; padding: 11px;
-            border-radius: 9px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .btn-print { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
-        .btn-print:hover { opacity: 0.9; }
-        .btn-close-modal { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border) !important; }
-        .btn-close-modal:hover { background: rgba(255,255,255,0.09); }
+/*  TOAST  */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);font-size:0.875rem;font-weight:500;font-family:'Inter',sans-serif;max-width:320px;pointer-events:auto;animation:slideIn 0.3s cubic-bezier(0.16,1,0.3,1) both;}
+.toast.removing{animation:slideOut 0.25s ease forwards;}
+@keyframes slideIn{from{opacity:0;transform:translateX(80px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideOut{to{opacity:0;transform:translateX(80px);}}
+.toast-success{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D;}
+.toast-error{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;}
+.toast-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#2563EB;}
+.toast-icon{font-size:1rem;}
 
-        /*  CREDIT MODAL  */
-        .credit-modal-card {
-            background: #111;
-            border: 1px solid rgba(139,92,246,0.2);
-            border-radius: 18px;
-            padding: 32px 28px;
-            width: 90%;
-            max-width: 380px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(139,92,246,0.05);
-            animation: popIn 0.3s cubic-bezier(0.16,1,0.3,1);
-        }
-        .credit-modal-title { font-size: 1rem; font-weight: 800; margin-bottom: 5px; color: #a78bfa; }
-        .credit-modal-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
-        .credit-summary { background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.15); border-radius: 9px; padding: 13px; margin-bottom: 16px; }
-        .credit-summary-row { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; color: var(--muted); }
-        .credit-summary-row span:last-child { color: var(--text); font-weight: 500; }
-        .credit-summary-row.total { font-weight: 800; font-size: 0.95rem; color: #a78bfa; border-top: 1px solid rgba(139,92,246,0.15); margin-top: 6px; padding-top: 9px; }
-        .credit-summary-row.total span:last-child { color: #a78bfa; }
-        .credit-actions { display: flex; gap: 9px; }
-        .credit-actions button { flex: 1; padding: 11px; border-radius: 9px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-        .btn-confirm-credit { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
-        .btn-confirm-credit:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-cancel-credit { background: rgba(255,255,255,0.04); color: var(--muted); border: 1px solid var(--border) !important; }
-        .btn-cancel-credit:hover { background: rgba(255,255,255,0.08); color: var(--text); }
-
-        /* ── BARCODE VALIDATION STYLES ──────────────────────── */
-        .scan-input {
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .scan-input.bc-valid {
-            border-color: #22c55e !important;
-            box-shadow: 0 0 0 3px rgba(34,197,94,0.15) !important;
-        }
-        .scan-input.bc-invalid {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
-            animation: shakeInput 0.35s ease;
-        }
-        .scan-input.bc-checking {
-            border-color: var(--gold) !important;
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.15) !important;
-        }
-        @keyframes shakeInput {
-            0%,100% { transform: translateX(0); }
-            20%      { transform: translateX(-5px); }
-            40%      { transform: translateX(5px); }
-            60%      { transform: translateX(-4px); }
-            80%      { transform: translateX(4px); }
-        }
-        .barcode-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 6px;
-            padding: 6px 10px;
-            border-radius: 7px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: 1.3;
-            animation: fadeSlideIn 0.2s ease;
-        }
-        @keyframes fadeSlideIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .barcode-status .bc-status-icon { font-size: 0.8rem; flex-shrink: 0; }
-        .bc-status-invalid   { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.25);   color: #fca5a5; }
-        .bc-status-notfound  { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.25);   color: #fca5a5; }
-        .bc-status-outofstock{ background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.25);  color: #fcd34d; }
-        .bc-status-checking  { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);   color: var(--gold); }
-        /* ──────────────────────────────────────────────────── */
-
-        /*  PRINT  */
-        @media print {
-            body * { visibility: hidden; }
-            .modal.open, .modal.open * { visibility: visible; }
-            .modal.open {
-                position: absolute; inset: 0;
-                background: none; backdrop-filter: none;
-            }
-            .modal-card {
-                background: #fff !important; color: #000 !important;
-                box-shadow: none; border: none;
-                width: 100%; max-width: 100%; margin: 0; border-radius: 0;
-            }
-            .modal-card * { color: #000 !important; }
-            .receipt-actions { display: none !important; }
-        }
-
-        /*  RESPONSIVE  */
-        @media (max-width: 1100px) {
-            .main-content { grid-template-columns: 1fr 300px; }
-        }
-        @media (max-width: 900px) {
-            .main-content { grid-template-columns: 1fr; height: auto; overflow: auto; }
-            .transaction-panel { height: auto; }
-        }
-        @media (max-width: 700px) {
-            body { flex-direction: column; overflow: auto; }
-            .sidebar { position: relative; width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; padding: 14px 16px; gap: 10px; }
-            .sidebar-logo { margin-bottom: 0; font-size: 1.1rem; }
-            .cashier-badge { margin-bottom: 0; padding: 6px 10px; font-size: 0.75rem; }
-            .sidebar-nav { flex-direction: row; flex-wrap: wrap; margin-bottom: 0; }
-            .sidebar-footer { margin-top: 0; padding-top: 0; border-top: none; }
-            .main-content { margin-left: 0; padding: 14px; }
-        }
-    </style>
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#E2E8F0;border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:#CBD5E1;}
+</style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SIDEBAR
-═══════════════════════════════════════════════════════════ -->
-<aside class="sidebar">
-    <!-- Brand -->
-    <div class="sidebar-brand">
-        <div class="brand-name">eBilling</div>
-        <div class="brand-sub">Point of Sale</div>
+<!--  SIDEBAR  -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">eBilling</div>
+    <div class="pos-label">Point of Sale System</div>
+  </div>
+
+  <div class="cashier-card">
+    <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
+    <div class="cashier-info-text">
+      <div class="cashier-name">{{ request.user.username }}</div>
+      <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
     </div>
+  </div>
 
-    <!-- Cashier Info -->
-    <div class="cashier-info">
-        <div class="cashier-info-label">Cashier on Duty</div>
-        <div class="cashier-info-row">
-            <div class="cashier-avatar">{{ request.user.username|slice:":1"|upper }}</div>
-            <div class="cashier-details">
-                <div class="cashier-name">{{ request.user.username }}</div>
-                <div class="cashier-id-text">ID: {{ request.user.username }}</div>
-            </div>
-        </div>
-    </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">OPERATIONS</div>
+    <a href="{% url 'cashier:billing' %}" class="nav-item active">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      <span>Checkout</span>
+    </a>
+    <a href="{% url 'cashier:products' %}" class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+      </svg>
+      <span>Products</span>
+    </a>
+    
+    <div class="nav-section-label" style="margin-top: 1rem;">RECORDS</div>
+    <a href="{% url 'cashier:credit_book' %}" class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+      <span>Credit Book</span>
+    </a>
+    <a href="{% url 'cashier:sales_report' %}" class="nav-item">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      <span>Sales Report</span>
+    </a>
+  </nav>
 
-    <!-- Nav -->
-    <nav class="sidebar-nav">
-        <a href="#" class="nav-item active">
-            <span class="nav-icon">🛒</span> Checkout
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">📦</span> Products
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">📒</span> Credit Book
-        </a>
-        <a href="#" class="nav-item">
-            <span class="nav-icon">📊</span> Reports
-        </a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
-            <span>⏻</span> Logout
-        </a>
-    </div>
-</aside>
-
-<!-- ═══════════════════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════════════════ -->
-<main class="main-content">
-
-    <!-- LEFT COLUMN: CHECKOUT AREA -->
-    <div class="checkout-area">
-
-        <!-- SCAN PANEL -->
-        <div class="scan-panel">
-            <div class="input-wrap">
-                <label for="barcodeInput">📷 Scan Barcode / Enter Code</label>
-                <div class="scan-input-wrap">
-                    <span class="scan-icon">🔍</span>
-                    <input
-                        type="text"
-                        id="barcodeInput"
-                        class="scan-input"
-                        placeholder="Scan or type barcode, press Enter..."
-                        autofocus
-                        autocomplete="off"
-                    >
-                    <div id="barcodeStatus" class="barcode-status" style="display:none;"></div>
-                    >
-                </div>
-            </div>
-            <button class="btn-camera" id="btnCamera" onclick="openScanner()">
-                📷 Scan Camera
-            </button>
-        </div>
-
-        <!-- CART PANEL -->
-        <div class="cart-panel">
-            <div class="cart-panel-header">
-                <h3>🛒 Cart Items</h3>
-                <span class="cart-count" id="cartCount">0 items</span>
-            </div>
-            <div class="cart-scroll">
-                <div id="emptyCart" class="empty-cart">
-                    <span class="empty-icon">🛍️</span>
-                    <p>Scan a product to begin</p>
-                </div>
-                <table class="cart-table" id="cartTable" style="display:none;">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Unit Price</th>
-                            <th>Qty</th>
-                            <th>Subtotal</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="cartBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-    </div><!-- /checkout-area -->
-
-    <!-- RIGHT COLUMN: TRANSACTION PANEL -->
-    <div class="transaction-panel">
-        <div class="tp-title">Transaction Details</div>
-        <div class="tp-title-accent"></div>
-
-        <!-- Customer / Credit Book -->
-        <div class="form-group">
-            <label>Credit Book Customer</label>
-            <select class="form-input" id="customerSelect">
-                <option value="">-- Cash Sale --</option>
-                {% for customer in customers %}
-                <option value="{{ customer.id }}" data-name="{{ customer.name }}" data-due="{{ customer.total_due }}">
-                    {{ customer.name }}{% if customer.total_due %} (Due: {{ customer.total_due }}){% endif %}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <!-- Discount % -->
-        <div class="form-group">
-            <label>Discount</label>
-            <div class="pct-wrap">
-                <input type="number" class="form-input pct-input" id="discountPct" value="0" min="0" max="100" step="0.1" oninput="updateTotals()" placeholder="0">
-                <span class="pct-badge">%</span>
-                <span class="pct-amount" id="discountCalc">₹0.00</span>
-            </div>
-        </div>
-
-        <!-- Tax % -->
-        <div class="form-group">
-            <label>Tax / GST</label>
-            <div class="pct-wrap">
-                <input type="number" class="form-input pct-input" id="taxPct" value="18" min="0" max="100" step="0.1" oninput="updateTotals()" placeholder="18">
-                <span class="pct-badge">%</span>
-                <span class="pct-amount" id="taxCalc">₹0.00</span>
-            </div>
-        </div>
-
-        <!-- Totals -->
-        <div class="totals-block">
-            <div class="total-row">
-                <span>Subtotal</span>
-                <span class="val" id="subtotalDisplay">₹0.00</span>
-            </div>
-            <div class="total-row">
-                <span>Discount <span class="rate-tag" id="discountRateTag">0%</span></span>
-                <span class="disc" id="discountDisplay">- ₹0.00</span>
-            </div>
-            <div class="total-row">
-                <span>Tax / GST <span class="rate-tag rate-tag-tax" id="taxRateTag">18%</span></span>
-                <span class="tax-val" id="taxDisplay">+ ₹0.00</span>
-            </div>
-            <div class="total-row grand">
-                <span>Grand Total</span>
-                <span class="grand-val" id="grandTotalDisplay">₹0.00</span>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn-generate" id="btnGenerate" onclick="handleGenerateBill()">
-                ⚡ Generate Bill
-            </button>
-            <button class="btn-credit" id="btnCredit" onclick="handleCreditBook()">
-                📒 Add to Credit Book
-            </button>
-            <button class="btn-clear" onclick="clearCart()">
-                🗑 Clear Cart
-            </button>
-        </div>
-    </div><!-- /transaction-panel -->
-
-</main>
-
-<!-- ═══════════════════════════════════════════════════════════
-     CAMERA SCANNER OVERLAY
-═══════════════════════════════════════════════════════════ -->
-<div class="scanner-overlay" id="scannerOverlay">
-    <div class="scanner-box">
-        <div class="scanner-corners"></div>
-        <div class="scanner-line"></div>
-        <div id="interactive"></div>
-    </div>
-    <p class="scanner-label">Point camera at barcode</p>
-    <button class="btn-close-scanner" onclick="closeScanner()">✕ Stop Scanning</button>
+  <div class="sidebar-footer">
+    <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      <span>Logout</span>
+    </a>
+  </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     RECEIPT MODAL
-═══════════════════════════════════════════════════════════ -->
-<div class="modal" id="receiptModal">
-    <div class="modal-card">
-        <div class="receipt-shop">
-            <h3>eBilling</h3>
-            <p>Point of Sale — Official Receipt</p>
+<!--  MAIN CONTENT  -->
+<div class="main">
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+
+    <!-- Scan Panel -->
+    <div class="card scan-panel">
+      <div class="panel-label">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+        </svg>
+        Scan Barcode / Enter Code
+      </div>
+      <div class="scan-row">
+        <div class="scan-input-wrap">
+          <svg class="scan-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+          </svg>
+          <input type="text" id="barcodeInput" placeholder="Scan or type barcode, press Enter..." autofocus autocomplete="off" />
         </div>
-        <hr class="r-divider">
-        <div class="receipt-meta" id="receiptMeta"></div>
-        <hr class="r-divider">
-        <table class="receipt-table">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="receiptItems"></tbody>
+        <button class="btn-camera" onclick="openScanner()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Camera Scan
+        </button>
+      </div>
+      <div id="barcodeStatus"></div>
+    </div>
+
+    <!-- Cart Panel -->
+    <div class="card cart-panel">
+      <div class="cart-header">
+        <h2>Cart Items</h2>
+        <span class="count-badge" id="cartCountBadge">0</span>
+      </div>
+      <div class="cart-table-wrap">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Unit Price</th>
+              <th>Qty</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartTbody">
+            <!-- rows injected by JS -->
+          </tbody>
         </table>
-        <hr class="r-divider">
-        <div class="receipt-totals" id="receiptTotals"></div>
-        <div id="receiptCreditNote"></div>
-        <div class="receipt-actions">
-            <button class="btn-print" onclick="window.print()">🖨 Print Receipt</button>
-            <button class="btn-close-modal" onclick="closeReceiptModal()">✕ New Sale</button>
+        <div class="empty-cart" id="emptyCart">
+          <div class="cart-icon"></div>
+          <p>Scan a product to begin</p>
         </div>
+      </div>
     </div>
+
+  </div><!-- /left-col -->
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+    <div class="card txn-panel">
+      <div class="txn-title">Transaction Details</div>
+      <div class="txn-accent"></div>
+
+      <!-- Customer Select -->
+      <div class="field-label">Customer</div>
+      <select class="select-customer" id="customerSelect" style="margin-bottom:14px;">
+        <option value="">-- Cash Sale --</option>
+        {% for customer in customers %}
+        <option value="{{ customer.id }}">{{ customer.name }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Discount -->
+      <div class="field-label-row">
+        <span class="field-label" style="margin-bottom:0;">Discount %</span>
+        <span class="disc-calc" id="discountCalc"></span>
+      </div>
+      <div class="input-row" style="margin-bottom:4px;">
+        <input type="number" id="discountPct" class="inner-input" style="border-radius:10px 0 0 10px;border-right:none;" value="0" min="0" max="100" step="0.1" oninput="updateTotals()" />
+        <span class="input-badge right">%</span>
+      </div>
+
+      <div class="field-spacer"></div>
+
+      <!-- Tax -->
+      <div class="field-label-row">
+        <span class="field-label" style="margin-bottom:0;">Tax / GST</span>
+        <span id="taxRateTag" style="font-size:0.72rem;font-weight:700;color:#D97706;background:#FFFBEB;border:1px solid #FDE68A;padding:2px 8px;border-radius:20px;">18%</span>
+      </div>
+      <div class="input-row" style="margin-bottom:2px;">
+        <input type="number" id="taxPct" class="inner-input" style="border-radius:10px 0 0 10px;border-right:none;" value="18" readonly />
+        <span class="input-badge right blue">Fixed</span>
+      </div>
+      <div class="disc-calc" id="taxCalc" style="margin-bottom:8px;"></div>
+
+      <!-- Totals -->
+      <div class="totals-section">
+        <div class="total-row">
+          <span class="label">Subtotal</span>
+          <span class="val" id="subtotalDisplay">₹0.00</span>
+        </div>
+        <div class="total-row">
+          <span class="label">Discount <span id="discountRateTag" style="font-size:0.7rem;color:#94A3B8;">(0%)</span></span>
+          <span class="val red" id="discountDisplay">-₹0.00</span>
+        </div>
+        <div class="total-row">
+          <span class="label">Tax / GST <span style="font-size:0.7rem;color:#D97706;">(18%)</span></span>
+          <span class="val amber" id="taxDisplay">+₹0.00</span>
+        </div>
+        <div class="total-divider"></div>
+        <div class="grand-row">
+          <span class="label">Grand Total</span>
+          <span class="val" id="grandTotalDisplay">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-btns">
+        <button class="btn-generate" onclick="handleGenerateBill()"> Generate Bill</button>
+        <button class="btn-credit" onclick="handleCreditBook()"> Add to Credit Book</button>
+        <button class="btn-clear" onclick="clearCart()">Clear Cart</button>
+      </div>
+    </div>
+  </div><!-- /right-col -->
+
+</div><!-- /main -->
+
+<!--  CAMERA OVERLAY  -->
+<div class="camera-overlay" id="cameraOverlay">
+  <div class="scanner-hint">Point camera at barcode</div>
+  <div class="scanner-box">
+    <div id="interactive" class="viewport"></div>
+    <div class="scan-line"></div>
+  </div>
+  <button class="btn-stop-scan" onclick="closeScanner()"> Stop Scanning</button>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CREDIT CONFIRMATION MODAL
-═══════════════════════════════════════════════════════════ -->
-<div class="modal" id="creditModal">
-    <div class="credit-modal-card">
-        <div class="credit-modal-title">📒 Add to Credit Book</div>
-        <div class="credit-modal-sub">This will add the cart total to the customer's credit balance. No receipt will be generated.</div>
-        <div class="credit-summary">
-            <div class="credit-summary-row">
-                <span>Customer</span>
-                <span id="creditCustomerName">—</span>
-            </div>
-            <div class="credit-summary-row">
-                <span>Cart Subtotal</span>
-                <span id="creditSubtotal">₹0.00</span>
-            </div>
-            <div class="credit-summary-row">
-                <span>Discount</span>
-                <span id="creditDiscount">- ₹0.00</span>
-            </div>
-            <div class="credit-summary-row">
-                <span>Tax</span>
-                <span id="creditTax">+ ₹0.00</span>
-            </div>
-            <div class="credit-summary-row total">
-                <span>Amount to Credit</span>
-                <span id="creditTotal">₹0.00</span>
-            </div>
-        </div>
-        <div class="credit-actions">
-            <button class="btn-confirm-credit" id="btnConfirmCredit" onclick="confirmCredit()">
-                ✓ Confirm — Add to Credit
-            </button>
-            <button class="btn-cancel-credit" onclick="closeCreditModal()">Cancel</button>
-        </div>
+<!--  RECEIPT MODAL  -->
+<div class="modal-overlay" id="receiptOverlay">
+  <div class="modal-card">
+    <div class="receipt-header">
+      <div class="receipt-brand">eBilling</div>
+      <div class="receipt-sub">Official Receipt</div>
+      <div class="receipt-meta" id="receiptMeta"></div>
     </div>
+    <table class="receipt-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="receiptItemsTbody"></tbody>
+    </table>
+    <div class="receipt-totals">
+      <div class="receipt-total-row"><span>Subtotal</span><span id="rSubtotal">₹0.00</span></div>
+      <div class="receipt-total-row"><span id="rDiscLabel">Discount</span><span id="rDiscount">-₹0.00</span></div>
+      <div class="receipt-total-row"><span>Tax (18% GST)</span><span id="rTax">+₹0.00</span></div>
+      <div class="receipt-total-row grand"><span>Grand Total</span><span id="rGrand">₹0.00</span></div>
+    </div>
+    <div class="receipt-credit-note" id="receiptCreditNote" style="display:none;"></div>
+    <div class="receipt-actions">
+      <button class="btn-print" onclick="window.print()"> Print</button>
+      <button class="btn-new-sale" onclick="closeReceiptModal()">New Sale</button>
+    </div>
+  </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     TOAST
-═══════════════════════════════════════════════════════════ -->
-<div class="toast" id="toast"></div>
+<!--  CREDIT CONFIRM MODAL  -->
+<div class="modal-overlay" id="creditOverlay">
+  <div class="credit-modal-card">
+    <div class="credit-title"> Add to Credit Book</div>
+    <div class="credit-sub">This amount will be added to the customer's outstanding balance.</div>
+    <div class="credit-summary">
+      <div class="credit-summary-row"><span>Customer</span><span id="cModalCustomer">—</span></div>
+      <div class="credit-summary-row"><span>Items</span><span id="cModalItems">0</span></div>
+      <div class="credit-summary-row total"><span>Amount Due</span><span id="cModalAmount">₹0.00</span></div>
+    </div>
+    <div class="credit-actions">
+      <button class="btn-confirm-credit" id="btnConfirmCredit" onclick="confirmCredit()">Confirm</button>
+      <button class="btn-cancel-credit" onclick="closeCreditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════════ -->
+<!--  TOAST CONTAINER  -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
-    // ─── State ───────────────────────────────────────────────
-    let cart = [];
-    let pendingCreditCustomerId = null;
+/* 
+   eBilling Cashier POS — Complete JavaScript
+    */
 
-    // ─── CSRF helper ─────────────────────────────────────────
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+const GST_RATE = 0.18;
+let cart = [];
+let pendingCreditCustomerId = null;
 
-    // ─── Toast ───────────────────────────────────────────────
-    let toastTimer = null;
-    function showToast(message, type = 'info') {
-        const el = document.getElementById('toast');
-        el.textContent = message;
-        el.className = 'toast ' + type;
-        el.style.display = 'block';
-        requestAnimationFrame(() => { el.style.opacity = '1'; });
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => {
-            el.style.opacity = '0';
-            setTimeout(() => { el.style.display = 'none'; }, 300);
-        }, 3000);
-    }
-
-    // ─── Barcode validation ──────────────────────────────────
-    const BARCODE_RE = /^[A-Za-z0-9\-_]+$/;
-
-    function setBarcodeState(state, msg) {
-        // state: 'idle' | 'checking' | 'valid' | 'invalid' | 'notfound' | 'outofstock'
-        const input   = document.getElementById('barcodeInput');
-        const statusEl = document.getElementById('barcodeStatus');
-        input.classList.remove('bc-valid', 'bc-invalid', 'bc-checking');
-        statusEl.className = 'barcode-status';
-
-        const icons = { idle:'', checking:'⏳', valid:'✔', invalid:'✖', notfound:'✖', outofstock:'⚠' };
-        const labels = {
-            idle: '',
-            checking: 'Checking...',
-            valid: '',          // product name shown via toast
-            invalid: msg || 'Invalid barcode format',
-            notfound: msg || 'Product not found',
-            outofstock: msg || 'Out of stock'
-        };
-        const cls = { idle:'', checking:'bc-checking', valid:'bc-valid', invalid:'bc-invalid', notfound:'bc-invalid', outofstock:'bc-warn' };
-
-        if (cls[state]) input.classList.add(cls[state]);
-        if (labels[state]) {
-            statusEl.innerHTML = `<span class="bc-status-icon">${icons[state]}</span> ${labels[state]}`;
-            statusEl.classList.add('bc-status-' + state);
-            statusEl.style.display = 'flex';
-        } else {
-            statusEl.style.display = 'none';
-        }
-    }
-
-    // Live format check as user types
-    document.getElementById('barcodeInput').addEventListener('input', function() {
-        const val = this.value.trim();
-        if (!val) { setBarcodeState('idle'); return; }
-        if (val.length < 4)                    { setBarcodeState('invalid', 'Too short — min 4 characters'); return; }
-        if (val.length > 30)                   { setBarcodeState('invalid', 'Too long — max 30 characters'); return; }
-        if (!BARCODE_RE.test(val))             { setBarcodeState('invalid', 'Invalid characters in barcode'); return; }
-        setBarcodeState('idle'); // valid format, waiting for Enter
+/*  CSRF  */
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + '=')) cookieValue = decodeURIComponent(c.slice(name.length + 1));
     });
+  }
+  return cookieValue;
+}
+const CSRF = getCookie('csrftoken');
 
-    // ─── Barcode input ───────────────────────────────────────
-    document.getElementById('barcodeInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            const val = this.value.trim();
-            if (!val) { setBarcodeState('idle'); return; }
+/*  TOAST  */
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  const icon = type === 'success' ? '' : type === 'error' ? '' : 'ℹ';
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span class="toast-icon">${icon}</span><span>${msg}</span>`;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('removing');
+    t.addEventListener('animationend', () => t.remove());
+  }, 3200);
+}
 
-            // Client-side format check before hitting server
-            if (val.length < 4 || val.length > 30) {
-                setBarcodeState('invalid', `Invalid length (${val.length} chars). Must be 4–30.`);
-                return;
-            }
-            if (!BARCODE_RE.test(val)) {
-                setBarcodeState('invalid', 'Contains invalid characters. Use letters, digits, - or _');
-                return;
-            }
+/*  HTML ESCAPE  */
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-            setBarcodeState('checking');
-            fetchProduct(val);
-            this.value = '';
-        }
+/*  BARCODE STATE  */
+const BARCODE_RE = /^[A-Za-z0-9\-_]+$/;
+
+function setBarcodeState(state, msg) {
+  const inp = document.getElementById('barcodeInput');
+  const status = document.getElementById('barcodeStatus');
+  inp.className = '';
+  status.className = '';
+  status.innerHTML = ''; // Changed from textContent to innerHTML
+  
+  if (!msg) {
+    status.innerHTML = '';
+    return;
+  }
+  
+  // Icons for different states
+  const icons = {
+    checking: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
+    valid: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+    invalid: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+    notfound: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+    outofstock: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+  };
+  
+  status.innerHTML = (icons[state] || '') + '<span>' + msg + '</span>';
+  
+  if (state === 'checking')   { inp.classList.add('state-checking');  status.classList.add('status-checking'); }
+  if (state === 'valid')      { inp.classList.add('state-valid');     status.classList.add('status-valid'); }
+  if (state === 'invalid')    { inp.classList.add('state-invalid');   status.classList.add('status-invalid'); }
+  if (state === 'notfound')   { status.classList.add('status-notfound'); }
+  if (state === 'outofstock') { status.classList.add('status-outofstock'); }
+}
+
+/*  LIVE VALIDATION  */
+document.getElementById('barcodeInput').addEventListener('input', function() {
+  const val = this.value.trim();
+  if (!val) { setBarcodeState('idle', ''); return; }
+  if (val.length < 4 || val.length > 30) {
+    setBarcodeState('invalid', `Length ${val.length}/30 — must be 4-30 chars`); return;
+  }
+  if (!BARCODE_RE.test(val)) {
+    setBarcodeState('invalid', 'Only letters, digits, - and _ allowed'); return;
+  }
+  setBarcodeState('idle', '');
+});
+
+/*  ENTER KEY  */
+document.getElementById('barcodeInput').addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = this.value.trim();
+  if (!val) return;
+  if (val.length < 4 || val.length > 30) { setBarcodeState('invalid', 'Invalid barcode length'); return; }
+  if (!BARCODE_RE.test(val)) { setBarcodeState('invalid', 'Invalid characters in barcode'); return; }
+  setBarcodeState('checking', 'Looking up product');
+  fetchProduct(val);
+});
+
+/*  FETCH PRODUCT  */
+function fetchProduct(barcode) {
+  fetch(`/get-product/?barcode=${encodeURIComponent(barcode)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        setBarcodeState('valid', ` Found: ${data.name}`);
+        addToCart(data);
+        document.getElementById('barcodeInput').value = '';
+        setTimeout(() => setBarcodeState('idle', ''), 3000);
+      } else if (data.invalid_barcode) {
+        setBarcodeState('invalid', data.message);
+      } else if (data.message && data.message.toLowerCase().includes('out of stock')) {
+        setBarcodeState('outofstock', data.message);
+      } else {
+        setBarcodeState('notfound', data.message || 'Product not found');
+      }
+    })
+    .catch(() => {
+      setBarcodeState('invalid', 'Network error — try again');
     });
+}
 
-    // ─── Fetch product ───────────────────────────────────────
-    async function fetchProduct(barcode) {
-        try {
-            const res  = await fetch('/get-product/?barcode=' + encodeURIComponent(barcode));
-            const data = await res.json();
-
-            if (data.success) {
-                setBarcodeState('valid');
-                addToCart(data);
-            } else if (data.invalid_barcode) {
-                setBarcodeState('invalid', data.message);
-                showToast(data.message, 'error');
-            } else if (data.message && data.message.toLowerCase().includes('stock')) {
-                setBarcodeState('outofstock', data.message);
-                showToast(data.message, 'error');
-            } else {
-                setBarcodeState('notfound', data.message);
-                showToast(data.message, 'error');
-            }
-
-            // Auto-clear status after 3 s
-            setTimeout(() => setBarcodeState('idle'), 3000);
-
-        } catch (err) {
-            setBarcodeState('invalid', 'Network error — check connection');
-            showToast('Network error. Please try again.', 'error');
-            setTimeout(() => setBarcodeState('idle'), 3000);
-        }
+/*  ADD TO CART  */
+function addToCart(product) {
+  const existing = cart.find(i => i.id === product.id);
+  if (existing) {
+    if (existing.qty >= product.stock) {
+      showToast(`Max stock reached for "${product.name}" (${product.stock} available)`, 'error'); return;
     }
+    existing.qty++;
+    existing.stock = product.stock;
+  } else {
+    if (product.stock <= 0) { showToast(`"${product.name}" is out of stock`, 'error'); return; }
+    cart.push({ id: product.id, name: product.name, category: product.category || '', price: product.selling_price, qty: 1, stock: product.stock });
+  }
+  renderCart();
+  showToast(`Added "${product.name}" to cart`, 'success');
+}
 
-    // ─── Add to cart ─────────────────────────────────────────
-    function addToCart(product) {
-        const existing = cart.find(item => item.id === product.id);
-        if (existing) {
-            if (existing.qty >= product.stock) {
-                showToast('Max stock reached for ' + product.name, 'error');
-                return;
-            }
-            existing.qty += 1;
-        } else {
-            if (product.stock < 1) {
-                showToast(product.name + ' is out of stock', 'error');
-                return;
-            }
-            cart.push({
-                id: product.id,
-                name: product.name,
-                category: product.category || '',
-                price: parseFloat(product.selling_price),
-                stock: product.stock,
-                qty: 1
-            });
-        }
-        renderCart();
-        showToast(product.name + ' added to cart', 'success');
-    }
+/*  RENDER CART  */
+function renderCart() {
+  const tbody = document.getElementById('cartTbody');
+  const empty = document.getElementById('emptyCart');
+  const badge = document.getElementById('cartCountBadge');
+  badge.textContent = cart.reduce((s, i) => s + i.qty, 0);
 
-    // ─── Render cart ─────────────────────────────────────────
-    function renderCart() {
-        const tbody = document.getElementById('cartBody');
-        const emptyEl = document.getElementById('emptyCart');
-        const tableEl = document.getElementById('cartTable');
-        const countEl = document.getElementById('cartCount');
+  if (cart.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'flex';
+    updateTotals();
+    return;
+  }
+  empty.style.display = 'none';
 
-        tbody.innerHTML = '';
+  tbody.innerHTML = cart.map(item => `
+    <tr>
+      <td>
+        <div class="product-name" title="${escHtml(item.name)}">${escHtml(item.name)}</div>
+        <div class="product-cat">${escHtml(item.category)}</div>
+      </td>
+      <td>₹${item.price.toFixed(2)}</td>
+      <td>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="updateQty(${item.id}, -1)"></button>
+          <input class="qty-input" type="number" value="${item.qty}" min="1" max="${item.stock}"
+            onchange="setQty(${item.id}, this.value)" />
+          <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+        </div>
+      </td>
+      <td>₹${(item.price * item.qty).toFixed(2)}</td>
+      <td><button class="btn-remove" onclick="removeFromCart(${item.id})"></button></td>
+    </tr>
+  `).join('');
 
-        if (cart.length === 0) {
-            emptyEl.style.display = 'flex';
-            tableEl.style.display = 'none';
-            countEl.textContent = '0 items';
-        } else {
-            emptyEl.style.display = 'none';
-            tableEl.style.display = 'table';
-            countEl.textContent = cart.length + (cart.length === 1 ? ' item' : ' items');
+  updateTotals();
+}
 
-            cart.forEach(item => {
-                const subtotal = (item.price * item.qty).toFixed(2);
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div class="product-name">${escHtml(item.name)}</div>
-                        ${item.category ? '<div class="product-cat">' + escHtml(item.category) + '</div>' : ''}
-                    </td>
-                    <td>₹${item.price.toFixed(2)}</td>
-                    <td>
-                        <div class="qty-ctrl">
-                            <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
-                            <input class="qty-num" type="number" value="${item.qty}" min="1" max="${item.stock}"
-                                onchange="setQty(${item.id}, parseInt(this.value))" />
-                            <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
-                        </div>
-                    </td>
-                    <td>₹${subtotal}</td>
-                    <td>
-                        <button class="btn-remove" onclick="removeFromCart(${item.id})" title="Remove">✕</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+/*  QTY OPS  */
+function updateQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  const newQty = Math.max(1, Math.min(item.stock, item.qty + delta));
+  if (delta > 0 && item.qty >= item.stock) { showToast('Max stock reached', 'error'); return; }
+  item.qty = newQty;
+  renderCart();
+}
 
-        updateTotals();
-    }
+function setQty(id, val) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  let qty = parseInt(val);
+  if (isNaN(qty) || qty < 1) qty = 1;
+  if (qty > item.stock) { showToast(`Only ${item.stock} in stock`, 'error'); qty = item.stock; }
+  item.qty = qty;
+  renderCart();
+}
 
-    function escHtml(str) {
-        const d = document.createElement('div');
-        d.appendChild(document.createTextNode(str));
-        return d.innerHTML;
-    }
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  renderCart();
+}
 
-    // ─── Qty controls ────────────────────────────────────────
-    function updateQty(id, delta) {
-        const item = cart.find(i => i.id === id);
-        if (!item) return;
-        const newQty = item.qty + delta;
-        if (newQty < 1) { removeFromCart(id); return; }
-        if (newQty > item.stock) { showToast('Max stock: ' + item.stock, 'error'); return; }
-        item.qty = newQty;
-        renderCart();
-    }
+function clearCart() {
+  if (cart.length === 0) return;
+  cart = [];
+  renderCart();
+  showToast('Cart cleared', 'info');
+}
 
-    function setQty(id, qty) {
-        const item = cart.find(i => i.id === id);
-        if (!item) return;
-        if (isNaN(qty) || qty < 1) qty = 1;
-        if (qty > item.stock) { qty = item.stock; showToast('Max stock: ' + item.stock, 'error'); }
-        item.qty = qty;
-        renderCart();
-    }
+/*  UPDATE TOTALS  */
+function updateTotals() {
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const discPct = parseFloat(document.getElementById('discountPct').value) || 0;
+  const discountAmt = subtotal * discPct / 100;
+  const taxAmt = cart.reduce((s, i) => s + i.price * i.qty * GST_RATE, 0);
+  const grand = Math.max(0, subtotal - discountAmt + taxAmt);
 
-    function removeFromCart(id) {
-        cart = cart.filter(i => i.id !== id);
-        renderCart();
-    }
+  document.getElementById('discountCalc').textContent = discountAmt > 0 ? `= -₹${discountAmt.toFixed(2)}` : '';
+  document.getElementById('taxCalc').textContent = taxAmt > 0 ? `= +₹${taxAmt.toFixed(2)}` : '';
+  document.getElementById('discountRateTag').textContent = `(${discPct}%)`;
+  document.getElementById('taxRateTag').textContent = '18%';
 
-    function clearCart() {
-        if (cart.length === 0) return;
-        cart = [];
-        renderCart();
-        showToast('Cart cleared', 'info');
-    }
+  document.getElementById('subtotalDisplay').textContent = `₹${subtotal.toFixed(2)}`;
+  document.getElementById('discountDisplay').textContent = `-₹${discountAmt.toFixed(2)}`;
+  document.getElementById('taxDisplay').textContent = `+₹${taxAmt.toFixed(2)}`;
+  document.getElementById('grandTotalDisplay').textContent = `₹${grand.toFixed(2)}`;
+}
 
-    // ─── Update totals ───────────────────────────────────────
-    function updateTotals() {
-        const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-        const discPct  = parseFloat(document.getElementById('discountPct').value) || 0;
-        const taxPct   = parseFloat(document.getElementById('taxPct').value) || 0;
+/*  GENERATE BILL  */
+function handleGenerateBill() {
+  if (cart.length === 0) { showToast('Cart is empty — scan a product first', 'error'); return; }
+  submitBill(null);
+}
 
-        const discountAmt = (subtotal * discPct) / 100;
-        const taxAmt      = ((subtotal - discountAmt) * taxPct) / 100;
-        const grand       = Math.max(0, subtotal - discountAmt + taxAmt);
+/*  CREDIT BOOK  */
+function handleCreditBook() {
+  if (cart.length === 0) { showToast('Cart is empty', 'error'); return; }
+  const customerSelect = document.getElementById('customerSelect');
+  const customerId = customerSelect.value;
+  if (!customerId) { showToast('Please select a credit customer', 'error'); return; }
+  const customerName = customerSelect.options[customerSelect.selectedIndex].text;
 
-        // Update inline calc labels
-        document.getElementById('discountCalc').textContent = '₹' + discountAmt.toFixed(2);
-        document.getElementById('taxCalc').textContent      = '₹' + taxAmt.toFixed(2);
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const discPct = parseFloat(document.getElementById('discountPct').value) || 0;
+  const discountAmt = subtotal * discPct / 100;
+  const taxAmt = cart.reduce((s, i) => s + i.price * i.qty * GST_RATE, 0);
+  const grand = Math.max(0, subtotal - discountAmt + taxAmt);
 
-        // Update rate tags
-        document.getElementById('discountRateTag').textContent = discPct + '%';
-        document.getElementById('taxRateTag').textContent      = taxPct + '%';
+  document.getElementById('cModalCustomer').textContent = customerName;
+  document.getElementById('cModalItems').textContent = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cModalAmount').textContent = `₹${grand.toFixed(2)}`;
+  pendingCreditCustomerId = customerId;
 
-        // Update totals display
-        document.getElementById('subtotalDisplay').textContent    = '₹' + subtotal.toFixed(2);
-        document.getElementById('discountDisplay').textContent    = '- ₹' + discountAmt.toFixed(2);
-        document.getElementById('taxDisplay').textContent         = '+ ₹' + taxAmt.toFixed(2);
-        document.getElementById('grandTotalDisplay').textContent  = '₹' + grand.toFixed(2);
-    }
+  document.getElementById('creditOverlay').classList.add('open');
+}
 
-    // ─── Generate Bill button ────────────────────────────────
-    function handleGenerateBill() {
-        if (cart.length === 0) { showToast('Cart is empty', 'error'); return; }
-        submitBill(null);
-    }
+function closeCreditModal() {
+  document.getElementById('creditOverlay').classList.remove('open');
+  pendingCreditCustomerId = null;
+}
 
-    // ─── Credit Book button ──────────────────────────────────
-    function handleCreditBook() {
-        if (cart.length === 0) { showToast('Cart is empty', 'error'); return; }
-        const sel = document.getElementById('customerSelect');
-        const customerId = sel.value;
-        if (!customerId) { showToast('Select a customer from Credit Book first', 'error'); return; }
+function confirmCredit() {
+  const btn = document.getElementById('btnConfirmCredit');
+  btn.disabled = true;
+  btn.textContent = 'Processing';
+  submitBill(pendingCreditCustomerId);
+}
 
-        const customerName = sel.options[sel.selectedIndex].dataset.name || sel.options[sel.selectedIndex].text;
-        const subtotal    = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-        const discPct     = parseFloat(document.getElementById('discountPct').value) || 0;
-        const taxPct      = parseFloat(document.getElementById('taxPct').value) || 0;
-        const discountAmt = (subtotal * discPct) / 100;
-        const taxAmt      = ((subtotal - discountAmt) * taxPct) / 100;
-        const grand       = Math.max(0, subtotal - discountAmt + taxAmt);
+/*  SUBMIT BILL  */
+function submitBill(creditCustomerId) {
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const discPct = parseFloat(document.getElementById('discountPct').value) || 0;
+  const discountAmt = subtotal * discPct / 100;
+  const taxAmt = cart.reduce((s, i) => s + i.price * i.qty * GST_RATE, 0);
 
-        pendingCreditCustomerId = customerId;
+  const payload = {
+    cart: cart.map(i => ({ id: i.id, qty: i.qty })),
+    discount: discountAmt,
+    tax: taxAmt,
+    credit_customer_id: creditCustomerId || null
+  };
 
-        document.getElementById('creditCustomerName').textContent = customerName;
-        document.getElementById('creditSubtotal').textContent     = '₹' + subtotal.toFixed(2);
-        document.getElementById('creditDiscount').textContent     = '- ₹' + discountAmt.toFixed(2);
-        document.getElementById('creditTax').textContent          = '+ ₹' + taxAmt.toFixed(2);
-        document.getElementById('creditTotal').textContent        = '₹' + grand.toFixed(2);
-
-        document.getElementById('creditModal').classList.add('open');
-    }
-
-    function closeCreditModal() {
-        document.getElementById('creditModal').classList.remove('open');
-        pendingCreditCustomerId = null;
-    }
-
-    function confirmCredit() {
-        if (!pendingCreditCustomerId) return;
-        const btn = document.getElementById('btnConfirmCredit');
-        btn.disabled = true;
-        btn.textContent = 'Processing...';
-        submitBill(pendingCreditCustomerId);
-    }
-
-    // ─── Submit bill (POST) ──────────────────────────────────
-    async function submitBill(creditCustomerId) {
-        const subtotal    = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-        const discPct     = parseFloat(document.getElementById('discountPct').value) || 0;
-        const taxPct      = parseFloat(document.getElementById('taxPct').value) || 0;
-        const discountAmt = (subtotal * discPct) / 100;
-        const taxAmt      = ((subtotal - discountAmt) * taxPct) / 100;
-
-        const payload = {
-            cart: cart.map(i => ({ id: i.id, qty: i.qty })),
-            discount: discountAmt,
-            tax: taxAmt,
-            credit_customer_id: creditCustomerId || null
-        };
-
-        try {
-            const res = await fetch('/generate-bill/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                if (creditCustomerId) {
-                    // Credit mode: no receipt, just toast + clear
-                    closeCreditModal();
-                    cart = [];
-                    renderCart();
-                    document.getElementById('discountPct').value = '0';
-                    document.getElementById('taxPct').value = '18';
-                    document.getElementById('customerSelect').value = '';
-                    updateTotals();
-                    showToast('Added to credit book successfully!', 'success');
-                } else {
-                    // Normal bill: show receipt
-                    showReceipt(data);
-                }
-            } else {
-                showToast(data.message || 'Failed to process bill', 'error');
-                // Re-enable confirm button if credit modal was open
-                const btn = document.getElementById('btnConfirmCredit');
-                btn.disabled = false;
-                btn.textContent = '✓ Confirm — Add to Credit';
-            }
-        } catch (err) {
-            showToast('Network error. Please try again.', 'error');
-            const btn = document.getElementById('btnConfirmCredit');
-            btn.disabled = false;
-            btn.textContent = '✓ Confirm — Add to Credit';
-        }
-    }
-
-    // ─── Show receipt modal ──────────────────────────────────
-    function showReceipt(data) {
-        // Meta
-        document.getElementById('receiptMeta').innerHTML =
-            `Bill No: <strong>#${data.bill_number}</strong><br>Date: <strong>${data.date}</strong>`;
-
-        // Items
-        const tbody = document.getElementById('receiptItems');
-        tbody.innerHTML = '';
-        (data.items || []).forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${escHtml(item.name)}</td>
-                <td>${item.qty}</td>
-                <td>₹${parseFloat(item.price).toFixed(2)}</td>
-                <td>₹${parseFloat(item.subtotal).toFixed(2)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // Totals
-        document.getElementById('receiptTotals').innerHTML = `
-            Subtotal: <span>₹${parseFloat(data.subtotal).toFixed(2)}</span><br>
-            Discount: <span>- ₹${parseFloat(data.discount).toFixed(2)}</span><br>
-            Tax: <span>+ ₹${parseFloat(data.tax).toFixed(2)}</span><br>
-            <span class="grand-line">Grand Total: ₹${parseFloat(data.grand_total).toFixed(2)}</span>
-        `;
-
-        // Credit note
-        const creditNote = document.getElementById('receiptCreditNote');
-        if (data.credit_applied && data.customer_name) {
-            creditNote.innerHTML = `<div class="credit-badge">📒 Added to credit: ${escHtml(data.customer_name)}</div>`;
-        } else {
-            creditNote.innerHTML = '';
-        }
-
-        document.getElementById('receiptModal').classList.add('open');
-    }
-
-    function closeReceiptModal() {
-        document.getElementById('receiptModal').classList.remove('open');
+  fetch('/generate-bill/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      if (creditCustomerId) {
+        closeCreditModal();
         cart = [];
         renderCart();
         document.getElementById('discountPct').value = '0';
-        document.getElementById('taxPct').value = '18';
         document.getElementById('customerSelect').value = '';
         updateTotals();
+        showToast(`Credit recorded for ${data.customer_name}`, 'success');
         document.getElementById('barcodeInput').focus();
+      } else {
+        showReceipt(data);
+      }
+    } else {
+      showToast(data.message || 'Failed to generate bill', 'error');
+      const btn = document.getElementById('btnConfirmCredit');
+      if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; }
     }
+  })
+  .catch(() => {
+    showToast('Network error — please try again', 'error');
+    const btn = document.getElementById('btnConfirmCredit');
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; }
+  });
+}
 
-    // ─── Camera Scanner (QuaggaJS) ───────────────────────────
-    let quaggaRunning = false;
+/*  SHOW RECEIPT  */
+function showReceipt(data) {
+  document.getElementById('receiptMeta').textContent = `Bill #${data.bill_number} | ${data.date}`;
+  const tbody = document.getElementById('receiptItemsTbody');
+  tbody.innerHTML = data.items.map(i => `
+    <tr>
+      <td>${escHtml(i.name)}</td>
+      <td>${i.qty}</td>
+      <td>₹${parseFloat(i.price).toFixed(2)}</td>
+      <td>₹${parseFloat(i.subtotal).toFixed(2)}</td>
+    </tr>
+  `).join('');
 
-    function openScanner() {
-        document.getElementById('scannerOverlay').classList.add('active');
-        document.getElementById('btnCamera').textContent = '⏹ Scanning...';
+  document.getElementById('rSubtotal').textContent = `₹${parseFloat(data.subtotal).toFixed(2)}`;
+  document.getElementById('rDiscLabel').textContent = `Discount`;
+  document.getElementById('rDiscount').textContent = `-₹${parseFloat(data.discount).toFixed(2)}`;
+  document.getElementById('rTax').textContent = `+₹${parseFloat(data.tax).toFixed(2)}`;
+  document.getElementById('rGrand').textContent = `₹${parseFloat(data.grand_total).toFixed(2)}`;
 
-        Quagga.init({
-            inputStream: {
-                type: 'LiveStream',
-                target: document.querySelector('#interactive'),
-                constraints: {
-                    width: 340,
-                    height: 240,
-                    facingMode: 'environment'
-                }
-            },
-            decoder: {
-                readers: ['ean_reader', 'code_128_reader', 'upc_reader', 'code_39_reader', 'ean_8_reader']
-            },
-            locate: true
-        }, function(err) {
-            if (err) {
-                showToast('Camera error: ' + err.message, 'error');
-                closeScanner();
-                return;
-            }
-            Quagga.start();
-            quaggaRunning = true;
-        });
+  const note = document.getElementById('receiptCreditNote');
+  if (data.credit_applied) {
+    note.textContent = ` Credit applied to: ${data.customer_name}`;
+    note.style.display = 'block';
+  } else {
+    note.style.display = 'none';
+  }
 
-        Quagga.onDetected(function(result) {
-            const code = result.codeResult.code;
-            if (code) {
-                closeScanner();
-                fetchProduct(code);
-            }
-        });
+  document.getElementById('receiptOverlay').classList.add('open');
+}
+
+function closeReceiptModal() {
+  document.getElementById('receiptOverlay').classList.remove('open');
+  cart = [];
+  document.getElementById('discountPct').value = '0';
+  document.getElementById('customerSelect').value = '';
+  renderCart();
+  updateTotals();
+  document.getElementById('barcodeInput').focus();
+}
+
+/*  CAMERA / QUAGGA  */
+function openScanner() {
+  document.getElementById('cameraOverlay').classList.add('open');
+  Quagga.init({
+    inputStream: {
+      name: 'Live',
+      type: 'LiveStream',
+      target: document.querySelector('#interactive'),
+      constraints: { facingMode: 'environment' }
+    },
+    decoder: {
+      readers: ['ean_reader','ean_8_reader','code_128_reader','upc_reader','upc_e_reader','code_39_reader']
     }
+  }, err => {
+    if (err) { showToast('Camera error: ' + err, 'error'); closeScanner(); return; }
+    Quagga.start();
+  });
 
-    function closeScanner() {
-        if (quaggaRunning) {
-            try { Quagga.stop(); } catch(e) {}
-            quaggaRunning = false;
-        }
-        document.getElementById('scannerOverlay').classList.remove('active');
-        document.getElementById('btnCamera').textContent = '📷 Scan Camera';
-        document.getElementById('barcodeInput').focus();
-    }
+  let lastCode = '';
+  let lastTime = 0;
+  Quagga.onDetected(result => {
+    const code = result.codeResult.code;
+    const now = Date.now();
+    if (code === lastCode && now - lastTime < 2000) return;
+    lastCode = code;
+    lastTime = now;
+    closeScanner();
+    setBarcodeState('checking', 'Looking up product');
+    fetchProduct(code);
+  });
+}
 
-    // ─── Init ────────────────────────────────────────────────
-    renderCart();
-    document.getElementById('barcodeInput').focus();
+function closeScanner() {
+  document.getElementById('cameraOverlay').classList.remove('open');
+  try { Quagga.stop(); } catch(e) {}
+}
+
+/*  INIT  */
+renderCart();
+updateTotals();
+document.getElementById('barcodeInput').focus();
 </script>
 </body>
 </html>

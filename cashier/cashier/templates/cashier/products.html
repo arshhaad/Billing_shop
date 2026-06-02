@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products & Stock - eBilling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            min-height: 100vh;
+            color: #1E293B;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: #FFFFFF;
+            border-right: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+            position: fixed;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 24px 20px;
+            border-bottom: 2px solid #F1F5F9;
+            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+        }
+        .sidebar-brand .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #2563EB, #0EA5E9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+        .sidebar-brand .pos-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748B;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .cashier-card {
+            margin: 16px 12px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border: 2px solid #BFDBFE;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cashier-card .avatar {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #0EA5E9);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+        }
+        .cashier-info-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .cashier-card .cashier-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1E40AF;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cashier-card .cashier-label {
+            font-size: 0.7rem;
+            color: #3B82F6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .sidebar-nav {
+            padding: 8px 12px;
+            flex: 1;
+        }
+        .nav-section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 14px 6px;
+            margin-top: 4px;
+        }
+        .nav-menu {
+            list-style: none;
+        }
+        .nav-item {
+            margin: 0;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #64748B;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link:hover {
+            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+            color: #1E293B;
+            transform: translateX(3px);
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+        }
+        .nav-link.active .nav-icon {
+            stroke: #fff;
+        }
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            stroke: #64748B;
+            transition: stroke 0.2s;
+        }
+        .nav-link:hover .nav-icon {
+            stroke: #2563EB;
+        }
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 2px solid #F1F5F9;
+            background: #F8FAFC;
+        }
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 2px solid #FEE2E2;
+            background: linear-gradient(135deg, #FFF 0%, #FEF2F2 100%);
+            color: #DC2626;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn-logout:hover {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            border-color: #FCA5A5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220,38,38,0.2);
+        }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        .search-bar {
+            position: relative;
+            width: 400px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            transition: all 0.3s;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #94A3B8;
+        }
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 0.625rem 1.25rem;
+            border: 2px solid #E2E8F0;
+            background: white;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #64748B;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-tab:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+        .filter-tab.active {
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+            color: white;
+            border-color: transparent;
+        }
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        .product-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 0.25rem;
+        }
+        .product-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #EFF6FF;
+            color: #2563EB;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .product-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #E2E8F0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .info-label {
+            font-size: 0.875rem;
+            color: #64748B;
+        }
+        .info-value {
+            font-weight: 600;
+            color: #1E293B;
+            font-size: 0.9375rem;
+        }
+        .price-tag {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563EB;
+        }
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .stock-in { background: #DCFCE7; color: #16A34A; }
+        .stock-low { background: #FEF3C7; color: #D97706; }
+        .stock-out { background: #FEE2E2; color: #DC2626; }
+        .barcode {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8125rem;
+            color: #64748B;
+            background: #F8FAFC;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
+        .no-products {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748B;
+        }
+        .no-products-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo">eBilling</div>
+                <div class="pos-label">Point of Sale System</div>
+            </div>
+
+            <div class="cashier-card">
+                <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                <div class="cashier-info-text">
+                    <div class="cashier-name">{{ request.user.username }}</div>
+                    <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">OPERATIONS</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:billing' %}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span>Checkout</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:products' %}" class="nav-link active">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="nav-section-label" style="margin-top: 1rem;">RECORDS</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:credit_book' %}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            <span>Credit Book</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:sales_report' %}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Sales Report</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h2>📦 Products & Stock</h2>
+                <div class="search-bar">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search products...">
+                </div>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Products</button>
+                <button class="filter-tab" data-filter="in-stock">In Stock</button>
+                <button class="filter-tab" data-filter="low-stock">Low Stock</button>
+                <button class="filter-tab" data-filter="out-of-stock">Out of Stock</button>
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+                {% for product in products %}
+                <div class="product-card" 
+                     data-category="{{ product.category }}" 
+                     data-stock="{{ product.stock }}" 
+                     data-name="{{ product.name|lower }}">
+                    <div class="product-header">
+                        <div>
+                            <div class="product-name">{{ product.name }}</div>
+                            <span class="product-category">{{ product.category }}</span>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="info-row">
+                            <span class="info-label">Price</span>
+                            <span class="price-tag">₹{{ product.selling_price }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Stock</span>
+                            {% if product.stock > 10 %}
+                            <span class="stock-badge stock-in">{{ product.stock }} units</span>
+                            {% elif product.stock > 0 %}
+                            <span class="stock-badge stock-low">{{ product.stock }} units</span>
+                            {% else %}
+                            <span class="stock-badge stock-out">Out of Stock</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="barcode">{{ product.barcode }}</div>
+                </div>
+                {% empty %}
+                <div class="no-products">
+                    <div class="no-products-icon">📦</div>
+                    <h3>No products found</h3>
+                    <p>Products will appear here once added by admin</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const productsGrid = document.getElementById('productsGrid');
+        const productCards = productsGrid.querySelectorAll('.product-card');
+        const filterTabs = document.querySelectorAll('.filter-tab');
+
+        let currentFilter = 'all';
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filterProducts(searchTerm, currentFilter);
+        });
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                filterProducts(searchInput.value.toLowerCase(), currentFilter);
+            });
+        });
+
+        function filterProducts(searchTerm, stockFilter) {
+            let visibleCount = 0;
+            productCards.forEach(card => {
+                const name = card.dataset.name;
+                const stock = parseInt(card.dataset.stock);
+                
+                let matchesSearch = name.includes(searchTerm);
+                let matchesFilter = true;
+
+                if (stockFilter === 'in-stock') {
+                    matchesFilter = stock > 10;
+                } else if (stockFilter === 'low-stock') {
+                    matchesFilter = stock > 0 && stock <= 10;
+                } else if (stockFilter === 'out-of-stock') {
+                    matchesFilter = stock === 0;
+                }
+
+                if (matchesSearch && matchesFilter) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+ 

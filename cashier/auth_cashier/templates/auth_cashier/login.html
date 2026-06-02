@@ -3,243 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cashier Login | Billing System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>eBilling | Cashier Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #34d399;
-            --primary-hover: #10b981;
-            --bg-gradient: #022c22;
-            --bg-dark: #021a14;
-            --panel-bg: rgba(15, 23, 42, 0.6);
-            --border-color: rgba(255, 255, 255, 0.05);
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --input-bg: rgba(2, 26, 20, 0.5);
-            --danger: #ef4444;
-            --success: #10b981;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(at 10% 20%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
+            background: #F8FAFC;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-primary);
-            overflow: hidden;
+            padding: 24px;
             position: relative;
-            padding: 20px;
+            overflow: hidden;
         }
 
-        /* Ambient Cinematic Glow elements */
-        .glow-sphere {
+        /* Subtle blue gradient blobs */
+        .blob {
             position: absolute;
-            width: 300px;
-            height: 300px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(52, 211, 153, 0.1) 60%, transparent 100%);
             filter: blur(80px);
-            z-index: 0;
             pointer-events: none;
-            animation: floatGlow 10s infinite alternate;
+            z-index: 0;
+        }
+        .blob-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%);
+            top: -120px; left: -120px;
+        }
+        .blob-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(14,165,233,0.09) 0%, transparent 70%);
+            bottom: -100px; right: -80px;
+        }
+        .blob-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%);
+            top: 40%; left: 60%;
         }
 
-        .glow-sphere-1 {
-            top: 20%;
-            left: 25%;
-        }
-
-        .glow-sphere-2 {
-            bottom: 20%;
-            right: 25%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(16, 185, 129, 0.1) 60%, transparent 100%);
-            animation-delay: -5s;
-        }
-
-        @keyframes floatGlow {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, -30px) scale(1.15); }
-        }
-
-        .login-container {
+        .card {
+            position: relative;
+            z-index: 10;
             width: 100%;
             max-width: 440px;
-            background: var(--panel-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color);
-            border-radius: 28px;
-            padding: 45px 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            position: relative;
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            background: #FFFFFF;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 4px 16px rgba(37,99,235,0.06);
+            padding: 48px 44px;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .logo-section {
+        .logo-wrap {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 32px;
         }
 
-        .logo-section h1 {
+        .logo-wrap .brand {
             font-size: 2.4rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #a7f3d0 0%, #34d399 50%, #60a5fa 100%);
+            letter-spacing: -1.5px;
+            background: linear-gradient(135deg, #2563EB, #0EA5E9);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
             margin-bottom: 8px;
-            letter-spacing: -1px;
         }
 
-        .logo-section p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            letter-spacing: 0.2px;
+        .logo-wrap .subtitle {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #64748B;
+            letter-spacing: 0.1px;
         }
 
-        .form-group {
-            margin-bottom: 24px;
-            position: relative;
+        /* Messages */
+        .messages-wrap { margin-bottom: 20px; }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .alert-error   { background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; }
+        .alert-success { background: #F0FDF4; border: 1px solid #BBF7D0; color: #16A34A; }
+        .alert-info    { background: #EFF6FF; border: 1px solid #BFDBFE; color: #2563EB; }
+        .alert-warning { background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706; }
+
+        /* Form */
+        .form-group { margin-bottom: 20px; }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #d1d5db;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
+            color: #374151;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
+            margin-bottom: 8px;
         }
 
-        .form-input {
+        .form-group input {
             width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 15px 18px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .form-input:focus {
+            background: #F1F5F9;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 13px 16px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: #1E293B;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
             outline: none;
-            border-color: rgba(52, 211, 153, 0.6);
-            box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.6), 0 0 20px rgba(52, 211, 153, 0.15);
-            background: rgba(2, 26, 20, 0.7);
+        }
+        .form-group input::placeholder { color: #94A3B8; }
+        .form-group input:focus {
+            border-color: #2563EB;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
         }
 
-        .helper-links {
+        .helper-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+        .helper-row a {
             font-size: 0.85rem;
-        }
-
-        .helper-links a {
-            color: var(--primary);
-            text-decoration: none;
             font-weight: 500;
-            transition: all 0.2s;
+            color: #2563EB;
+            text-decoration: none;
+            transition: color 0.2s;
         }
-
-        .helper-links a:hover {
-            color: var(--text-primary);
-            text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
-        }
+        .helper-row a:hover { color: #1D4ED8; text-decoration: underline; }
 
         .btn-submit {
             width: 100%;
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-            color: #ffffff;
+            padding: 14px;
+            background: linear-gradient(135deg, #2563EB, #0EA5E9);
+            color: #FFFFFF;
             border: none;
-            border-radius: 14px;
-            padding: 15px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 0.975rem;
             font-weight: 700;
+            font-family: 'Inter', sans-serif;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px;
+            transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+            box-shadow: 0 4px 18px rgba(37,99,235,0.28);
         }
-
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5), 0 0 15px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 28px rgba(37,99,235,0.38);
         }
-
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        .messages {
-            margin-bottom: 20px;
-            border-radius: 14px;
-            font-size: 0.9rem;
-        }
-
-        .message {
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            font-weight: 500;
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #6ee7b7;
-        }
+        .btn-submit:active { transform: translateY(0); }
 
         .divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--border-color), transparent);
-            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 28px 0 20px;
+            color: #CBD5E1;
+            font-size: 0.8rem;
         }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E2E8F0;
+        }
+
+        .bottom-link {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748B;
+        }
+        .bottom-link a {
+            color: #2563EB;
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+        .bottom-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <!-- Cinematic Glowing Background Spheres -->
-    <div class="glow-sphere glow-sphere-1"></div>
-    <div class="glow-sphere glow-sphere-2"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-    <div class="login-container">
-        <div class="logo-section">
-            <h1>Cashier Portal</h1>
-            <p>Sign in to access the checkout system</p>
+    <div class="card">
+        <div class="logo-wrap">
+            <div class="brand">eBilling</div>
+            <div class="subtitle">Cashier Portal — Sign in to continue</div>
         </div>
 
         {% if messages %}
-        <div class="messages">
+        <div class="messages-wrap">
             {% for message in messages %}
-            <div class="message {{ message.tags }}">
+            <div class="alert alert-{{ message.tags }}">
                 {{ message }}
             </div>
             {% endfor %}
@@ -248,30 +222,44 @@
 
         <form method="POST" action="{% url 'auth_cashier:login' %}">
             {% csrf_token %}
+
             <div class="form-group">
                 <label for="cashier_id">Cashier ID</label>
-                <input type="text" id="cashier_id" name="cashier_id" class="form-input" placeholder="e.g. cashier_01" required autocomplete="username">
+                <input
+                    type="text"
+                    id="cashier_id"
+                    name="cashier_id"
+                    placeholder="e.g. cashier_01"
+                    required
+                    autocomplete="username"
+                    autofocus
+                >
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="••••••••"
+                    required
+                    autocomplete="current-password"
+                >
             </div>
 
-            <div class="helper-links">
-                <div>
-                    <span style="color: var(--text-secondary)">Forgot credentials?</span>
-                    <a href="{% url 'auth_cashier:forget' %}">Reset here</a>
-                </div>
+            <div class="helper-row">
+                <a href="{% url 'auth_cashier:forget' %}">Forgot credentials?</a>
             </div>
 
-            <button type="submit" class="btn-submit">Launch Checkout</button>
+            <button type="submit" class="btn-submit">Sign In</button>
         </form>
 
-        <div class="divider"></div>
+        <div class="divider">or</div>
 
-        <div style="text-align: center; font-size: 0.85rem; color: var(--text-secondary)">
-            Are you a Shop Admin? <a href="{% url 'auth_shop_admins:login' %}" style="color: var(--primary); text-decoration: none; font-weight: 600; margin-left: 4px;">Go to Admin Panel</a>
+        <div class="bottom-link">
+            Shop Admin?
+            <a href="{% url 'auth_shop_admins:login' %}">Go to Admin Panel →</a>
         </div>
     </div>
 

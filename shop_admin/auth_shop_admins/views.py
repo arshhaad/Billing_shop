@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.conf import settings
 
-# Default credentials as requested
-DEFAULT_EMAIL = "cloudhub.ai.in@gmail.com"
-DEFAULT_PASSWORD = "cloud@123"
+# Load default credentials from settings (which loads from .env)
+DEFAULT_EMAIL = settings.ADMIN_DEFAULT_EMAIL
+DEFAULT_PASSWORD = settings.ADMIN_DEFAULT_PASSWORD
 
 def ensure_default_admin():
     # Check if the default admin user exists, create if not

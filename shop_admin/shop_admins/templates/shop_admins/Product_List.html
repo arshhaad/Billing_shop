@@ -1,501 +1,223 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product List | Billing System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-gradient: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.7);
-            --sidebar-bg: #1e293b;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --input-bg: rgba(15, 23, 42, 0.6);
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
-        }
+{% extends 'shop_admins/base.html' %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
+{% block title %}Product List - eBilling Admin{% endblock %}
 
-        body {
-            background-color: #030712;
-            background-image: 
-                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(192, 132, 252, 0.05) 0px, transparent 50%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
-        }
+{% block extra_styles %}
+/* Filter Controls */
+.controls-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 30px;
+}
 
-        /* Sidebar Styling */
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 100;
-        }
+.search-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+}
 
-        .sidebar-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 40px;
-            text-align: center;
-        }
+.search-filter-form .form-group {
+    flex: 1;
+    min-width: 200px;
+}
 
-        .sidebar-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+.search-filter-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #6B7280;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
 
-        .sidebar-item a {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
+.btn-search {
+    background: #818CF8;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
 
-        .sidebar-item.active a, .sidebar-item a:hover {
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--text-primary);
-            border-left: 4px solid var(--primary);
-        }
+.btn-search:hover {
+    background: #6366F1;
+}
 
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-        }
+/* Products Panel */
+.products-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 30px;
+}
 
-        .btn-logout {
-            width: 100%;
-            padding: 12px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
+.data-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
 
-        .btn-logout:hover {
-            background: var(--danger);
-            color: white;
-        }
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+}
 
-        /* Main Content Container */
-        .main-content {
-            margin-left: 260px;
-            flex: 1;
-            padding: 40px;
-            min-height: 100vh;
-        }
+.pagination {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+}
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 35px;
-        }
+.pagination a {
+    display: block;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #F1F5F9;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
 
-        .page-title h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
+.pagination a:hover, .pagination .current-page {
+    background: #818CF8;
+    border-color: #818CF8;
+    color: white;
+}
 
-        .page-title p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-top: 4px;
-        }
+.pagination .current-page {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+}
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
+/* Responsive Queries */
+@media (max-width: 600px) {
+    .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .search-filter-form { flex-direction: column; }
+    .search-filter-form .form-group { min-width: unset; width: 100%; }
+    .pagination-container { flex-direction: column; gap: 10px; }
+}
+{% endblock %}
 
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
-        }
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Product Catalogue</h1>
+        <p>Manage products, view stock, and generate barcodes</p>
+    </div>
+    <a href="{% url 'shop_admins:add_product' %}" class="btn btn-primary">+ Add New Product</a>
+</div>
 
-        .btn-secondary {
-            background: rgba(255,255,255,0.05);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        /* Filter Controls */
-        .controls-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .search-filter-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: flex-end;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .form-input {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            transition: all 0.3s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .btn-search {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-search:hover {
-            background: var(--primary-hover);
-        }
-
-        /* Table */
-        .products-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        }
-
-        .data-table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        .data-table th, .data-table td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .data-table th {
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-
-        .data-table td {
-            color: var(--text-primary);
-            font-size: 0.95rem;
-        }
-
-        .data-table tbody tr:hover {
-            background-color: rgba(255,255,255,0.02);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-
-        /* Pagination */
-        .pagination-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-        }
-
-        .pagination {
-            display: flex;
-            gap: 8px;
-            list-style: none;
-        }
-
-        .pagination a {
-            display: block;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        .pagination a:hover, .pagination .current-page {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        .pagination .current-page {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        /* Responsive Queries */
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar {
-                width: 100%; height: auto; position: relative;
-                padding: 15px 20px; border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-            .sidebar-logo { margin-bottom: 15px; }
-            .sidebar-menu { flex-direction: row; flex-wrap: wrap; gap: 6px; }
-            .sidebar-item a { padding: 8px 12px; font-size: 0.85rem; }
-            .sidebar-footer { margin-top: 10px; padding-top: 10px; }
-            .main-content { margin-left: 0; padding: 20px; }
-        }
-        @media (max-width: 600px) {
-            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .search-filter-form { flex-direction: column; }
-            .form-group { min-width: unset; width: 100%; }
-            .pagination-container { flex-direction: column; gap: 10px; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="sidebar-logo">ShopAdmin Pro</div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:dashboard' %}">Dashboard</a>
-            </li>
-            <li class="sidebar-item active">
-                <a href="{% url 'shop_admins:product_list' %}">Products</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:stock_management' %}">Inventory</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:sales_reports' %}">Sales Reports</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:customer_credit_book' %}">Credit Book</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:cashiers_list' %}">Manage Cashiers</a>
-            </li>
-        </ul>
-        <div class="sidebar-footer">
-            <a href="{% url 'auth_shop_admins:logout' %}" class="btn-logout">Logout</a>
+<!-- Filters -->
+<div class="controls-panel">
+    <form method="GET" action="{% url 'shop_admins:product_list' %}" class="search-filter-form">
+        <div class="form-group" style="flex: 2;">
+            <label for="q">Search Name or Barcode</label>
+            <input type="text" id="q" name="q" class="form-input" placeholder="Enter keyword..." value="{{ q }}">
         </div>
+
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" class="form-input">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="stock_status">Stock Status</label>
+            <select id="stock_status" name="stock_status" class="form-input">
+                <option value="">All Statuses</option>
+                <option value="low" {% if selected_stock_status == 'low' %}selected{% endif %}>Low Stock (&lt; 10)</option>
+                <option value="out" {% if selected_stock_status == 'out' %}selected{% endif %}>Out of Stock (0)</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-search">Apply Filters</button>
+    </form>
+</div>
+
+<!-- Products List Panel -->
+<div class="products-panel">
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Buy Price</th>
+                    <th>Selling Price</th>
+                    <th>Stock</th>
+                    <th>Barcode</th>
+                    <th style="text-align: right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in page_obj %}
+                <tr>
+                    <td style="font-weight: 600">{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>
+                        {% if product.buy_price %}
+                        ${{ product.buy_price }}
+                        {% else %}
+                        <span style="color: #6B7280; font-style: italic">None</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-weight: 500">${{ product.selling_price }}</td>
+                    <td>
+                        {% if product.stock == 0 %}
+                        <span class="badge badge-red">Out of stock (0)</span>
+                        {% elif product.stock < 10 %}
+                        <span class="badge badge-amber">Low Stock ({{ product.stock }})</span>
+                        {% else %}
+                        <span class="badge badge-green">{{ product.stock }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family: monospace; letter-spacing: 0.5px;">{{ product.barcode }}</td>
+                    <td style="text-align: right">
+                        <a href="{% url 'shop_admins:product_detail' product.pk %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; margin-right: 5px;">View Details</a>
+                        <a href="{% url 'shop_admins:print_barcode' product.pk %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">Print Barcode</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #6B7280; padding: 40px;">
+                        No products found matching your search.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="page-header">
-            <div class="page-title">
-                <h2>Product Catalogue</h2>
-                <p>Manage products, view stock, and generate barcodes</p>
-            </div>
-            <a href="{% url 'shop_admins:add_product' %}" class="btn-primary">+ Add New Product</a>
-        </div>
-
-        <!-- Filters -->
-        <div class="controls-panel">
-            <form method="GET" action="{% url 'shop_admins:product_list' %}" class="search-filter-form">
-                <div class="form-group" style="flex: 2;">
-                    <label for="q">Search Name or Barcode</label>
-                    <input type="text" id="q" name="q" class="form-input" placeholder="Enter keyword..." value="{{ q }}">
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" name="category" class="form-input">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="stock_status">Stock Status</label>
-                    <select id="stock_status" name="stock_status" class="form-input">
-                        <option value="">All Statuses</option>
-                        <option value="low" {% if selected_stock_status == 'low' %}selected{% endif %}>Low Stock (&lt; 10)</option>
-                        <option value="out" {% if selected_stock_status == 'out' %}selected{% endif %}>Out of Stock (0)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn-search">Apply Filters</button>
-            </form>
-        </div>
-
-        <!-- Products List Panel -->
-        <div class="products-panel">
-            <div class="data-table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Buy Price</th>
-                            <th>Selling Price</th>
-                            <th>Stock</th>
-                            <th>Barcode</th>
-                            <th style="text-align: right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in page_obj %}
-                        <tr>
-                            <td style="font-weight: 600">{{ product.name }}</td>
-                            <td>{{ product.category }}</td>
-                            <td>
-                                {% if product.buy_price %}
-                                ${{ product.buy_price }}
-                                {% else %}
-                                <span style="color: var(--text-secondary); font-style: italic">None</span>
-                                {% endif %}
-                            </td>
-                            <td style="font-weight: 500">${{ product.selling_price }}</td>
-                            <td>
-                                {% if product.stock == 0 %}
-                                <span class="badge badge-danger">Out of stock (0)</span>
-                                {% elif product.stock < 10 %}
-                                <span class="badge badge-warning">Low Stock ({{ product.stock }})</span>
-                                {% else %}
-                                <span class="badge badge-success">{{ product.stock }}</span>
-                                {% endif %}
-                            </td>
-                            <td style="font-family: monospace; letter-spacing: 0.5px;">{{ product.barcode }}</td>
-                            <td style="text-align: right">
-                                <a href="{% url 'shop_admins:product_detail' product.pk %}" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; margin-right: 5px;">View Details</a>
-                                <a href="{% url 'shop_admins:print_barcode' product.pk %}" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: #818cf8; box-shadow: none">Print Barcode</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 40px;">
-                                No products found matching your search.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            {% if page_obj.has_other_pages %}
-            <div class="pagination-container">
-                <span style="font-size: 0.9rem; color: var(--text-secondary)">
-                    Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
-                <ul class="pagination">
-                    {% if page_obj.has_previous %}
-                    <li><a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">&laquo; Prev</a></li>
-                    {% endif %}
-                    
-                    <li><span class="current-page">{{ page_obj.number }}</span></li>
-                    
-                    {% if page_obj.has_next %}
-                    <li><a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">Next &raquo;</a></li>
-                    {% endif %}
-                </ul>
-            </div>
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination-container">
+        <span style="font-size: 0.9rem; color: #6B7280">
+            Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li><a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">&laquo; Prev</a></li>
             {% endif %}
-        </div>
+            
+            <li><span class="current-page">{{ page_obj.number }}</span></li>
+            
+            {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">Next &raquo;</a></li>
+            {% endif %}
+        </ul>
     </div>
-
-</body>
-</html>
+    {% endif %}
+</div>
+{% endblock %}

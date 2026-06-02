@@ -1,342 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Cashier | Billing System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-gradient: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.7);
-            --sidebar-bg: #1e293b;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --input-bg: rgba(15, 23, 42, 0.6);
-            --danger: #ef4444;
-            --success: #10b981;
-        }
+{% extends 'shop_admins/base.html' %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
+{% block title %}Add Cashier - eBilling Admin{% endblock %}
 
-        body {
-            background-color: #030712;
-            background-image: 
-                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(192, 132, 252, 0.05) 0px, transparent 50%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
-        }
+{% block extra_styles %}
+.form-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.form-top-header {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.form-top-header h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #F1F5F9;
+    letter-spacing: -0.5px;
+}
+.form-container {
+    width: 100%;
+    max-width: 560px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 36px;
+}
+.info-note {
+    background: rgba(129,140,248,0.08);
+    border: 1px solid rgba(129,140,248,0.2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.875rem;
+    color: #A5B4FC;
+    margin-bottom: 24px;
+    line-height: 1.6;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+.messages-wrap {
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 20px;
+}
+.message {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.message.success {
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.25);
+    color: #6ee7b7;
+}
+.message.error {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #fca5a5;
+}
+{% endblock %}
 
-        /* Sidebar Styling */
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 100;
-        }
-
-        .sidebar-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sidebar-item a {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-item.active a, .sidebar-item a:hover {
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--text-primary);
-            border-left: 4px solid var(--primary);
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-        }
-
-        .btn-logout {
-            width: 100%;
-            padding: 12px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-
-        .btn-logout:hover {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 260px;
-            flex: 1;
-            padding: 40px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .form-container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            margin-top: 20px;
-        }
-
-        .page-header {
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-header h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.05);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .form-input {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px 16px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .btn-submit {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            margin-top: 15px;
-        }
-
-        .btn-submit:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
-        }
-
-        .info-note {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            color: #a5b4fc;
-            margin-bottom: 24px;
-            line-height: 1.4;
-        }
-
-        .messages {
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 20px;
-        }
-
-        .message {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #6ee7b7;
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; padding: 15px 20px; border-right: none; border-bottom: 1px solid var(--border-color); }
-            .sidebar-logo { margin-bottom: 15px; }
-            .sidebar-menu { flex-direction: row; flex-wrap: wrap; gap: 6px; }
-            .sidebar-item a { padding: 8px 12px; font-size: 0.85rem; }
-            .sidebar-footer { margin-top: 10px; padding-top: 10px; }
-            .main-content { margin-left: 0; padding: 20px; }
-        }
-        @media (max-width: 600px) {
-            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .form-container { padding: 20px; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="sidebar-logo">ShopAdmin Pro</div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:dashboard' %}">Dashboard</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:product_list' %}">Products</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:stock_management' %}">Inventory</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:sales_reports' %}">Sales Reports</a>
-            </li>
-            <li class="sidebar-item">
-                <a href="{% url 'shop_admins:customer_credit_book' %}">Credit Book</a>
-            </li>
-            <li class="sidebar-item active">
-                <a href="{% url 'shop_admins:cashiers_list' %}">Manage Cashiers</a>
-            </li>
-        </ul>
-        <div class="sidebar-footer">
-            <a href="{% url 'auth_shop_admins:logout' %}" class="btn-logout">Logout</a>
-        </div>
+{% block content %}
+<div class="form-page-wrapper">
+    <div class="form-top-header">
+        <h2>Add New Cashier</h2>
+        <a href="{% url 'shop_admins:cashiers_list' %}" class="btn btn-secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Cancel &amp; Go Back
+        </a>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="page-header">
-            <h2>Add New Cashier</h2>
-            <a href="{% url 'shop_admins:cashiers_list' %}" class="btn-secondary">Cancel & Go Back</a>
+    {% if messages %}
+    <div class="messages-wrap">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-container">
+        <div class="info-note">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="min-width:18px;margin-top:2px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span><strong>Cashier Credentials:</strong> Create a unique Cashier ID and password. The cashier will use these to log in to the cashier panel.</span>
         </div>
 
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="message {{ message.tags }}">
-                {{ message }}
+        <form method="POST" action="{% url 'shop_admins:add_cashier' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="cashier_id">Cashier ID *</label>
+                <input type="text" id="cashier_id" name="cashier_id" class="form-input" placeholder="e.g. cashier_01" required>
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
 
-        <div class="form-container">
-            <form method="POST" action="{% url 'shop_admins:add_cashier' %}">
-                {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="password">Initial Password *</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter password..." required>
+            </div>
 
-                <div class="info-note">
-                    <strong>Cashier Credentials:</strong> Create a unique username/ID and password that your cashier will use to log in to the cashier panel.
-                </div>
-
-                <div class="form-group">
-                    <label for="cashier_id">Cashier ID *</label>
-                    <input type="text" id="cashier_id" name="cashier_id" class="form-input" placeholder="e.g. cashier_01" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Initial Password *</label>
-                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
-                </div>
-
-                <button type="submit" class="btn-submit">Create Cashier Profile</button>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:1rem;margin-top:8px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+                Create Cashier Profile
+            </button>
+        </form>
     </div>
-
-</body>
-</html>
+</div>
+{% endblock %}

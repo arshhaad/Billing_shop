@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}eBilling Admin{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100vh;}
+body{
+  font-family:'Inter',sans-serif;
+  background:#050505;
+  color:#F1F5F9;
+  display:flex;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/*  AMBIENT GLOW  */
+.ambient{position:fixed;pointer-events:none;z-index:0;}
+.ambient-1{
+  width:700px;height:700px;
+  top:-200px;left:-100px;
+  background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 65%);
+  filter:blur(80px);
+}
+.ambient-2{
+  width:600px;height:600px;
+  bottom:-200px;right:-100px;
+  background:radial-gradient(circle,rgba(192,132,252,0.07) 0%,transparent 65%);
+  filter:blur(80px);
+}
+
+/*  SIDEBAR  */
+.sidebar{
+  width:260px;min-width:260px;
+  background:#0A0A0A;
+  border-right:1px solid rgba(255,255,255,0.07);
+  display:flex;flex-direction:column;
+  position:fixed;left:0;top:0;height:100vh;
+  z-index:100;overflow-y:auto;
+  padding:28px 16px;
+}
+.sidebar-brand{margin-bottom:36px;padding:0 8px;}
+.sidebar-brand .logo{
+  font-size:1.6rem;font-weight:800;letter-spacing:-1.2px;
+  background:linear-gradient(135deg,#818CF8,#C084FC);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;
+}
+.sidebar-brand .admin-label{
+  font-size:0.72rem;font-weight:500;color:#4B5563;
+  text-transform:uppercase;letter-spacing:0.8px;margin-top:5px;
+}
+.sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:10px;
+  text-decoration:none;color:#6B7280;
+  font-size:0.875rem;font-weight:500;
+  transition:all 0.2s;border-left:3px solid transparent;
+}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#E2E8F0;transform:translateX(3px);}
+.nav-item.active{background:rgba(129,140,248,0.12);color:#818CF8;border-left-color:#818CF8;font-weight:600;}
+.nav-item.active .nav-icon{stroke:#818CF8;}
+.nav-icon{width:20px;height:20px;min-width:20px;stroke:#6B7280;transition:stroke 0.2s;}
+.nav-item:hover .nav-icon{stroke:#E2E8F0;}
+.sidebar-footer{border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;margin-top:8px;}
+.btn-logout{
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:11px 14px;border-radius:10px;border:none;
+  background:transparent;color:#6B7280;
+  font-size:0.875rem;font-weight:500;font-family:'Inter',sans-serif;
+  cursor:pointer;text-decoration:none;transition:all 0.18s;
+}
+.btn-logout:hover{background:rgba(239,68,68,0.1);color:#F87171;}
+
+/*  MAIN  */
+.main-content{
+  margin-left:260px;flex:1;
+  padding:32px 36px;min-height:100vh;
+  position:relative;z-index:1;
+}
+
+/*  PAGE HEADER  */
+.page-header{
+  margin-bottom:32px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+.page-header h1{font-size:1.85rem;font-weight:800;color:#F1F5F9;letter-spacing:-0.5px;}
+.page-header p{color:#6B7280;font-size:0.9rem;margin-top:4px;}
+
+/*  CARDS  */
+.card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:24px;
+}
+
+/*  BUTTONS  */
+.btn{
+  padding:10px 20px;
+  border-radius:10px;
+  font-weight:600;
+  font-size:0.875rem;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  text-decoration:none;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#818CF8,#6366F1);
+  color:#fff;
+  border:none;
+  box-shadow:0 4px 12px rgba(129,140,248,0.3);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(129,140,248,0.4);
+}
+.btn-secondary{
+  background:rgba(255,255,255,0.05);
+  color:#E2E8F0;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.btn-secondary:hover{
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.15);
+}
+
+/*  FORMS  */
+.form-group{margin-bottom:20px;}
+.form-label{
+  display:block;
+  font-size:0.875rem;
+  font-weight:600;
+  color:#94A3B8;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.form-input{
+  width:100%;
+  padding:12px 16px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;
+  color:#F1F5F9;
+  font-size:0.9375rem;
+  font-family:'Inter',sans-serif;
+  transition:all 0.2s;
+}
+.form-input:focus{
+  outline:none;
+  border-color:#818CF8;
+  background:rgba(255,255,255,0.06);
+  box-shadow:0 0 0 3px rgba(129,140,248,0.1);
+}
+.form-input::placeholder{color:#4B5563;}
+
+/*  TABLE  */
+.table-wrap{overflow-x:auto;margin-top:20px;}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{
+  padding:14px 16px;
+  font-size:0.75rem;font-weight:600;color:#6B7280;
+  text-transform:uppercase;letter-spacing:0.6px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  white-space:nowrap;
+  background:rgba(0,0,0,0.3);
+  text-align:left;
+}
+.data-table td{
+  padding:14px 16px;
+  font-size:0.875rem;
+  color:#CBD5E1;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.data-table tbody tr{transition:all 0.2s;}
+.data-table tbody tr:hover{background:rgba(255,255,255,0.04);}
+.data-table tbody tr:last-child td{border-bottom:none;}
+
+/*  BADGES  */
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:8px;
+  font-size:0.75rem;
+  font-weight:600;
+}
+.badge-green{background:rgba(52,211,153,0.1);color:#34D399;border:1px solid rgba(52,211,153,0.2);}
+.badge-purple{background:rgba(129,140,248,0.1);color:#818CF8;border:1px solid rgba(129,140,248,0.2);}
+.badge-amber{background:rgba(251,191,36,0.1);color:#FBBF24;border:1px solid rgba(251,191,36,0.2);}
+.badge-red{background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.2);}
+
+/*  SCROLLBAR  */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.14);}
+
+/*  RESPONSIVE  */
+@media(max-width:900px){
+  .sidebar{width:100%;height:auto;position:relative;padding:16px;}
+  .sidebar-nav{flex-direction:row;flex-wrap:wrap;}
+  .main-content{margin-left:0;padding:20px;}
+}
+@media(max-width:600px){
+  .main-content{padding:16px;}
+  .page-header{flex-direction:column;gap:16px;}
+}
+
+{% block extra_styles %}{% endblock %}
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<!--  SIDEBAR  -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">eBilling</div>
+    <div class="admin-label">Admin Panel</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <a href="{% url 'shop_admins:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <svg class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      Dashboard
+    </a>
+    <a href="{% url 'shop_admins:product_list' %}" class="nav-item {% if 'product' in request.path %}active{% endif %}">
+      <svg class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+      </svg>
+      Products
+    </a>
+    <a href="{% url 'shop_admins:stock_management' %}" class="nav-item {% if 'stock' in request.path %}active{% endif %}">
+      <svg class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      </svg>
+      Inventory
+    </a>
+    <a href="{% url 'shop_admins:sales_reports' %}" class="nav-item {% if 'sales' in request.path %}active{% endif %}">
+      <svg class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      Sales Reports
+    </a>
+    <a href="{% url 'shop_admins:customer_credit_book' %}" class="nav-item {% if 'credit' in request.path or 'customer' in request.path %}active{% endif %}">
+      <svg class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+      Credit Book
+    </a>
+    <a href="{% url 'shop_admins:cashiers_list' %}" class="nav-item {% if 'cashier' in request.path %}active{% endif %}">
+      <svg class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+      </svg>
+      Manage Cashiers
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <a href="{% url 'auth_shop_admins:logout' %}" class="btn-logout">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Logout
+    </a>
+  </div>
+</nav>
+
+<!--  MAIN CONTENT  -->
+<div class="main-content">
+  {% block content %}{% endblock %}
+</div>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

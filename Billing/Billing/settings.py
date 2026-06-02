@@ -83,12 +83,48 @@ WSGI_APPLICATION = 'Billing.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import os
+from urllib.parse import urlparse
+
+# Load .env file manually from the project root
+env_file = BASE_DIR.parent / '.env'
+env_data = {}
+if env_file.exists():
+    with open(env_file) as f:
+        for line in f:
+            if '=' in line and not line.strip().startswith('#'):
+                k, v = line.strip().split('=', 1)
+                env_data[k.strip()] = v.strip().strip('"')
+
+db_url = env_data.get('DATABASE') or os.environ.get('DATABASE')
+
+# Admin default credentials from .env
+ADMIN_DEFAULT_EMAIL = env_data.get('ADMIN_DEFAULT_EMAIL') or os.environ.get('ADMIN_DEFAULT_EMAIL', 'cloudhub.ai.in@gmail.com')
+ADMIN_DEFAULT_PASSWORD = env_data.get('ADMIN_DEFAULT_PASSWORD') or os.environ.get('ADMIN_DEFAULT_PASSWORD', 'cloud@123')
+
+if db_url:
+    parsed = urlparse(db_url)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': parsed.path.lstrip('/'),
+            'USER': parsed.username,
+            'PASSWORD': parsed.password,
+            'HOST': parsed.hostname,
+            'PORT': str(parsed.port) if parsed.port else '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'eBilling_db',
+            'USER': 'ebilling',
+            'PASSWORD': '[PASSWORD]',
+            'HOST': 'localhost',  
+            'PORT': '5433',
+        }
+    }
 
 
 # Password validation

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Sales Report - eBilling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            min-height: 100vh;
+            color: #1E293B;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: #FFFFFF;
+            border-right: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+            position: fixed;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 24px 20px;
+            border-bottom: 2px solid #F1F5F9;
+            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+        }
+        .sidebar-brand .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #2563EB, #0EA5E9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+        .sidebar-brand .pos-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748B;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .cashier-card {
+            margin: 16px 12px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border: 2px solid #BFDBFE;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cashier-card .avatar {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #0EA5E9);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+        }
+        .cashier-info-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .cashier-card .cashier-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1E40AF;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cashier-card .cashier-label {
+            font-size: 0.7rem;
+            color: #3B82F6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .sidebar-nav {
+            padding: 8px 12px;
+            flex: 1;
+        }
+        .nav-section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 14px 6px;
+            margin-top: 4px;
+        }
+        .nav-menu {
+            list-style: none;
+        }
+        .nav-item {
+            margin: 0;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #64748B;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link:hover {
+            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+            color: #1E293B;
+            transform: translateX(3px);
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+        }
+        .nav-link.active .nav-icon {
+            stroke: #fff;
+        }
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            stroke: #64748B;
+            transition: stroke 0.2s;
+        }
+        .nav-link:hover .nav-icon {
+            stroke: #2563EB;
+        }
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 2px solid #F1F5F9;
+            background: #F8FAFC;
+        }
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 2px solid #FEE2E2;
+            background: linear-gradient(135deg, #FFF 0%, #FEF2F2 100%);
+            color: #DC2626;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn-logout:hover {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            border-color: #FCA5A5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220,38,38,0.2);
+        }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        .date-badge {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            color: #1E40AF;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .stat-icon.blue { background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); }
+        .stat-icon.green { background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%); }
+        .stat-icon.purple { background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%); }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748B;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        /* Bills Table */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: #F8FAFC;
+        }
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 1rem;
+            border-top: 1px solid #E2E8F0;
+            font-size: 0.9375rem;
+        }
+        tbody tr {
+            transition: all 0.2s;
+        }
+        tbody tr:hover {
+            background: #F8FAFC;
+        }
+        .bill-number {
+            font-weight: 600;
+            color: #2563EB;
+            font-family: 'Courier New', monospace;
+        }
+        .time-badge {
+            padding: 0.25rem 0.75rem;
+            background: #F1F5F9;
+            color: #64748B;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+        .amount {
+            font-weight: 700;
+            color: #16A34A;
+            font-size: 1.125rem;
+        }
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .no-bills {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748B;
+        }
+        .no-bills-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        /* Bill Detail Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #E2E8F0;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #F1F5F9;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .close-btn:hover {
+            background: #E2E8F0;
+        }
+        .bill-items {
+            margin: 1.5rem 0;
+        }
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: #F8FAFC;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .item-row.header {
+            background: #1E293B;
+            color: white;
+            font-weight: 600;
+        }
+        .bill-summary {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #E2E8F0;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.9375rem;
+        }
+        .summary-row.total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2563EB;
+            padding-top: 0.75rem;
+            border-top: 2px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo">eBilling</div>
+                <div class="pos-label">Point of Sale System</div>
+            </div>
+
+            <div class="cashier-card">
+                <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                <div class="cashier-info-text">
+                    <div class="cashier-name">{{ request.user.username }}</div>
+                    <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">OPERATIONS</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:billing' %}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span>Checkout</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:products' %}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="nav-section-label" style="margin-top: 1rem;">RECORDS</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:credit_book' %}" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            <span>Credit Book</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'cashier:sales_report' %}" class="nav-link active">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Sales Report</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h2>📊 Today's Sales Report</h2>
+                <div class="date-badge">{{ today|date:"d M Y" }}</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">💰</div>
+                    <div class="stat-label">Total Sales</div>
+                    <div class="stat-value">₹{{ total_sales|floatformat:2 }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🧾</div>
+                    <div class="stat-label">Bills Generated</div>
+                    <div class="stat-value">{{ bill_count }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">📦</div>
+                    <div class="stat-label">Items Sold</div>
+                    <div class="stat-value">{{ total_items }}</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 class="table-title">Bills History</h3>
+                </div>
+                {% if bills %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bill Number</th>
+                            <th>Time</th>
+                            <th>Items</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in bills %}
+                        <tr>
+                            <td><span class="bill-number">{{ bill.bill_number }}</span></td>
+                            <td><span class="time-badge">{{ bill.created_at|date:"h:i A" }}</span></td>
+                            <td>{{ bill.items.count }} item{{ bill.items.count|pluralize }}</td>
+                            <td><span class="amount">₹{{ bill.grand_total }}</span></td>
+                            <td><button class="view-btn" onclick="viewBillDetail({{ bill.id }})">View</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-bills">
+                    <div class="no-bills-icon">📊</div>
+                    <h3>No sales today</h3>
+                    <p>Sales will appear here as you generate bills</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Bill Detail Modal -->
+    <div class="modal" id="billModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalBillNumber">Bill Details</h3>
+                <button class="close-btn" onclick="closeBillModal()">✕</button>
+            </div>
+            <div id="billDetailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const bills = {{ bills|safe|default:"[]" }};
+        
+        function viewBillDetail(billId) {
+            const bill = bills.find(b => b.id === billId);
+            if (!bill) {
+                alert('Bill not found');
+                return;
+            }
+
+            document.getElementById('modalBillNumber').textContent = bill.bill_number;
+            
+            const content = `
+                <div class="bill-items">
+                    <div class="item-row header">
+                        <div>Product</div>
+                        <div>Qty</div>
+                        <div>Price</div>
+                        <div>Subtotal</div>
+                    </div>
+                    ${bill.items.map(item => `
+                        <div class="item-row">
+                            <div>${item.product_name}</div>
+                            <div>${item.quantity}</div>
+                            <div>₹${parseFloat(item.price).toFixed(2)}</div>
+                            <div>₹${parseFloat(item.subtotal).toFixed(2)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="bill-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>₹${parseFloat(bill.total_amount).toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Discount:</span>
+                        <span>-₹${parseFloat(bill.discount).toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (18%):</span>
+                        <span>+₹${parseFloat(bill.tax).toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Grand Total:</span>
+                        <span>₹${parseFloat(bill.grand_total).toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('billDetailContent').innerHTML = content;
+            document.getElementById('billModal').classList.add('active');
+        }
+
+        function closeBillModal() {
+            document.getElementById('billModal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('billModal').addEventListener('click', (e) => {
+            if (e.target.id === 'billModal') {
+                closeBillModal();
+            }
+        });
+
+        // Prepare bills data for modal
+        const billsData = [
+            {% for bill in bills %}
+            {
+                id: {{ bill.id }},
+                bill_number: '{{ bill.bill_number }}',
+                total_amount: {{ bill.total_amount }},
+                discount: {{ bill.discount }},
+                tax: {{ bill.tax }},
+                grand_total: {{ bill.grand_total }},
+                items: [
+                    {% for item in bill.items.all %}
+                    {
+                        product_name: '{{ item.product_name|escapejs }}',
+                        quantity: {{ item.quantity }},
+                        price: {{ item.price }},
+                        subtotal: {{ item.subtotal }}
+                    }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const bills = billsData;
+    </script>
+</body>
+</html>
