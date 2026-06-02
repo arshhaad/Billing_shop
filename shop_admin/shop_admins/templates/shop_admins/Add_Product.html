@@ -3,152 +3,218 @@
 {% block title %}Add Product - eBilling Admin{% endblock %}
 
 {% block extra_styles %}
-/* Centered Form Layout */
-.form-page-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+.form-page-wrapper { display:flex;flex-direction:column;align-items:center; }
+.form-top-header {
+    width:100%;max-width:640px;
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:24px;
 }
-
+.form-top-header h2 { font-size:1.75rem;font-weight:800;color:#F1F5F9;letter-spacing:-0.5px; }
 .form-container {
-    width: 100%;
-    max-width: 600px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 16px;
-    padding: 40px;
-    margin-top: 20px;
+    width:100%;max-width:640px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;padding:36px;
 }
-
-.form-page-header {
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.form-page-header h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-}
-
-.row-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.btn-submit {
-    width: 100%;
-    background: #818CF8;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(129,140,248,0.3);
-    margin-top: 15px;
-}
-
-.btn-submit:hover {
-    background: #6366F1;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(129,140,248,0.4);
-}
-
+.row-grid { display:grid;grid-template-columns:1fr 1fr;gap:20px; }
 .info-note {
-    background: rgba(129,140,248,0.1);
-    border: 1px solid rgba(129,140,248,0.2);
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    color: #A5B4FC;
-    margin-bottom: 24px;
-    line-height: 1.4;
+    background:rgba(129,140,248,0.08);
+    border:1px solid rgba(129,140,248,0.2);
+    border-radius:12px;padding:14px 16px;
+    font-size:0.875rem;color:#A5B4FC;margin-bottom:24px;
+    line-height:1.6;display:flex;gap:10px;align-items:flex-start;
 }
-
-.messages {
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 20px;
-}
-
+.messages-wrap { width:100%;max-width:640px;margin-bottom:16px; }
 .message {
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-weight: 500;
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #FCA5A5;
+    padding:12px 16px;border-radius:10px;font-weight:500;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
 }
+.message.error { background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5; }
+.message.success { background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#6EE7B7; }
 
-/* Responsive */
-@media (max-width: 600px) {
-    .form-page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .row-grid { grid-template-columns: 1fr; }
-    .form-container { padding: 20px; }
+/* Image Upload */
+.image-upload-area {
+    border:2px dashed rgba(129,140,248,0.3);
+    border-radius:16px;padding:32px 24px;
+    text-align:center;cursor:pointer;
+    transition:all 0.3s;position:relative;
+    background:rgba(129,140,248,0.03);
+}
+.image-upload-area:hover,
+.image-upload-area.drag-over {
+    border-color:rgba(129,140,248,0.6);
+    background:rgba(129,140,248,0.07);
+}
+.image-upload-area input[type="file"] {
+    position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-icon { font-size:2.5rem;margin-bottom:12px;display:block; }
+.upload-label { font-size:0.9375rem;font-weight:600;color:#94A3B8;margin-bottom:6px; }
+.upload-hint { font-size:0.8125rem;color:#4B5563; }
+.image-preview-box {
+    display:none;margin-top:16px;position:relative;
+    border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);
+}
+.image-preview-box img { width:100%;max-height:200px;object-fit:cover;display:block; }
+.remove-img-btn {
+    position:absolute;top:8px;right:8px;
+    background:rgba(239,68,68,0.85);color:white;border:none;
+    border-radius:8px;padding:6px 10px;font-size:0.8125rem;font-weight:600;
+    cursor:pointer;transition:all 0.2s;backdrop-filter:blur(4px);
+}
+.remove-img-btn:hover { background:#EF4444; }
+.optional-tag {
+    display:inline-block;font-size:0.7rem;font-weight:600;
+    color:#6B7280;background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:2px 8px;border-radius:20px;margin-left:8px;
+    vertical-align:middle;text-transform:uppercase;letter-spacing:0.5px;
+}
+@media (max-width:600px) {
+    .row-grid { grid-template-columns:1fr; }
+    .form-container { padding:24px; }
+    .form-top-header { flex-direction:column;gap:12px;align-items:flex-start; }
 }
 {% endblock %}
 
 {% block content %}
 <div class="form-page-wrapper">
-    <div class="form-page-header">
-        <h2>Add New Product</h2>
-        <a href="{% url 'shop_admins:product_list' %}" class="btn btn-secondary">Cancel & Go Back</a>
+    <div class="form-top-header">
+        <div>
+            <h2>Add New Product</h2>
+            <p style="color:#6B7280;font-size:0.9rem;margin-top:4px;">Fill in the details to add a product to your catalogue</p>
+        </div>
+        <a href="{% url 'shop_admins:product_list' %}" class="btn btn-secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Products
+        </a>
     </div>
 
     {% if messages %}
-    <div class="messages">
+    <div class="messages-wrap">
         {% for message in messages %}
-        <div class="message">
-            {{ message }}
-        </div>
+        <div class="message {{ message.tags }}">{{ message }}</div>
         {% endfor %}
     </div>
     {% endif %}
 
     <div class="form-container">
-        <form method="POST" action="{% url 'shop_admins:add_product' %}">
+        <div class="info-note">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="min-width:18px;margin-top:2px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>A unique 8-digit barcode will be automatically generated for this product on save. Shorter barcode = faster scanning!</span>
+        </div>
+
+        <form method="POST" action="{% url 'shop_admins:add_product' %}" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <div class="info-note">
-                <strong>Barcode Autogeneration:</strong> A unique 12-digit barcode will be automatically generated and linked to this product once you save it.
+            <!-- Product Image -->
+            <div class="form-group">
+                <label class="form-label">
+                    Product Image
+                    <span class="optional-tag">Optional</span>
+                </label>
+                <div class="image-upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
+                    <input type="file" name="image" id="imageInput" accept="image/*" onchange="previewImage(event)">
+                    <span class="upload-icon">🖼️</span>
+                    <div class="upload-label">Click to upload product image</div>
+                    <div class="upload-hint">PNG, JPG, WEBP up to 5MB</div>
+                </div>
+                <div class="image-preview-box" id="previewBox">
+                    <img id="previewImg" src="" alt="Preview">
+                    <button type="button" class="remove-img-btn" onclick="removeImage()">✕ Remove</button>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="name">Product Name *</label>
-                <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Organic Milk 1L" required>
+                <label class="form-label" for="name">Product Name *</label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Organic Whole Milk 1L" required>
             </div>
 
             <div class="form-group">
-                <label for="category">Category *</label>
+                <label class="form-label" for="category">Category *</label>
                 <input type="text" id="category" name="category" class="form-input" placeholder="e.g. Dairy, Beverages, Bakery" required>
             </div>
 
             <div class="row-grid">
                 <div class="form-group">
-                    <label for="buy_price">Buy Price (Optional) <span style="font-size:0.8rem; opacity:0.7;">[Hidden from Cashier]</span></label>
-                    <input type="number" step="0.01" id="buy_price" name="buy_price" class="form-input" placeholder="e.g. 2.50">
+                    <label class="form-label" for="buy_price">
+                        Buy Price
+                        <span class="optional-tag">Hidden from cashier</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" id="buy_price" name="buy_price" class="form-input" placeholder="e.g. 22.00">
                 </div>
                 <div class="form-group">
-                    <label for="selling_price">Selling Price ($) *</label>
-                    <input type="number" step="0.01" id="selling_price" name="selling_price" class="form-input" placeholder="e.g. 3.99" required>
+                    <label class="form-label" for="selling_price">Selling Price (₹) *</label>
+                    <input type="number" step="0.01" min="0.01" id="selling_price" name="selling_price" class="form-input" placeholder="e.g. 27.99" required>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="stock">Initial Stock Quantity *</label>
-                <input type="number" id="stock" name="stock" class="form-input" placeholder="e.g. 50" min="0" required>
+            <div class="row-grid">
+                <div class="form-group">
+                    <label class="form-label" for="stock">Initial Stock Quantity *</label>
+                    <input type="number" id="stock" name="stock" class="form-input" placeholder="e.g. 100" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="tax_percentage">
+                        Tax Percentage (%)
+                        <span class="optional-tag">Optional</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" max="100" id="tax_percentage" name="tax_percentage" class="form-input" placeholder="e.g. 18 for 18% tax">
+                </div>
             </div>
 
-            <button type="submit" class="btn-submit">Save Product & Generate Barcode</button>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:1rem;margin-top:8px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Save Product &amp; Generate Barcode
+            </button>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('previewBox').style.display = 'block';
+        document.getElementById('uploadArea').style.borderColor = 'rgba(52,211,153,0.5)';
+        document.getElementById('uploadArea').style.background = 'rgba(52,211,153,0.04)';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeImage() {
+    document.getElementById('imageInput').value = '';
+    document.getElementById('previewImg').src = '';
+    document.getElementById('previewBox').style.display = 'none';
+    document.getElementById('uploadArea').style.borderColor = 'rgba(129,140,248,0.3)';
+    document.getElementById('uploadArea').style.background = 'rgba(129,140,248,0.03)';
+}
+
+// Drag and drop
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('imageInput').files = dt.files;
+        previewImage({ target: { files: [file] } });
+    }
+});
+</script>
 {% endblock %}

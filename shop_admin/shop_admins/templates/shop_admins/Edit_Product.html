@@ -1,0 +1,230 @@
+{% extends 'shop_admins/base.html' %}
+
+{% block title %}Edit {{ product.name }} - eBilling Admin{% endblock %}
+
+{% block extra_styles %}
+.form-page-wrapper { display:flex;flex-direction:column;align-items:center; }
+.form-top-header {
+    width:100%;max-width:640px;
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:24px;
+}
+.form-top-header h2 { font-size:1.75rem;font-weight:800;color:#F1F5F9;letter-spacing:-0.5px; }
+.form-container {
+    width:100%;max-width:640px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;padding:36px;
+}
+.row-grid { display:grid;grid-template-columns:1fr 1fr;gap:20px; }
+.messages-wrap { width:100%;max-width:640px;margin-bottom:16px; }
+.message { padding:12px 16px;border-radius:10px;font-weight:500;margin-bottom:8px; }
+.message.error { background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5; }
+.message.success { background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#6EE7B7; }
+.barcode-display {
+    background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.07);
+    border-radius:12px;padding:14px 16px;
+    font-family:'Courier New',monospace;font-size:1rem;font-weight:700;
+    color:#818CF8;letter-spacing:2px;text-align:center;
+}
+.barcode-label {
+    font-size:0.7rem;text-transform:uppercase;letter-spacing:0.8px;
+    color:#6B7280;font-weight:600;margin-bottom:8px;display:block;
+}
+.optional-tag {
+    display:inline-block;font-size:0.7rem;font-weight:600;
+    color:#6B7280;background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:2px 8px;border-radius:20px;margin-left:8px;
+    vertical-align:middle;text-transform:uppercase;letter-spacing:0.5px;
+}
+
+/* Image Upload */
+.current-image-box {
+    position:relative;border-radius:12px;overflow:hidden;
+    border:1px solid rgba(255,255,255,0.08);margin-bottom:16px;
+}
+.current-image-box img { width:100%;max-height:220px;object-fit:cover;display:block; }
+.current-image-overlay {
+    position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 60%);
+    display:flex;align-items:flex-end;padding:16px;
+}
+.current-image-name { font-size:0.8125rem;color:#E2E8F0;font-weight:500; }
+.image-upload-area {
+    border:2px dashed rgba(129,140,248,0.3);
+    border-radius:16px;padding:28px 24px;
+    text-align:center;cursor:pointer;
+    transition:all 0.3s;position:relative;
+    background:rgba(129,140,248,0.03);
+}
+.image-upload-area:hover { border-color:rgba(129,140,248,0.6);background:rgba(129,140,248,0.07); }
+.image-upload-area input[type="file"] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+.upload-icon { font-size:2rem;margin-bottom:10px;display:block; }
+.upload-label { font-size:0.9375rem;font-weight:600;color:#94A3B8;margin-bottom:4px; }
+.upload-hint { font-size:0.8125rem;color:#4B5563; }
+.image-preview-box { display:none;margin-top:12px;position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08); }
+.image-preview-box img { width:100%;max-height:200px;object-fit:cover;display:block; }
+.remove-img-btn {
+    position:absolute;top:8px;right:8px;
+    background:rgba(239,68,68,0.85);color:white;border:none;
+    border-radius:8px;padding:6px 10px;font-size:0.8125rem;font-weight:600;
+    cursor:pointer;transition:all 0.2s;
+}
+.remove-img-btn:hover { background:#EF4444; }
+.remove-current-row {
+    display:flex;align-items:center;gap:10px;margin-top:10px;
+    padding:10px 14px;background:rgba(239,68,68,0.07);
+    border:1px solid rgba(239,68,68,0.15);border-radius:10px;
+}
+.remove-current-row label { font-size:0.875rem;color:#F87171;cursor:pointer;font-weight:500; }
+@media (max-width:600px) {
+    .row-grid { grid-template-columns:1fr; }
+    .form-container { padding:24px; }
+    .form-top-header { flex-direction:column;gap:12px;align-items:flex-start; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="form-page-wrapper">
+    <div class="form-top-header">
+        <div>
+            <h2>Edit Product</h2>
+            <p style="color:#6B7280;font-size:0.9rem;margin-top:4px;">Update product details — barcode remains unchanged</p>
+        </div>
+        <a href="{% url 'shop_admins:product_detail' product.pk %}" class="btn btn-secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Product
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages-wrap">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-container">
+        <!-- Barcode (read-only) -->
+        <div class="form-group">
+            <span class="barcode-label">Product Barcode (cannot be changed)</span>
+            <div class="barcode-display">{{ product.barcode }}</div>
+        </div>
+
+        <form method="POST" action="{% url 'shop_admins:edit_product' product.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Product Image -->
+            <div class="form-group">
+                <label class="form-label">
+                    Product Image
+                    <span class="optional-tag">Optional</span>
+                </label>
+
+                {% if product.image %}
+                <div class="current-image-box" id="currentImageBox">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <div class="current-image-overlay">
+                        <span class="current-image-name">Current image</span>
+                    </div>
+                </div>
+                <div class="remove-current-row" id="removeCurrentRow">
+                    <input type="checkbox" id="remove_image" name="remove_image" value="1" onchange="toggleRemoveImage(this)">
+                    <label for="remove_image">Remove current image</label>
+                </div>
+                {% endif %}
+
+                <div class="image-upload-area" id="uploadArea" style="margin-top:12px;" onclick="document.getElementById('imageInput').click()">
+                    <input type="file" name="image" id="imageInput" accept="image/*" onchange="previewImage(event)">
+                    <span class="upload-icon">🖼️</span>
+                    <div class="upload-label">{% if product.image %}Replace image{% else %}Upload product image{% endif %}</div>
+                    <div class="upload-hint">PNG, JPG, WEBP up to 5MB</div>
+                </div>
+                <div class="image-preview-box" id="previewBox">
+                    <img id="previewImg" src="" alt="New Preview">
+                    <button type="button" class="remove-img-btn" onclick="removeNewImage()">✕ Remove</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="name">Product Name *</label>
+                <input type="text" id="name" name="name" class="form-input" value="{{ product.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="category">Category *</label>
+                <input type="text" id="category" name="category" class="form-input" value="{{ product.category }}" required>
+            </div>
+
+            <div class="row-grid">
+                <div class="form-group">
+                    <label class="form-label" for="buy_price">
+                        Buy Price
+                        <span class="optional-tag">Hidden</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" id="buy_price" name="buy_price" class="form-input" value="{{ product.buy_price|default:'' }}" placeholder="e.g. 22.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="selling_price">Selling Price (₹) *</label>
+                    <input type="number" step="0.01" min="0.01" id="selling_price" name="selling_price" class="form-input" value="{{ product.selling_price }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="tax_percentage">
+                    Tax Percentage (%)
+                    <span class="optional-tag">Optional</span>
+                </label>
+                <input type="number" step="0.01" min="0" max="100" id="tax_percentage" name="tax_percentage" class="form-input" value="{{ product.tax_percentage|default:'' }}" placeholder="e.g. 18 for 18% tax">
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:8px;">
+                <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;padding:14px;font-size:1rem;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Save Changes
+                </button>
+                <a href="{% url 'shop_admins:product_detail' product.pk %}" class="btn btn-secondary" style="padding:14px 20px;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('previewBox').style.display = 'block';
+        document.getElementById('uploadArea').style.borderColor = 'rgba(52,211,153,0.5)';
+        document.getElementById('uploadArea').style.background = 'rgba(52,211,153,0.04)';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeNewImage() {
+    document.getElementById('imageInput').value = '';
+    document.getElementById('previewImg').src = '';
+    document.getElementById('previewBox').style.display = 'none';
+    document.getElementById('uploadArea').style.borderColor = 'rgba(129,140,248,0.3)';
+    document.getElementById('uploadArea').style.background = 'rgba(129,140,248,0.03)';
+}
+
+function toggleRemoveImage(checkbox) {
+    const currentBox = document.getElementById('currentImageBox');
+    if (checkbox.checked) {
+        if (currentBox) currentBox.style.opacity = '0.4';
+    } else {
+        if (currentBox) currentBox.style.opacity = '1';
+    }
+}
+</script>
+{% endblock %}

@@ -83,12 +83,13 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
 .product-name{font-weight:600;color:#1E293B;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .product-cat{font-size:0.7rem;color:#94A3B8;margin-top:2px;}
 .qty-ctrl{display:flex;align-items:center;gap:6px;}
-.qty-btn{width:26px;height:26px;border-radius:6px;border:1.5px solid #E2E8F0;background:#F8FAFC;color:#374151;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-.qty-btn:hover{background:#2563EB;border-color:#2563EB;color:#fff;}
-.qty-input{width:42px;text-align:center;border:1.5px solid #E2E8F0;border-radius:6px;padding:4px 2px;font-size:0.82rem;font-family:'Inter',sans-serif;color:#1E293B;background:#fff;outline:none;}
+.qty-btn{width:32px;height:32px;border-radius:9px;border:none;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);color:#2563EB;font-size:1.1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 2px 6px rgba(37,99,235,0.15);}
+.qty-btn:hover{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;transform:translateY(-2px);box-shadow:0 4px 10px rgba(37,99,235,0.3);}
+.qty-btn:active{transform:translateY(0);box-shadow:0 2px 6px rgba(37,99,235,0.2);}
+.qty-input{width:44px;text-align:center;border:1.5px solid #E2E8F0;border-radius:8px;padding:4px 2px;font-size:0.875rem;font-family:'Inter',sans-serif;color:#1E293B;background:#fff;outline:none;}
 .qty-input:focus{border-color:#2563EB;}
-.btn-remove{width:26px;height:26px;border-radius:6px;border:none;background:#FFF1F2;color:#EF4444;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-.btn-remove:hover{background:#EF4444;color:#fff;}
+.btn-remove{width:30px;height:30px;border-radius:8px;border:1.5px solid #FECACA;background:#FEF2F2;color:#EF4444;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-weight:700;}
+.btn-remove:hover{background:#EF4444;border-color:#EF4444;color:#fff;}
 .empty-cart{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:#CBD5E1;}
 .empty-cart .cart-icon{font-size:2.5rem;margin-bottom:10px;}
 .empty-cart p{font-size:0.875rem;color:#94A3B8;}
@@ -189,6 +190,145 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#E2E8F0;border-radius:10px;}
 ::-webkit-scrollbar-thumb:hover{background:#CBD5E1;}
+
+/*  RESPONSIVE DESIGN  */
+@media (max-width: 1400px) {
+  .main{grid-template-columns:1fr 300px;padding:12px;}
+  .sidebar{width:240px;}
+}
+
+@media (max-width: 1200px) {
+  .main{grid-template-columns:1fr 280px;padding:10px;}
+  .sidebar{width:220px;}
+  .cart-table{font-size:0.78rem;}
+  .cart-table th, .cart-table td{padding:8px 10px;}
+}
+
+@media (max-width: 900px) {
+  body{flex-direction:column;overflow-y:auto;height:auto;}
+  .sidebar{
+    width:100%;height:auto;position:relative;
+    flex-direction:row;padding:12px 16px;
+    overflow-x:auto;box-shadow:none;
+    border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .sidebar-brand{
+    padding:0 20px 0 0;border-bottom:none;border-right:2px solid #F1F5F9;
+    min-width:180px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .cashier-card{margin:0 20px 0 0;min-width:200px;}
+  .sidebar-nav{
+    flex:1;display:flex;flex-direction:row;gap:8px;
+    padding:8px 0;overflow-x:auto;
+  }
+  .nav-section-label{display:none;}
+  .nav-item{
+    white-space:nowrap;margin-bottom:0;
+    min-width:120px;text-align:center;
+  }
+  .sidebar-footer{
+    padding:8px 0 8px 20px;border-top:none;border-left:2px solid #F1F5F9;
+    min-width:100px;display:flex;align-items:center;
+  }
+  
+  .main{
+    display:flex;flex-direction:column;gap:12px;padding:12px;height:auto;
+    grid-template-columns:none;overflow:visible;
+  }
+  .left-col{flex:1;order:1;}
+  .right-col{order:2;}
+  .cart-panel .cart-table-wrap{max-height:300px;}
+}
+
+@media (max-width: 600px) {
+  .sidebar{
+    flex-direction:column;height:auto;padding:12px;
+  }
+  .sidebar-brand{
+    border-right:none;border-bottom:2px solid #F1F5F9;
+    padding:0 0 12px 0;text-align:center;min-width:auto;
+  }
+  .cashier-card{
+    margin:12px 0;min-width:auto;
+    flex-direction:column;text-align:center;gap:8px;
+  }
+  .cashier-info-text{min-width:auto;}
+  .cashier-name, .cashier-label{white-space:normal;}
+  
+  .sidebar-nav{
+    flex-direction:column;padding:8px 0;overflow:visible;
+    gap:4px;
+  }
+  .nav-item{
+    min-width:auto;text-align:left;width:100%;
+  }
+  .sidebar-footer{
+    border-left:none;border-top:2px solid #F1F5F9;
+    padding:12px 0 0 0;min-width:auto;
+  }
+  
+  .main{padding:8px;gap:8px;}
+  .card{padding:12px;}
+  
+  .scan-row{flex-direction:column;gap:8px;}
+  .scan-input-wrap{order:2;}
+  .btn-camera{order:1;align-self:stretch;justify-content:center;}
+  
+  .cart-table{font-size:0.7rem;}
+  .cart-table th, .cart-table td{padding:6px 4px;}
+  .cart-table th{font-size:0.65rem;}
+  .product-name{max-width:100px;font-size:0.75rem;}
+  .qty-ctrl{gap:4px;}
+  .qty-btn{width:28px;height:28px;font-size:1rem;}
+  .qty-input{width:36px;padding:3px 1px;font-size:0.8rem;}
+  .btn-remove{width:26px;height:26px;font-size:0.9rem;}
+  
+  .txn-panel{padding:16px;}
+  .txn-title{font-size:0.95rem;}
+  .field-label{font-size:0.7rem;}
+  .select-customer, .inner-input{padding:8px 10px;font-size:0.8rem;}
+  .input-badge{padding:8px 10px;font-size:0.75rem;}
+  .totals-section{padding:10px;}
+  .total-row{font-size:0.8rem;padding:3px 0;}
+  .grand-row .label{font-size:0.85rem;}
+  .grand-row .val{font-size:1.1rem;}
+  
+  .btn-generate, .btn-credit, .btn-clear{
+    padding:10px;font-size:0.85rem;
+  }
+  
+  .modal-card{
+    width:95%;max-width:none;padding:20px;margin:10px;
+  }
+  .receipt-table{font-size:0.75rem;}
+  .receipt-table th, .receipt-table td{padding:5px 6px;}
+  .receipt-totals{padding:10px;font-size:0.8rem;}
+  .receipt-total-row.grand{font-size:0.9rem;}
+  
+  .scanner-box{width:280px;height:200px;}
+  .camera-overlay{padding:20px;}
+}
+
+@media (max-width: 400px) {
+  .main{padding:6px;gap:6px;}
+  .card{padding:10px;}
+  .scan-panel, .cart-panel, .txn-panel{min-height:auto;}
+  
+  .cart-table th:nth-child(2), 
+  .cart-table td:nth-child(2){display:none;}
+  .product-name{max-width:80px;}
+  
+  .txn-title{font-size:0.9rem;}
+  .select-customer, .inner-input{font-size:0.75rem;}
+  
+  .modal-card{padding:16px;margin:5px;}
+  .receipt-header{margin-bottom:16px;}
+  .receipt-brand{font-size:1.4rem;}
+  .receipt-table{font-size:0.7rem;}
+  .receipt-totals{font-size:0.75rem;}
+  
+  .scanner-box{width:250px;height:180px;}
+}
 </style>
 </head>
 <body>
@@ -337,17 +477,6 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
 
       <div class="field-spacer"></div>
 
-      <!-- Tax -->
-      <div class="field-label-row">
-        <span class="field-label" style="margin-bottom:0;">Tax / GST</span>
-        <span id="taxRateTag" style="font-size:0.72rem;font-weight:700;color:#D97706;background:#FFFBEB;border:1px solid #FDE68A;padding:2px 8px;border-radius:20px;">18%</span>
-      </div>
-      <div class="input-row" style="margin-bottom:2px;">
-        <input type="number" id="taxPct" class="inner-input" style="border-radius:10px 0 0 10px;border-right:none;" value="18" readonly />
-        <span class="input-badge right blue">Fixed</span>
-      </div>
-      <div class="disc-calc" id="taxCalc" style="margin-bottom:8px;"></div>
-
       <!-- Totals -->
       <div class="totals-section">
         <div class="total-row">
@@ -358,8 +487,8 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
           <span class="label">Discount <span id="discountRateTag" style="font-size:0.7rem;color:#94A3B8;">(0%)</span></span>
           <span class="val red" id="discountDisplay">-₹0.00</span>
         </div>
-        <div class="total-row">
-          <span class="label">Tax / GST <span style="font-size:0.7rem;color:#D97706;">(18%)</span></span>
+        <div class="total-row" id="taxRow" style="display:none;">
+          <span class="label">Tax <span style="font-size:0.7rem;color:#D97706;">(inc. in items)</span></span>
           <span class="val amber" id="taxDisplay">+₹0.00</span>
         </div>
         <div class="total-divider"></div>
@@ -412,7 +541,7 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
     <div class="receipt-totals">
       <div class="receipt-total-row"><span>Subtotal</span><span id="rSubtotal">₹0.00</span></div>
       <div class="receipt-total-row"><span id="rDiscLabel">Discount</span><span id="rDiscount">-₹0.00</span></div>
-      <div class="receipt-total-row"><span>Tax (18% GST)</span><span id="rTax">+₹0.00</span></div>
+      <div class="receipt-total-row" id="rTaxRow" style="display:none;"><span>Tax (inc. in items)</span><span id="rTax">+₹0.00</span></div>
       <div class="receipt-total-row grand"><span>Grand Total</span><span id="rGrand">₹0.00</span></div>
     </div>
     <div class="receipt-credit-note" id="receiptCreditNote" style="display:none;"></div>
@@ -448,7 +577,6 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
    eBilling Cashier POS — Complete JavaScript
     */
 
-const GST_RATE = 0.18;
 let cart = [];
 let pendingCreditCustomerId = null;
 
@@ -578,7 +706,15 @@ function addToCart(product) {
     existing.stock = product.stock;
   } else {
     if (product.stock <= 0) { showToast(`"${product.name}" is out of stock`, 'error'); return; }
-    cart.push({ id: product.id, name: product.name, category: product.category || '', price: product.selling_price, qty: 1, stock: product.stock });
+    cart.push({ 
+      id: product.id, 
+      name: product.name, 
+      category: product.category || '', 
+      price: product.selling_price, 
+      qty: 1, 
+      stock: product.stock,
+      tax_percentage: product.tax_percentage || 0
+    });
   }
   renderCart();
   showToast(`Added "${product.name}" to cart`, 'success');
@@ -659,17 +795,32 @@ function updateTotals() {
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const discPct = parseFloat(document.getElementById('discountPct').value) || 0;
   const discountAmt = subtotal * discPct / 100;
-  const taxAmt = cart.reduce((s, i) => s + i.price * i.qty * GST_RATE, 0);
+  
+  // Calculate tax per product
+  const taxAmt = cart.reduce((s, i) => {
+    const itemSubtotal = i.price * i.qty;
+    const itemTax = itemSubtotal * (i.tax_percentage / 100);
+    return s + itemTax;
+  }, 0);
+  
   const grand = Math.max(0, subtotal - discountAmt + taxAmt);
 
   document.getElementById('discountCalc').textContent = discountAmt > 0 ? `= -₹${discountAmt.toFixed(2)}` : '';
-  document.getElementById('taxCalc').textContent = taxAmt > 0 ? `= +₹${taxAmt.toFixed(2)}` : '';
   document.getElementById('discountRateTag').textContent = `(${discPct}%)`;
-  document.getElementById('taxRateTag').textContent = '18%';
 
   document.getElementById('subtotalDisplay').textContent = `₹${subtotal.toFixed(2)}`;
   document.getElementById('discountDisplay').textContent = `-₹${discountAmt.toFixed(2)}`;
-  document.getElementById('taxDisplay').textContent = `+₹${taxAmt.toFixed(2)}`;
+  
+  // Show tax only if there are taxable items
+  const taxDisplay = document.getElementById('taxDisplay');
+  const taxRow = taxDisplay ? taxDisplay.closest('.total-row') : null;
+  if (taxAmt > 0 && taxRow) {
+    taxRow.style.display = 'flex';
+    taxDisplay.textContent = `+₹${taxAmt.toFixed(2)}`;
+  } else if (taxRow) {
+    taxRow.style.display = 'none';
+  }
+  
   document.getElementById('grandTotalDisplay').textContent = `₹${grand.toFixed(2)}`;
 }
 
@@ -690,7 +841,14 @@ function handleCreditBook() {
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const discPct = parseFloat(document.getElementById('discountPct').value) || 0;
   const discountAmt = subtotal * discPct / 100;
-  const taxAmt = cart.reduce((s, i) => s + i.price * i.qty * GST_RATE, 0);
+  
+  // Calculate tax per product
+  const taxAmt = cart.reduce((s, i) => {
+    const itemSubtotal = i.price * i.qty;
+    const itemTax = itemSubtotal * (i.tax_percentage / 100);
+    return s + itemTax;
+  }, 0);
+  
   const grand = Math.max(0, subtotal - discountAmt + taxAmt);
 
   document.getElementById('cModalCustomer').textContent = customerName;
@@ -766,7 +924,7 @@ function showReceipt(data) {
   const tbody = document.getElementById('receiptItemsTbody');
   tbody.innerHTML = data.items.map(i => `
     <tr>
-      <td>${escHtml(i.name)}</td>
+      <td>${escHtml(i.name)}${i.tax_percentage > 0 ? ` <small style="color:#D97706;">(+${i.tax_percentage}% tax)</small>` : ''}</td>
       <td>${i.qty}</td>
       <td>₹${parseFloat(i.price).toFixed(2)}</td>
       <td>₹${parseFloat(i.subtotal).toFixed(2)}</td>
@@ -776,7 +934,16 @@ function showReceipt(data) {
   document.getElementById('rSubtotal').textContent = `₹${parseFloat(data.subtotal).toFixed(2)}`;
   document.getElementById('rDiscLabel').textContent = `Discount`;
   document.getElementById('rDiscount').textContent = `-₹${parseFloat(data.discount).toFixed(2)}`;
-  document.getElementById('rTax').textContent = `+₹${parseFloat(data.tax).toFixed(2)}`;
+  
+  const taxAmount = parseFloat(data.tax);
+  const rTaxRow = document.getElementById('rTaxRow');
+  if (taxAmount > 0 && rTaxRow) {
+    rTaxRow.style.display = 'flex';
+    document.getElementById('rTax').textContent = `+₹${taxAmount.toFixed(2)}`;
+  } else if (rTaxRow) {
+    rTaxRow.style.display = 'none';
+  }
+  
   document.getElementById('rGrand').textContent = `₹${parseFloat(data.grand_total).toFixed(2)}`;
 
   const note = document.getElementById('receiptCreditNote');

@@ -108,9 +108,17 @@
 <div class="page-header">
     <div>
         <h1>Product Details</h1>
-        <p>View specifications, generated barcode, and inventory logs</p>
+        <p>View specifications, barcode, and inventory logs</p>
     </div>
-    <a href="{% url 'shop_admins:product_list' %}" class="btn btn-secondary">&larr; Back to Catalogue</a>
+    <div style="display:flex;gap:10px;">
+        <a href="{% url 'shop_admins:edit_product' product.pk %}" class="btn btn-primary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit Product
+        </a>
+        <a href="{% url 'shop_admins:product_list' %}" class="btn btn-secondary">&larr; Back</a>
+    </div>
 </div>
 
 <div class="details-grid">
@@ -133,7 +141,7 @@
                 <span class="info-label">Buy Price (Hidden from Cashier)</span>
                 <span class="info-value">
                     {% if product.buy_price %}
-                    ${{ product.buy_price }}
+                    ₹{{ product.buy_price }}
                     {% else %}
                     <span style="color: #6B7280; font-style: italic">Not defined</span>
                     {% endif %}
@@ -142,7 +150,7 @@
 
             <div class="info-row">
                 <span class="info-label">Selling Price</span>
-                <span class="info-value" style="color: #818cf8; font-size: 1.1rem;">${{ product.selling_price }}</span>
+                <span class="info-value" style="color: #818cf8; font-size: 1.1rem;">₹{{ product.selling_price }}</span>
             </div>
 
             <div class="info-row">
@@ -189,11 +197,18 @@
 
     <!-- Barcode Rendering -->
     <div>
+        {% if product.image %}
+        <div style="margin-bottom:20px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                 style="width:100%;max-height:240px;object-fit:cover;display:block;">
+        </div>
+        {% endif %}
+
         <div class="barcode-card">
             <svg id="barcode"></svg>
             <p>{{ product.barcode }}</p>
         </div>
-        
+
         <a href="{% url 'shop_admins:print_barcode' product.pk %}" class="btn-print">Print Barcode Label</a>
     </div>
 </div>

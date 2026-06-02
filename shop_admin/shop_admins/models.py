@@ -8,6 +8,8 @@ class Product(models.Model):
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0)
     barcode = models.CharField(max_length=100, unique=True)
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
+    tax_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Tax percentage (e.g., 18 for 18%)")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

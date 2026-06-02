@@ -67,7 +67,7 @@ def add_credit_customer(request):
         if not all(c.isalpha() or c.isspace() or c in '.-' for c in name):
             return JsonResponse({'success': False, 'message': 'Customer name can only contain letters, spaces, dots and hyphens.'})
 
-        # Validate phone number
+        # Validate phone number (Indian format)
         if phone:
             # Remove common separators for validation
             phone_clean = phone.replace('-', '').replace(' ', '').replace('(', '').replace(')', '')
@@ -79,6 +79,10 @@ def add_credit_customer(request):
             
             if len(phone_clean) > 15:
                 return JsonResponse({'success': False, 'message': 'Phone number is too long (max 15 digits).'})
+            
+            # Indian mobile number validation (should start with 6,7,8,9)
+            if len(phone_clean) == 10 and not phone_clean[0] in '6789':
+                return JsonResponse({'success': False, 'message': 'Indian mobile numbers should start with 6, 7, 8, or 9.'})
 
         # Validate address
         if address:
@@ -193,7 +197,8 @@ def get_product_by_barcode(request):
             'name': product.name,
             'category': product.category,
             'selling_price': float(product.selling_price),
-            'stock': product.stock
+            'stock': product.stock,
+            'tax_percentage': float(product.tax_percentage) if product.tax_percentage else 0
         })
     except Product.DoesNotExist:
         return JsonResponse({'success': False, 'invalid_barcode': False, 'message': f'No product found for barcode "{barcode}".'})
@@ -228,7 +233,6 @@ def generate_bill(request):
         data = json.loads(request.body)
         cart = data.get('cart', [])
         discount = float(data.get('discount', 0))
-        tax = float(data.get('tax', 0))
         credit_customer_id = data.get('credit_customer_id')
 
         if not cart:
@@ -246,20 +250,31 @@ def generate_bill(request):
             items_to_process.append((product, qty))
 
         subtotal = 0.00
+        total_tax = 0.00
         bill_items_data = []
         for product, qty in items_to_process:
             selling_price = float(product.selling_price)
             item_subtotal = selling_price * qty
+            
+            # Calculate tax for this item if product has tax
+            item_tax = 0.00
+            if product.tax_percentage:
+                item_tax = item_subtotal * (float(product.tax_percentage) / 100)
+            
             subtotal += item_subtotal
+            total_tax += item_tax
+            
             bill_items_data.append({
                 'product': product,
                 'name': product.name,
                 'qty': qty,
                 'price': selling_price,
-                'subtotal': item_subtotal
+                'subtotal': item_subtotal,
+                'tax': item_tax,
+                'tax_percentage': float(product.tax_percentage) if product.tax_percentage else 0
             })
 
-        grand_total = max(0.00, (subtotal - discount) + tax)
+        grand_total = max(0.00, subtotal - discount + total_tax)
 
         timestamp = timezone.localtime(timezone.now()).strftime("%Y%m%d%H%M%S")
         rand_suffix = random.randint(1000, 9999)
@@ -270,7 +285,7 @@ def generate_bill(request):
             cashier=request.user,
             total_amount=subtotal,
             discount=discount,
-            tax=tax,
+            tax=total_tax,
             grand_total=grand_total
         )
 
@@ -316,11 +331,11 @@ def generate_bill(request):
             'bill_number': bill_number,
             'subtotal': subtotal,
             'discount': discount,
-            'tax': tax,
+            'tax': total_tax,
             'grand_total': grand_total,
             'credit_applied': credit_applied,
             'customer_name': customer_name,
-            'items': [{'name': i['name'], 'qty': i['qty'], 'price': i['price'], 'subtotal': i['subtotal']} for i in bill_items_data],
+            'items': [{'name': i['name'], 'qty': i['qty'], 'price': i['price'], 'subtotal': i['subtotal'], 'tax': i['tax'], 'tax_percentage': i['tax_percentage']} for i in bill_items_data],
             'date': timezone.localtime(bill.created_at).strftime("%d-%b-%Y %I:%M %p")
         })
 

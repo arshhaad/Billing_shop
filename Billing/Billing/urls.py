@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,4 +25,4 @@ urlpatterns = [
     path('auth_cashier/', include("auth_cashier.urls")), 
     path('shop_admins/', include("shop_admins.urls")), 
     path('auth_shop_admins/', include("auth_shop_admins.urls")), 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

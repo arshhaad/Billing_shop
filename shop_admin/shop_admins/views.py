@@ -126,26 +126,38 @@ def product_list(request):
 
 def generate_unique_barcode():
     while True:
-        barcode = "".join([str(random.randint(0, 9)) for _ in range(12)])
+        barcode = "".join([str(random.randint(0, 9)) for _ in range(8)])
         if not Product.objects.filter(barcode=barcode).exists():
             return barcode
 
 @admin_required
 def add_product(request):
     if request.method == "POST":
-        name = request.POST.get('name').strip()
-        category = request.POST.get('category').strip()
-        buy_price = request.POST.get('buy_price')
-        selling_price = request.POST.get('selling_price')
-        stock = request.POST.get('stock')
+        name = request.POST.get('name', '').strip()
+        category = request.POST.get('category', '').strip()
+        buy_price = request.POST.get('buy_price', '').strip()
+        selling_price = request.POST.get('selling_price', '').strip()
+        stock = request.POST.get('stock', '').strip()
+        tax_percentage = request.POST.get('tax_percentage', '').strip()
+        image = request.FILES.get('image')
 
-        # Convert empty string to None for optional buy price
         bp = None
         if buy_price:
             try:
                 bp = float(buy_price)
             except ValueError:
                 messages.error(request, "Invalid buy price.")
+                return render(request, 'shop_admins/Add_Product.html')
+
+        tax_pct = None
+        if tax_percentage:
+            try:
+                tax_pct = float(tax_percentage)
+                if tax_pct < 0 or tax_pct > 100:
+                    messages.error(request, "Tax percentage must be between 0 and 100.")
+                    return render(request, 'shop_admins/Add_Product.html')
+            except ValueError:
+                messages.error(request, "Invalid tax percentage.")
                 return render(request, 'shop_admins/Add_Product.html')
 
         try:
@@ -156,29 +168,80 @@ def add_product(request):
             return render(request, 'shop_admins/Add_Product.html')
 
         barcode = generate_unique_barcode()
-        
+
         product = Product.objects.create(
-            name=name,
-            category=category,
-            buy_price=bp,
-            selling_price=sp,
-            stock=st,
-            barcode=barcode
+            name=name, category=category, buy_price=bp,
+            selling_price=sp, stock=st, barcode=barcode,
+            image=image if image else None,
+            tax_percentage=tax_pct
         )
-        
-        # Log initial stock addition if stock > 0
+
         if st > 0:
             StockLog.objects.create(
-                product=product,
-                change_type='ADD',
-                quantity=st,
-                reason="Initial stock upon creation"
+                product=product, change_type='ADD',
+                quantity=st, reason="Initial stock upon creation"
             )
 
         messages.success(request, f"Product '{name}' added successfully with Barcode: {barcode}")
         return redirect('shop_admins:product_list')
 
     return render(request, 'shop_admins/Add_Product.html')
+
+
+@admin_required
+def edit_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == "POST":
+        name = request.POST.get('name', '').strip()
+        category = request.POST.get('category', '').strip()
+        buy_price = request.POST.get('buy_price', '').strip()
+        selling_price = request.POST.get('selling_price', '').strip()
+        tax_percentage = request.POST.get('tax_percentage', '').strip()
+        image = request.FILES.get('image')
+        remove_image = request.POST.get('remove_image')
+
+        bp = None
+        if buy_price:
+            try:
+                bp = float(buy_price)
+            except ValueError:
+                messages.error(request, "Invalid buy price.")
+                return render(request, 'shop_admins/Edit_Product.html', {'product': product})
+
+        tax_pct = None
+        if tax_percentage:
+            try:
+                tax_pct = float(tax_percentage)
+                if tax_pct < 0 or tax_pct > 100:
+                    messages.error(request, "Tax percentage must be between 0 and 100.")
+                    return render(request, 'shop_admins/Edit_Product.html', {'product': product})
+            except ValueError:
+                messages.error(request, "Invalid tax percentage.")
+                return render(request, 'shop_admins/Edit_Product.html', {'product': product})
+
+        try:
+            sp = float(selling_price)
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid selling price.")
+            return render(request, 'shop_admins/Edit_Product.html', {'product': product})
+
+        product.name = name
+        product.category = category
+        product.buy_price = bp
+        product.selling_price = sp
+        product.tax_percentage = tax_pct
+
+        if remove_image == '1':
+            product.image = None
+        elif image:
+            product.image = image
+
+        product.save()
+        messages.success(request, f"Product '{name}' updated successfully.")
+        return redirect('shop_admins:product_detail', pk=product.pk)
+
+    return render(request, 'shop_admins/Edit_Product.html', {'product': product})
 
 @admin_required
 def product_detail(request, pk):
