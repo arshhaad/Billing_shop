@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Barcode - {{ product.name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .barcode-label {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-category {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-top: 10px;
+        }
+
+        .btn-print-action {
+            margin-top: 20px;
+            background: #4f46e5;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-print-action:hover {
+            background: #4338ca;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                margin: 0;
+                display: block;
+            }
+            .btn-print-action {
+                display: none;
+            }
+            .barcode-label {
+                box-shadow: none;
+                border: none;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="barcode-label">
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-category">{{ product.category }}</div>
+        <svg id="barcode"></svg>
+        <div class="product-price">${{ product.selling_price }}</div>
+    </div>
+
+    <button onclick="window.print()" class="btn-print-action">Print Label</button>
+
+    <script>
+        JsBarcode("#barcode", "{{ product.barcode }}", {
+            format: "CODE128",
+            lineColor: "#000000",
+            width: 2,
+            height: 70,
+            displayValue: true,
+            fontSize: 14,
+            font: "monospace"
+        });
+    </script>
+</body>
+</html>

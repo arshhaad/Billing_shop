@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Billing System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --sidebar-bg: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #030712;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(192, 132, 252, 0.05) 0px, transparent 50%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-item a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item.active a, .sidebar-item a:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--text-primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .page-title h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        /* Dashboard Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .stat-info h3 {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .stat-info .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 3rem;
+            opacity: 0.15;
+            color: var(--primary);
+        }
+
+        .recent-section {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .recent-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Table Styling */
+        .data-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th, .data-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        /* Responsive Queries */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 20px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .sidebar-logo {
+                margin-bottom: 20px;
+            }
+            .sidebar-menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .sidebar-item a {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            .sidebar-footer {
+                margin-top: 20px;
+                padding-top: 15px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar-menu {
+                justify-content: center;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-logo">ShopAdmin Pro</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active">
+                <a href="{% url 'shop_admins:dashboard' %}">Dashboard</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'shop_admins:product_list' %}">Products</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'shop_admins:stock_management' %}">Inventory</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'shop_admins:sales_reports' %}">Sales Reports</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'shop_admins:customer_credit_book' %}">Credit Book</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'shop_admins:cashiers_list' %}">Manage Cashiers</a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="{% url 'auth_shop_admins:logout' %}" class="btn-logout">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h2>Dashboard Overview</h2>
+                <p>Welcome back, Admin. Here is today's overview.</p>
+            </div>
+        </div>
+
+        <!-- Metric Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Today's Sales</h3>
+                    <div class="value">${{ today_sales|floatformat:2 }}</div>
+                </div>
+                <div class="stat-icon">💰</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Products</h3>
+                    <div class="value">{{ total_products }}</div>
+                </div>
+                <div class="stat-icon">📦</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Low Stock Products</h3>
+                    <div class="value" style="color: {% if low_stock_products > 0 %}var(--warning){% else %}var(--text-primary){% endif %};">
+                        {{ low_stock_products }}
+                    </div>
+                </div>
+                <div class="stat-icon">⚠️</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Revenue (All-Time)</h3>
+                    <div class="value">${{ total_revenue|floatformat:2 }}</div>
+                </div>
+                <div class="stat-icon">📈</div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="recent-section">
+            <h3>Recent Sales Bills</h3>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Bill Number</th>
+                            <th>Cashier ID</th>
+                            <th>Date & Time</th>
+                            <th>Total Items</th>
+                            <th>Discount</th>
+                            <th>Tax</th>
+                            <th>Grand Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in recent_bills %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--primary)">{{ bill.bill_number }}</td>
+                            <td>{{ bill.cashier.username }}</td>
+                            <td>{{ bill.created_at|date:"d M Y, h:i A" }}</td>
+                            <td>{{ bill.items.count }}</td>
+                            <td>${{ bill.discount }}</td>
+                            <td>${{ bill.tax }}</td>
+                            <td><span class="badge badge-success">${{ bill.grand_total }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                                No bills generated yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

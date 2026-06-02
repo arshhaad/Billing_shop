@@ -1,0 +1,1504 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBilling | Point of Sale</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
+    <style>
+        :root {
+            --gold: #C9A84C;
+            --gold-light: #E8C96A;
+            --gold-dim: rgba(201,168,76,0.12);
+            --gold-border: rgba(201,168,76,0.22);
+            --gold-focus: rgba(201,168,76,0.35);
+            --bg: #050505;
+            --bg2: #0A0A0A;
+            --sidebar-bg: #080808;
+            --panel: #0F0F0F;
+            --panel2: #141414;
+            --border: rgba(255,255,255,0.07);
+            --border2: rgba(255,255,255,0.04);
+            --text: #E8E6E1;
+            --text2: #A0A0A0;
+            --muted: #555;
+            --green: #22c55e;
+            --green-dim: rgba(34,197,94,0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239,68,68,0.1);
+            --purple: #8b5cf6;
+            --purple-dim: rgba(139,92,246,0.1);
+            --purple-border: rgba(139,92,246,0.2);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── SIDEBAR ─────────────────────────────────── */
+        .sidebar {
+            width: 230px;
+            min-width: 230px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            z-index: 200;
+        }
+        /* Shop brand block */
+        .sidebar-brand {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand-name {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, #a07830 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-sub {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+        /* Cashier info block */
+        .cashier-info {
+            margin: 14px 14px 0;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .cashier-info-label {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .cashier-info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cashier-avatar {
+            width: 30px; height: 30px;
+            background: linear-gradient(135deg, var(--gold), #a07830);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #000;
+            flex-shrink: 0;
+        }
+        .cashier-details { min-width: 0; }
+        .cashier-name {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cashier-id-text {
+            font-size: 0.68rem;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+        /* Nav */
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 16px 10px;
+            flex: 1;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.18s;
+            position: relative;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text2); }
+        .nav-item.active {
+            background: var(--gold-dim);
+            color: var(--gold-light);
+            border: 1px solid var(--gold-border);
+        }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 20%; bottom: 20%;
+            width: 3px;
+            background: var(--gold);
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-icon { font-size: 0.9rem; width: 16px; text-align: center; flex-shrink: 0; }
+        /* Footer */
+        .sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-logout {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--red-dim);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,0.18);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-logout:hover { background: rgba(239,68,68,0.18); color: #fca5a5; }
+
+        /* ── MAIN LAYOUT ─────────────────────────────── */
+        .main-content {
+            margin-left: 230px;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 310px;
+            gap: 12px;
+            padding: 12px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /*  LEFT: CHECKOUT AREA  */
+        .checkout-area {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Scan bar */
+        .scan-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-shrink: 0;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .scan-panel .input-wrap { flex: 1; }
+        .scan-panel label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+        .scan-input-wrap { position: relative; }
+        .scan-input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px 12px 42px;
+            color: var(--text);
+            font-size: 0.92rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+        }
+        .scan-input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(212,175,55,0.08); }
+        .scan-input::placeholder { color: var(--muted); }
+        .scan-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: var(--muted);
+            pointer-events: none;
+        }
+        .btn-camera {
+            padding: 12px 16px;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 10px;
+            color: #818cf8;
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-camera:hover { background: rgba(99,102,241,0.15); color: #a5b4fc; border-color: rgba(99,102,241,0.35); }
+
+        /* Camera scanner overlay */
+        .scanner-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(16px);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .scanner-overlay.active { display: flex; }
+        .scanner-box {
+            position: relative;
+            width: 340px;
+            height: 240px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid #10b981;
+            box-shadow: 0 0 40px rgba(16,185,129,0.25), 0 0 80px rgba(16,185,129,0.1);
+        }
+        .scanner-box #interactive { width: 100%; height: 100%; }
+        .scanner-box #interactive canvas, .scanner-box #interactive video { width: 100% !important; height: 100% !important; object-fit: cover; }
+        .scanner-corners { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+        .scanner-corners::before, .scanner-corners::after {
+            content: '';
+            position: absolute;
+            width: 26px; height: 26px;
+            border-color: #10b981;
+            border-style: solid;
+        }
+        .scanner-corners::before { top: 8px; left: 8px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+        .scanner-corners::after { bottom: 8px; right: 8px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+        .scanner-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #10b981, transparent);
+            animation: scanLine 2s ease-in-out infinite;
+            z-index: 9;
+        }
+        @keyframes scanLine { 0%,100% { top: 15%; } 50% { top: 80%; } }
+        .scanner-label {
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0.7;
+        }
+        .btn-close-scanner {
+            padding: 10px 26px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 9px;
+            color: #f87171;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-close-scanner:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
+
+        /* Cart table */
+        .cart-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .cart-panel-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .cart-panel-header h3 { font-size: 0.88rem; font-weight: 700; letter-spacing: 0.2px; }
+        .cart-count {
+            background: rgba(212,175,55,0.1);
+            color: var(--gold-light);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .cart-scroll { flex: 1; overflow-y: auto; }
+        .cart-scroll::-webkit-scrollbar { width: 3px; }
+        .cart-scroll::-webkit-scrollbar-track { background: transparent; }
+        .cart-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .cart-table { width: 100%; border-collapse: collapse; }
+        .cart-table th {
+            padding: 10px 16px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--muted);
+            background: rgba(0,0,0,0.25);
+            position: sticky; top: 0;
+            text-align: left;
+        }
+        .cart-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.87rem; vertical-align: middle; }
+        .cart-table tbody tr { transition: background 0.15s; }
+        .cart-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+        .cart-table tbody tr:last-child td { border-bottom: none; }
+        .product-name { font-weight: 600; font-size: 0.88rem; }
+        .product-cat { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+        .qty-ctrl { display: flex; align-items: center; gap: 5px; }
+        .qty-btn {
+            width: 24px; height: 24px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+        .qty-btn:hover { background: rgba(212,175,55,0.1); border-color: var(--border-gold); color: var(--gold-light); }
+        .qty-num {
+            width: 32px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 3px;
+            color: var(--text);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-remove {
+            background: none; border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px 5px;
+            border-radius: 5px;
+            transition: all 0.15s;
+        }
+        .btn-remove:hover { color: var(--danger); background: rgba(239,68,68,0.08); }
+        .empty-cart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--muted);
+            gap: 10px;
+        }
+        .empty-cart .empty-icon { font-size: 2.2rem; opacity: 0.3; }
+        .empty-cart p { font-size: 0.85rem; }
+
+        /*  RIGHT: TRANSACTION PANEL  */
+        .transaction-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .transaction-panel::-webkit-scrollbar { width: 3px; }
+        .transaction-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+        .tp-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 0.2px;
+        }
+        .tp-title-accent {
+            height: 2px;
+            width: 36px;
+            background: linear-gradient(to right, var(--gold), var(--gold-light));
+            border-radius: 2px;
+            margin-bottom: 18px;
+        }
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 0.88rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(212,175,55,0.07); }
+        select.form-input { cursor: pointer; }
+        select.form-input option { background: #111; color: var(--text); }
+
+        /* Totals */
+        .totals-block {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .total-row .val { color: var(--text); font-weight: 500; }
+        .total-row .disc { color: #f87171; font-weight: 500; }
+        .total-row .tax-val { color: #fbbf24; font-weight: 500; }
+        .total-row.grand {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--gold);
+            padding: 12px 0 0;
+            margin-top: 6px;
+            border-top: 1px solid var(--border);
+        }
+        .total-row.grand .grand-val { color: var(--gold); }
+
+        /* Action buttons */
+        .action-buttons { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; }
+        .btn-generate {
+            padding: 13px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.2);
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
+        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-credit {
+            padding: 12px;
+            background: rgba(139,92,246,0.08);
+            color: #a78bfa;
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-credit:hover { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.35); color: #c4b5fd; }
+        .btn-credit:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-clear {
+            padding: 9px;
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-clear:hover { color: var(--danger); border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); }
+
+        /*  TOAST  */
+        .toast {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            z-index: 9999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 300px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .toast.error { background: rgba(127,29,29,0.95); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        .toast.success { background: rgba(6,78,59,0.95); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+        .toast.info { background: rgba(30,27,75,0.95); border: 1px solid rgba(99,102,241,0.3); color: #a5b4fc; }
+
+        /*  RECEIPT MODAL  */
+        .modal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(16px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .modal-card {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 32px 28px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+            animation: popIn 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .modal-card::-webkit-scrollbar { width: 3px; }
+        .modal-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+        @keyframes popIn { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .receipt-shop { text-align: center; margin-bottom: 4px; }
+        .receipt-shop h3 { font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+        .receipt-shop p { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+        .receipt-meta { text-align: center; margin: 10px 0; font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
+        .receipt-meta strong { color: var(--text); }
+        .r-divider { border: none; border-top: 1px dashed rgba(255,255,255,0.1); margin: 12px 0; }
+        .receipt-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .receipt-table th { color: var(--muted); font-weight: 600; padding-bottom: 7px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .receipt-table th:last-child, .receipt-table td:last-child { text-align: right; }
+        .receipt-table td { padding: 5px 0; color: var(--text); border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .receipt-totals { font-size: 0.83rem; text-align: right; line-height: 2; margin-top: 6px; color: var(--muted); }
+        .receipt-totals span { color: var(--text); font-weight: 500; }
+        .receipt-totals .grand-line { font-size: 1rem; font-weight: 800; color: var(--gold); display: block; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+        .credit-badge {
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.2);
+            color: #c4b5fd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .receipt-actions { display: flex; gap: 9px; margin-top: 18px; }
+        .receipt-actions button {
+            flex: 1; padding: 11px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-print { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+        .btn-print:hover { opacity: 0.9; }
+        .btn-close-modal { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border) !important; }
+        .btn-close-modal:hover { background: rgba(255,255,255,0.09); }
+
+        /*  CREDIT MODAL  */
+        .credit-modal-card {
+            background: #111;
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 18px;
+            padding: 32px 28px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(139,92,246,0.05);
+            animation: popIn 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .credit-modal-title { font-size: 1rem; font-weight: 800; margin-bottom: 5px; color: #a78bfa; }
+        .credit-modal-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+        .credit-summary { background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.15); border-radius: 9px; padding: 13px; margin-bottom: 16px; }
+        .credit-summary-row { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; color: var(--muted); }
+        .credit-summary-row span:last-child { color: var(--text); font-weight: 500; }
+        .credit-summary-row.total { font-weight: 800; font-size: 0.95rem; color: #a78bfa; border-top: 1px solid rgba(139,92,246,0.15); margin-top: 6px; padding-top: 9px; }
+        .credit-summary-row.total span:last-child { color: #a78bfa; }
+        .credit-actions { display: flex; gap: 9px; }
+        .credit-actions button { flex: 1; padding: 11px; border-radius: 9px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .btn-confirm-credit { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
+        .btn-confirm-credit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-cancel-credit { background: rgba(255,255,255,0.04); color: var(--muted); border: 1px solid var(--border) !important; }
+        .btn-cancel-credit:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+
+        /* ── BARCODE VALIDATION STYLES ──────────────────────── */
+        .scan-input {
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .scan-input.bc-valid {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15) !important;
+        }
+        .scan-input.bc-invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+            animation: shakeInput 0.35s ease;
+        }
+        .scan-input.bc-checking {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.15) !important;
+        }
+        @keyframes shakeInput {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-5px); }
+            40%      { transform: translateX(5px); }
+            60%      { transform: translateX(-4px); }
+            80%      { transform: translateX(4px); }
+        }
+        .barcode-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.3;
+            animation: fadeSlideIn 0.2s ease;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .barcode-status .bc-status-icon { font-size: 0.8rem; flex-shrink: 0; }
+        .bc-status-invalid   { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.25);   color: #fca5a5; }
+        .bc-status-notfound  { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.25);   color: #fca5a5; }
+        .bc-status-outofstock{ background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.25);  color: #fcd34d; }
+        .bc-status-checking  { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);   color: var(--gold); }
+        /* ──────────────────────────────────────────────────── */
+
+        /*  PRINT  */
+        @media print {
+            body * { visibility: hidden; }
+            .modal.open, .modal.open * { visibility: visible; }
+            .modal.open {
+                position: absolute; inset: 0;
+                background: none; backdrop-filter: none;
+            }
+            .modal-card {
+                background: #fff !important; color: #000 !important;
+                box-shadow: none; border: none;
+                width: 100%; max-width: 100%; margin: 0; border-radius: 0;
+            }
+            .modal-card * { color: #000 !important; }
+            .receipt-actions { display: none !important; }
+        }
+
+        /*  RESPONSIVE  */
+        @media (max-width: 1100px) {
+            .main-content { grid-template-columns: 1fr 300px; }
+        }
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; height: auto; overflow: auto; }
+            .transaction-panel { height: auto; }
+        }
+        @media (max-width: 700px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { position: relative; width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; padding: 14px 16px; gap: 10px; }
+            .sidebar-logo { margin-bottom: 0; font-size: 1.1rem; }
+            .cashier-badge { margin-bottom: 0; padding: 6px 10px; font-size: 0.75rem; }
+            .sidebar-nav { flex-direction: row; flex-wrap: wrap; margin-bottom: 0; }
+            .sidebar-footer { margin-top: 0; padding-top: 0; border-top: none; }
+            .main-content { margin-left: 0; padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="brand-name">eBilling</div>
+        <div class="brand-sub">Point of Sale</div>
+    </div>
+
+    <!-- Cashier Info -->
+    <div class="cashier-info">
+        <div class="cashier-info-label">Cashier on Duty</div>
+        <div class="cashier-info-row">
+            <div class="cashier-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+            <div class="cashier-details">
+                <div class="cashier-name">{{ request.user.username }}</div>
+                <div class="cashier-id-text">ID: {{ request.user.username }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+        <a href="#" class="nav-item active">
+            <span class="nav-icon">🛒</span> Checkout
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">📦</span> Products
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">📒</span> Credit Book
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">📊</span> Reports
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
+            <span>⏻</span> Logout
+        </a>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════════ -->
+<main class="main-content">
+
+    <!-- LEFT COLUMN: CHECKOUT AREA -->
+    <div class="checkout-area">
+
+        <!-- SCAN PANEL -->
+        <div class="scan-panel">
+            <div class="input-wrap">
+                <label for="barcodeInput">📷 Scan Barcode / Enter Code</label>
+                <div class="scan-input-wrap">
+                    <span class="scan-icon">🔍</span>
+                    <input
+                        type="text"
+                        id="barcodeInput"
+                        class="scan-input"
+                        placeholder="Scan or type barcode, press Enter..."
+                        autofocus
+                        autocomplete="off"
+                    >
+                    <div id="barcodeStatus" class="barcode-status" style="display:none;"></div>
+                    >
+                </div>
+            </div>
+            <button class="btn-camera" id="btnCamera" onclick="openScanner()">
+                📷 Scan Camera
+            </button>
+        </div>
+
+        <!-- CART PANEL -->
+        <div class="cart-panel">
+            <div class="cart-panel-header">
+                <h3>🛒 Cart Items</h3>
+                <span class="cart-count" id="cartCount">0 items</span>
+            </div>
+            <div class="cart-scroll">
+                <div id="emptyCart" class="empty-cart">
+                    <span class="empty-icon">🛍️</span>
+                    <p>Scan a product to begin</p>
+                </div>
+                <table class="cart-table" id="cartTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Unit Price</th>
+                            <th>Qty</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /checkout-area -->
+
+    <!-- RIGHT COLUMN: TRANSACTION PANEL -->
+    <div class="transaction-panel">
+        <div class="tp-title">Transaction Details</div>
+        <div class="tp-title-accent"></div>
+
+        <!-- Customer / Credit Book -->
+        <div class="form-group">
+            <label>Credit Book Customer</label>
+            <select class="form-input" id="customerSelect">
+                <option value="">-- Cash Sale --</option>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}" data-name="{{ customer.name }}" data-due="{{ customer.total_due }}">
+                    {{ customer.name }}{% if customer.total_due %} (Due: {{ customer.total_due }}){% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Discount % -->
+        <div class="form-group">
+            <label>Discount</label>
+            <div class="pct-wrap">
+                <input type="number" class="form-input pct-input" id="discountPct" value="0" min="0" max="100" step="0.1" oninput="updateTotals()" placeholder="0">
+                <span class="pct-badge">%</span>
+                <span class="pct-amount" id="discountCalc">₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Tax % -->
+        <div class="form-group">
+            <label>Tax / GST</label>
+            <div class="pct-wrap">
+                <input type="number" class="form-input pct-input" id="taxPct" value="18" min="0" max="100" step="0.1" oninput="updateTotals()" placeholder="18">
+                <span class="pct-badge">%</span>
+                <span class="pct-amount" id="taxCalc">₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="totals-block">
+            <div class="total-row">
+                <span>Subtotal</span>
+                <span class="val" id="subtotalDisplay">₹0.00</span>
+            </div>
+            <div class="total-row">
+                <span>Discount <span class="rate-tag" id="discountRateTag">0%</span></span>
+                <span class="disc" id="discountDisplay">- ₹0.00</span>
+            </div>
+            <div class="total-row">
+                <span>Tax / GST <span class="rate-tag rate-tag-tax" id="taxRateTag">18%</span></span>
+                <span class="tax-val" id="taxDisplay">+ ₹0.00</span>
+            </div>
+            <div class="total-row grand">
+                <span>Grand Total</span>
+                <span class="grand-val" id="grandTotalDisplay">₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-generate" id="btnGenerate" onclick="handleGenerateBill()">
+                ⚡ Generate Bill
+            </button>
+            <button class="btn-credit" id="btnCredit" onclick="handleCreditBook()">
+                📒 Add to Credit Book
+            </button>
+            <button class="btn-clear" onclick="clearCart()">
+                🗑 Clear Cart
+            </button>
+        </div>
+    </div><!-- /transaction-panel -->
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CAMERA SCANNER OVERLAY
+═══════════════════════════════════════════════════════════ -->
+<div class="scanner-overlay" id="scannerOverlay">
+    <div class="scanner-box">
+        <div class="scanner-corners"></div>
+        <div class="scanner-line"></div>
+        <div id="interactive"></div>
+    </div>
+    <p class="scanner-label">Point camera at barcode</p>
+    <button class="btn-close-scanner" onclick="closeScanner()">✕ Stop Scanning</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     RECEIPT MODAL
+═══════════════════════════════════════════════════════════ -->
+<div class="modal" id="receiptModal">
+    <div class="modal-card">
+        <div class="receipt-shop">
+            <h3>eBilling</h3>
+            <p>Point of Sale — Official Receipt</p>
+        </div>
+        <hr class="r-divider">
+        <div class="receipt-meta" id="receiptMeta"></div>
+        <hr class="r-divider">
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="receiptItems"></tbody>
+        </table>
+        <hr class="r-divider">
+        <div class="receipt-totals" id="receiptTotals"></div>
+        <div id="receiptCreditNote"></div>
+        <div class="receipt-actions">
+            <button class="btn-print" onclick="window.print()">🖨 Print Receipt</button>
+            <button class="btn-close-modal" onclick="closeReceiptModal()">✕ New Sale</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CREDIT CONFIRMATION MODAL
+═══════════════════════════════════════════════════════════ -->
+<div class="modal" id="creditModal">
+    <div class="credit-modal-card">
+        <div class="credit-modal-title">📒 Add to Credit Book</div>
+        <div class="credit-modal-sub">This will add the cart total to the customer's credit balance. No receipt will be generated.</div>
+        <div class="credit-summary">
+            <div class="credit-summary-row">
+                <span>Customer</span>
+                <span id="creditCustomerName">—</span>
+            </div>
+            <div class="credit-summary-row">
+                <span>Cart Subtotal</span>
+                <span id="creditSubtotal">₹0.00</span>
+            </div>
+            <div class="credit-summary-row">
+                <span>Discount</span>
+                <span id="creditDiscount">- ₹0.00</span>
+            </div>
+            <div class="credit-summary-row">
+                <span>Tax</span>
+                <span id="creditTax">+ ₹0.00</span>
+            </div>
+            <div class="credit-summary-row total">
+                <span>Amount to Credit</span>
+                <span id="creditTotal">₹0.00</span>
+            </div>
+        </div>
+        <div class="credit-actions">
+            <button class="btn-confirm-credit" id="btnConfirmCredit" onclick="confirmCredit()">
+                ✓ Confirm — Add to Credit
+            </button>
+            <button class="btn-cancel-credit" onclick="closeCreditModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+    // ─── State ───────────────────────────────────────────────
+    let cart = [];
+    let pendingCreditCustomerId = null;
+
+    // ─── CSRF helper ─────────────────────────────────────────
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // ─── Toast ───────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(message, type = 'info') {
+        const el = document.getElementById('toast');
+        el.textContent = message;
+        el.className = 'toast ' + type;
+        el.style.display = 'block';
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            el.style.opacity = '0';
+            setTimeout(() => { el.style.display = 'none'; }, 300);
+        }, 3000);
+    }
+
+    // ─── Barcode validation ──────────────────────────────────
+    const BARCODE_RE = /^[A-Za-z0-9\-_]+$/;
+
+    function setBarcodeState(state, msg) {
+        // state: 'idle' | 'checking' | 'valid' | 'invalid' | 'notfound' | 'outofstock'
+        const input   = document.getElementById('barcodeInput');
+        const statusEl = document.getElementById('barcodeStatus');
+        input.classList.remove('bc-valid', 'bc-invalid', 'bc-checking');
+        statusEl.className = 'barcode-status';
+
+        const icons = { idle:'', checking:'⏳', valid:'✔', invalid:'✖', notfound:'✖', outofstock:'⚠' };
+        const labels = {
+            idle: '',
+            checking: 'Checking...',
+            valid: '',          // product name shown via toast
+            invalid: msg || 'Invalid barcode format',
+            notfound: msg || 'Product not found',
+            outofstock: msg || 'Out of stock'
+        };
+        const cls = { idle:'', checking:'bc-checking', valid:'bc-valid', invalid:'bc-invalid', notfound:'bc-invalid', outofstock:'bc-warn' };
+
+        if (cls[state]) input.classList.add(cls[state]);
+        if (labels[state]) {
+            statusEl.innerHTML = `<span class="bc-status-icon">${icons[state]}</span> ${labels[state]}`;
+            statusEl.classList.add('bc-status-' + state);
+            statusEl.style.display = 'flex';
+        } else {
+            statusEl.style.display = 'none';
+        }
+    }
+
+    // Live format check as user types
+    document.getElementById('barcodeInput').addEventListener('input', function() {
+        const val = this.value.trim();
+        if (!val) { setBarcodeState('idle'); return; }
+        if (val.length < 4)                    { setBarcodeState('invalid', 'Too short — min 4 characters'); return; }
+        if (val.length > 30)                   { setBarcodeState('invalid', 'Too long — max 30 characters'); return; }
+        if (!BARCODE_RE.test(val))             { setBarcodeState('invalid', 'Invalid characters in barcode'); return; }
+        setBarcodeState('idle'); // valid format, waiting for Enter
+    });
+
+    // ─── Barcode input ───────────────────────────────────────
+    document.getElementById('barcodeInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const val = this.value.trim();
+            if (!val) { setBarcodeState('idle'); return; }
+
+            // Client-side format check before hitting server
+            if (val.length < 4 || val.length > 30) {
+                setBarcodeState('invalid', `Invalid length (${val.length} chars). Must be 4–30.`);
+                return;
+            }
+            if (!BARCODE_RE.test(val)) {
+                setBarcodeState('invalid', 'Contains invalid characters. Use letters, digits, - or _');
+                return;
+            }
+
+            setBarcodeState('checking');
+            fetchProduct(val);
+            this.value = '';
+        }
+    });
+
+    // ─── Fetch product ───────────────────────────────────────
+    async function fetchProduct(barcode) {
+        try {
+            const res  = await fetch('/get-product/?barcode=' + encodeURIComponent(barcode));
+            const data = await res.json();
+
+            if (data.success) {
+                setBarcodeState('valid');
+                addToCart(data);
+            } else if (data.invalid_barcode) {
+                setBarcodeState('invalid', data.message);
+                showToast(data.message, 'error');
+            } else if (data.message && data.message.toLowerCase().includes('stock')) {
+                setBarcodeState('outofstock', data.message);
+                showToast(data.message, 'error');
+            } else {
+                setBarcodeState('notfound', data.message);
+                showToast(data.message, 'error');
+            }
+
+            // Auto-clear status after 3 s
+            setTimeout(() => setBarcodeState('idle'), 3000);
+
+        } catch (err) {
+            setBarcodeState('invalid', 'Network error — check connection');
+            showToast('Network error. Please try again.', 'error');
+            setTimeout(() => setBarcodeState('idle'), 3000);
+        }
+    }
+
+    // ─── Add to cart ─────────────────────────────────────────
+    function addToCart(product) {
+        const existing = cart.find(item => item.id === product.id);
+        if (existing) {
+            if (existing.qty >= product.stock) {
+                showToast('Max stock reached for ' + product.name, 'error');
+                return;
+            }
+            existing.qty += 1;
+        } else {
+            if (product.stock < 1) {
+                showToast(product.name + ' is out of stock', 'error');
+                return;
+            }
+            cart.push({
+                id: product.id,
+                name: product.name,
+                category: product.category || '',
+                price: parseFloat(product.selling_price),
+                stock: product.stock,
+                qty: 1
+            });
+        }
+        renderCart();
+        showToast(product.name + ' added to cart', 'success');
+    }
+
+    // ─── Render cart ─────────────────────────────────────────
+    function renderCart() {
+        const tbody = document.getElementById('cartBody');
+        const emptyEl = document.getElementById('emptyCart');
+        const tableEl = document.getElementById('cartTable');
+        const countEl = document.getElementById('cartCount');
+
+        tbody.innerHTML = '';
+
+        if (cart.length === 0) {
+            emptyEl.style.display = 'flex';
+            tableEl.style.display = 'none';
+            countEl.textContent = '0 items';
+        } else {
+            emptyEl.style.display = 'none';
+            tableEl.style.display = 'table';
+            countEl.textContent = cart.length + (cart.length === 1 ? ' item' : ' items');
+
+            cart.forEach(item => {
+                const subtotal = (item.price * item.qty).toFixed(2);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="product-name">${escHtml(item.name)}</div>
+                        ${item.category ? '<div class="product-cat">' + escHtml(item.category) + '</div>' : ''}
+                    </td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>
+                        <div class="qty-ctrl">
+                            <button class="qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
+                            <input class="qty-num" type="number" value="${item.qty}" min="1" max="${item.stock}"
+                                onchange="setQty(${item.id}, parseInt(this.value))" />
+                            <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                        </div>
+                    </td>
+                    <td>₹${subtotal}</td>
+                    <td>
+                        <button class="btn-remove" onclick="removeFromCart(${item.id})" title="Remove">✕</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        updateTotals();
+    }
+
+    function escHtml(str) {
+        const d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
+    }
+
+    // ─── Qty controls ────────────────────────────────────────
+    function updateQty(id, delta) {
+        const item = cart.find(i => i.id === id);
+        if (!item) return;
+        const newQty = item.qty + delta;
+        if (newQty < 1) { removeFromCart(id); return; }
+        if (newQty > item.stock) { showToast('Max stock: ' + item.stock, 'error'); return; }
+        item.qty = newQty;
+        renderCart();
+    }
+
+    function setQty(id, qty) {
+        const item = cart.find(i => i.id === id);
+        if (!item) return;
+        if (isNaN(qty) || qty < 1) qty = 1;
+        if (qty > item.stock) { qty = item.stock; showToast('Max stock: ' + item.stock, 'error'); }
+        item.qty = qty;
+        renderCart();
+    }
+
+    function removeFromCart(id) {
+        cart = cart.filter(i => i.id !== id);
+        renderCart();
+    }
+
+    function clearCart() {
+        if (cart.length === 0) return;
+        cart = [];
+        renderCart();
+        showToast('Cart cleared', 'info');
+    }
+
+    // ─── Update totals ───────────────────────────────────────
+    function updateTotals() {
+        const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const discPct  = parseFloat(document.getElementById('discountPct').value) || 0;
+        const taxPct   = parseFloat(document.getElementById('taxPct').value) || 0;
+
+        const discountAmt = (subtotal * discPct) / 100;
+        const taxAmt      = ((subtotal - discountAmt) * taxPct) / 100;
+        const grand       = Math.max(0, subtotal - discountAmt + taxAmt);
+
+        // Update inline calc labels
+        document.getElementById('discountCalc').textContent = '₹' + discountAmt.toFixed(2);
+        document.getElementById('taxCalc').textContent      = '₹' + taxAmt.toFixed(2);
+
+        // Update rate tags
+        document.getElementById('discountRateTag').textContent = discPct + '%';
+        document.getElementById('taxRateTag').textContent      = taxPct + '%';
+
+        // Update totals display
+        document.getElementById('subtotalDisplay').textContent    = '₹' + subtotal.toFixed(2);
+        document.getElementById('discountDisplay').textContent    = '- ₹' + discountAmt.toFixed(2);
+        document.getElementById('taxDisplay').textContent         = '+ ₹' + taxAmt.toFixed(2);
+        document.getElementById('grandTotalDisplay').textContent  = '₹' + grand.toFixed(2);
+    }
+
+    // ─── Generate Bill button ────────────────────────────────
+    function handleGenerateBill() {
+        if (cart.length === 0) { showToast('Cart is empty', 'error'); return; }
+        submitBill(null);
+    }
+
+    // ─── Credit Book button ──────────────────────────────────
+    function handleCreditBook() {
+        if (cart.length === 0) { showToast('Cart is empty', 'error'); return; }
+        const sel = document.getElementById('customerSelect');
+        const customerId = sel.value;
+        if (!customerId) { showToast('Select a customer from Credit Book first', 'error'); return; }
+
+        const customerName = sel.options[sel.selectedIndex].dataset.name || sel.options[sel.selectedIndex].text;
+        const subtotal    = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const discPct     = parseFloat(document.getElementById('discountPct').value) || 0;
+        const taxPct      = parseFloat(document.getElementById('taxPct').value) || 0;
+        const discountAmt = (subtotal * discPct) / 100;
+        const taxAmt      = ((subtotal - discountAmt) * taxPct) / 100;
+        const grand       = Math.max(0, subtotal - discountAmt + taxAmt);
+
+        pendingCreditCustomerId = customerId;
+
+        document.getElementById('creditCustomerName').textContent = customerName;
+        document.getElementById('creditSubtotal').textContent     = '₹' + subtotal.toFixed(2);
+        document.getElementById('creditDiscount').textContent     = '- ₹' + discountAmt.toFixed(2);
+        document.getElementById('creditTax').textContent          = '+ ₹' + taxAmt.toFixed(2);
+        document.getElementById('creditTotal').textContent        = '₹' + grand.toFixed(2);
+
+        document.getElementById('creditModal').classList.add('open');
+    }
+
+    function closeCreditModal() {
+        document.getElementById('creditModal').classList.remove('open');
+        pendingCreditCustomerId = null;
+    }
+
+    function confirmCredit() {
+        if (!pendingCreditCustomerId) return;
+        const btn = document.getElementById('btnConfirmCredit');
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+        submitBill(pendingCreditCustomerId);
+    }
+
+    // ─── Submit bill (POST) ──────────────────────────────────
+    async function submitBill(creditCustomerId) {
+        const subtotal    = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const discPct     = parseFloat(document.getElementById('discountPct').value) || 0;
+        const taxPct      = parseFloat(document.getElementById('taxPct').value) || 0;
+        const discountAmt = (subtotal * discPct) / 100;
+        const taxAmt      = ((subtotal - discountAmt) * taxPct) / 100;
+
+        const payload = {
+            cart: cart.map(i => ({ id: i.id, qty: i.qty })),
+            discount: discountAmt,
+            tax: taxAmt,
+            credit_customer_id: creditCustomerId || null
+        };
+
+        try {
+            const res = await fetch('/generate-bill/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                if (creditCustomerId) {
+                    // Credit mode: no receipt, just toast + clear
+                    closeCreditModal();
+                    cart = [];
+                    renderCart();
+                    document.getElementById('discountPct').value = '0';
+                    document.getElementById('taxPct').value = '18';
+                    document.getElementById('customerSelect').value = '';
+                    updateTotals();
+                    showToast('Added to credit book successfully!', 'success');
+                } else {
+                    // Normal bill: show receipt
+                    showReceipt(data);
+                }
+            } else {
+                showToast(data.message || 'Failed to process bill', 'error');
+                // Re-enable confirm button if credit modal was open
+                const btn = document.getElementById('btnConfirmCredit');
+                btn.disabled = false;
+                btn.textContent = '✓ Confirm — Add to Credit';
+            }
+        } catch (err) {
+            showToast('Network error. Please try again.', 'error');
+            const btn = document.getElementById('btnConfirmCredit');
+            btn.disabled = false;
+            btn.textContent = '✓ Confirm — Add to Credit';
+        }
+    }
+
+    // ─── Show receipt modal ──────────────────────────────────
+    function showReceipt(data) {
+        // Meta
+        document.getElementById('receiptMeta').innerHTML =
+            `Bill No: <strong>#${data.bill_number}</strong><br>Date: <strong>${data.date}</strong>`;
+
+        // Items
+        const tbody = document.getElementById('receiptItems');
+        tbody.innerHTML = '';
+        (data.items || []).forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${escHtml(item.name)}</td>
+                <td>${item.qty}</td>
+                <td>₹${parseFloat(item.price).toFixed(2)}</td>
+                <td>₹${parseFloat(item.subtotal).toFixed(2)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Totals
+        document.getElementById('receiptTotals').innerHTML = `
+            Subtotal: <span>₹${parseFloat(data.subtotal).toFixed(2)}</span><br>
+            Discount: <span>- ₹${parseFloat(data.discount).toFixed(2)}</span><br>
+            Tax: <span>+ ₹${parseFloat(data.tax).toFixed(2)}</span><br>
+            <span class="grand-line">Grand Total: ₹${parseFloat(data.grand_total).toFixed(2)}</span>
+        `;
+
+        // Credit note
+        const creditNote = document.getElementById('receiptCreditNote');
+        if (data.credit_applied && data.customer_name) {
+            creditNote.innerHTML = `<div class="credit-badge">📒 Added to credit: ${escHtml(data.customer_name)}</div>`;
+        } else {
+            creditNote.innerHTML = '';
+        }
+
+        document.getElementById('receiptModal').classList.add('open');
+    }
+
+    function closeReceiptModal() {
+        document.getElementById('receiptModal').classList.remove('open');
+        cart = [];
+        renderCart();
+        document.getElementById('discountPct').value = '0';
+        document.getElementById('taxPct').value = '18';
+        document.getElementById('customerSelect').value = '';
+        updateTotals();
+        document.getElementById('barcodeInput').focus();
+    }
+
+    // ─── Camera Scanner (QuaggaJS) ───────────────────────────
+    let quaggaRunning = false;
+
+    function openScanner() {
+        document.getElementById('scannerOverlay').classList.add('active');
+        document.getElementById('btnCamera').textContent = '⏹ Scanning...';
+
+        Quagga.init({
+            inputStream: {
+                type: 'LiveStream',
+                target: document.querySelector('#interactive'),
+                constraints: {
+                    width: 340,
+                    height: 240,
+                    facingMode: 'environment'
+                }
+            },
+            decoder: {
+                readers: ['ean_reader', 'code_128_reader', 'upc_reader', 'code_39_reader', 'ean_8_reader']
+            },
+            locate: true
+        }, function(err) {
+            if (err) {
+                showToast('Camera error: ' + err.message, 'error');
+                closeScanner();
+                return;
+            }
+            Quagga.start();
+            quaggaRunning = true;
+        });
+
+        Quagga.onDetected(function(result) {
+            const code = result.codeResult.code;
+            if (code) {
+                closeScanner();
+                fetchProduct(code);
+            }
+        });
+    }
+
+    function closeScanner() {
+        if (quaggaRunning) {
+            try { Quagga.stop(); } catch(e) {}
+            quaggaRunning = false;
+        }
+        document.getElementById('scannerOverlay').classList.remove('active');
+        document.getElementById('btnCamera').textContent = '📷 Scan Camera';
+        document.getElementById('barcodeInput').focus();
+    }
+
+    // ─── Init ────────────────────────────────────────────────
+    renderCart();
+    document.getElementById('barcodeInput').focus();
+</script>
+</body>
+</html>
