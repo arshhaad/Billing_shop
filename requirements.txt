@@ -1,0 +1,107 @@
+# eBilling System - Python Package Requirements
+# Generated on June 2, 2026
+
+# Core Django Framework
+Django==6.0.5
+
+# Database Support
+# PostgreSQL adapter (primary database)
+psycopg2-binary==2.9.9
+
+# Image Processing (for product images)
+# Required for models.ImageField
+Pillow==10.4.0
+
+# Development & Testing
+# Django extensions for development
+django-extensions==3.2.3
+
+# Code quality and formatting
+flake8==7.1.1
+black==24.4.2
+
+# Security
+# Django security enhancements
+django-security==0.20.0
+
+# Environment Variables
+# For loading .env files (optional, project uses manual parsing)
+python-deparse==1.0.2
+
+# Production Deployment (optional)
+# WSGI server for production
+gunicorn==22.0.0
+
+# Static file serving for production
+whitenoise==6.7.0
+
+# Additional Development Tools (optional)
+# Database debugging
+django-debug-toolbar==4.4.6
+
+# API development (future expansion)
+djangorestframework==3.15.1
+
+# CORS handling (for API access)
+django-cors-headers==4.3.1
+
+# Task queue (for future background processing)
+celery==5.3.6
+redis==5.0.7
+
+# Email backend (for notifications)
+django-email-backends==0.1.0
+
+# File storage (for cloud deployment)
+django-storages==1.14.4
+boto3==1.34.131
+
+# Monitoring & Logging (production)
+sentry-sdk==2.6.0
+
+# Performance
+# Database connection pooling
+django-db-pool==0.1.0
+
+# Caching
+django-redis==5.4.0
+
+# Testing
+# Enhanced testing tools
+pytest-django==4.8.0
+factory-boy==3.3.0
+coverage==7.5.4
+
+# Documentation
+# API documentation
+drf-spectacular==0.27.2
+
+# Development utilities
+ipython==8.26.0
+jupyter==1.0.0
+
+# ---------- MINIMAL REQUIREMENTS (Essential Only) ----------
+# For basic installation, only these packages are required:
+# Django==6.0.5
+# psycopg2-binary==2.9.9  
+# Pillow==10.4.0
+
+# ---------- DEPLOYMENT NOTES ----------
+# 1. For production, add gunicorn and whitenoise
+# 2. Configure PostgreSQL database connection
+# 3. Set DEBUG=False in settings
+# 4. Configure static files collection
+# 5. Set up proper environment variables
+# 6. Consider using django-storages for media files
+
+# ---------- INSTALLATION COMMANDS ----------
+# Install all packages:
+# pip install -r requirements.txt
+#
+# Install minimal only:
+# pip install Django==6.0.5 psycopg2-binary==2.9.9 Pillow==10.4.0
+#
+# Create virtual environment:
+# python -m venv .shp
+# .shp\Scripts\activate  # Windows
+# source .shp/bin/activate  # macOS/Linux
