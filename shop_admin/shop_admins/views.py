@@ -139,6 +139,7 @@ def add_product(request):
         selling_price = request.POST.get('selling_price', '').strip()
         stock = request.POST.get('stock', '').strip()
         tax_percentage = request.POST.get('tax_percentage', '').strip()
+        unit = request.POST.get('unit', 'piece')
         image = request.FILES.get('image')
 
         bp = None
@@ -162,7 +163,7 @@ def add_product(request):
 
         try:
             sp = float(selling_price)
-            st = int(stock)
+            st = float(stock)  # Changed to float for decimal support
         except (ValueError, TypeError):
             messages.error(request, "Invalid price or stock values.")
             return render(request, 'shop_admins/Add_Product.html')
@@ -172,7 +173,7 @@ def add_product(request):
         product = Product.objects.create(
             name=name, category=category, buy_price=bp,
             selling_price=sp, stock=st, barcode=barcode,
-            image=image if image else None,
+            unit=unit, image=image if image else None,
             tax_percentage=tax_pct
         )
 
@@ -198,6 +199,7 @@ def edit_product(request, pk):
         buy_price = request.POST.get('buy_price', '').strip()
         selling_price = request.POST.get('selling_price', '').strip()
         tax_percentage = request.POST.get('tax_percentage', '').strip()
+        unit = request.POST.get('unit', 'piece')
         image = request.FILES.get('image')
         remove_image = request.POST.get('remove_image')
 
@@ -231,6 +233,7 @@ def edit_product(request, pk):
         product.buy_price = bp
         product.selling_price = sp
         product.tax_percentage = tax_pct
+        product.unit = unit
 
         if remove_image == '1':
             product.image = None

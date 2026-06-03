@@ -165,6 +165,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR.parent / 'static',
 ]
+STATIC_ROOT = BASE_DIR.parent / 'staticfiles'
 
 # Media files (User-uploaded content)
 MEDIA_URL = '/media/'

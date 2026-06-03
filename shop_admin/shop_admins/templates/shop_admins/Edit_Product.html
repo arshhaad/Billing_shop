@@ -173,12 +173,26 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="tax_percentage">
-                    Tax Percentage (%)
-                    <span class="optional-tag">Optional</span>
-                </label>
-                <input type="number" step="0.01" min="0" max="100" id="tax_percentage" name="tax_percentage" class="form-input" value="{{ product.tax_percentage|default:'' }}" placeholder="e.g. 18 for 18% tax">
+            <div class="row-grid">
+                <div class="form-group">
+                    <label class="form-label" for="tax_percentage">
+                        Tax Percentage (%)
+                        <span class="optional-tag">Optional</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" max="100" id="tax_percentage" name="tax_percentage" class="form-input" value="{{ product.tax_percentage|default:'' }}" placeholder="e.g. 18 for 18% tax">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="unit">Unit of Measurement *</label>
+                    <select id="unit" name="unit" class="form-input" style="cursor:pointer;">
+                        <option value="piece" {% if product.unit == 'piece' or not product.unit %}selected{% endif %}>Piece (default)</option>
+                        <option value="kg" {% if product.unit == 'kg' %}selected{% endif %}>Kilogram (kg)</option>
+                        <option value="liter" {% if product.unit == 'liter' %}selected{% endif %}>Liter (L)</option>
+                        <option value="gram" {% if product.unit == 'gram' %}selected{% endif %}>Gram (g)</option>
+                        <option value="ml" {% if product.unit == 'ml' %}selected{% endif %}>Milliliter (ml)</option>
+                        <option value="pack" {% if product.unit == 'pack' %}selected{% endif %}>Pack</option>
+                        <option value="box" {% if product.unit == 'box' %}selected{% endif %}>Box</option>
+                    </select>
+                </div>
             </div>
 
             <div style="display:flex;gap:12px;margin-top:8px;">

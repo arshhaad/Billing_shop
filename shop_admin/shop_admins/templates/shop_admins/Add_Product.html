@@ -156,14 +156,32 @@
             <div class="row-grid">
                 <div class="form-group">
                     <label class="form-label" for="stock">Initial Stock Quantity *</label>
-                    <input type="number" id="stock" name="stock" class="form-input" placeholder="e.g. 100" min="0" required>
+                    <input type="number" step="0.001" id="stock" name="stock" class="form-input" placeholder="e.g. 100 or 1.5 for kg" min="0" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label" for="unit">Unit of Measurement *</label>
+                    <select id="unit" name="unit" class="form-input" style="cursor:pointer;">
+                        <option value="piece">Piece (default)</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="liter">Liter (L)</option>
+                        <option value="gram">Gram (g)</option>
+                        <option value="ml">Milliliter (ml)</option>
+                        <option value="pack">Pack</option>
+                        <option value="box">Box</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row-grid">
                 <div class="form-group">
                     <label class="form-label" for="tax_percentage">
                         Tax Percentage (%)
                         <span class="optional-tag">Optional</span>
                     </label>
                     <input type="number" step="0.01" min="0" max="100" id="tax_percentage" name="tax_percentage" class="form-input" placeholder="e.g. 18 for 18% tax">
+                </div>
+                <div class="form-group">
+                    <!-- Empty for layout balance -->
                 </div>
             </div>
 

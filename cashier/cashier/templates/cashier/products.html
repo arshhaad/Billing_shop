@@ -607,9 +607,9 @@
                         <div class="info-row">
                             <span class="info-label">Stock</span>
                             {% if product.stock > 10 %}
-                            <span class="stock-badge stock-in">{{ product.stock|floatformat:-1 }} {{ product.get_unit_display }}</span>
+                            <span class="stock-badge stock-in">{{ product.stock|floatformat:-1 }} {% if product.unit %}{{ product.get_unit_display }}{% else %}units{% endif %}</span>
                             {% elif product.stock > 0 %}
-                            <span class="stock-badge stock-low">{{ product.stock|floatformat:-1 }} {{ product.get_unit_display }}</span>
+                            <span class="stock-badge stock-low">{{ product.stock|floatformat:-1 }} {% if product.unit %}{{ product.get_unit_display }}{% else %}units{% endif %}</span>
                             {% else %}
                             <span class="stock-badge stock-out">Out of Stock</span>
                             {% endif %}
