@@ -197,7 +197,8 @@ def get_product_by_barcode(request):
             'name': product.name,
             'category': product.category,
             'selling_price': float(product.selling_price),
-            'stock': product.stock,
+            'stock': float(product.stock),
+            'unit': product.unit,
             'tax_percentage': float(product.tax_percentage) if product.tax_percentage else 0
         })
     except Product.DoesNotExist:
@@ -241,11 +242,11 @@ def generate_bill(request):
         items_to_process = []
         for item in cart:
             product = get_object_or_404(Product, id=item.get('id'))
-            qty = int(item.get('qty', 0))
-            if product.stock < qty:
+            qty = float(item.get('qty', 0))
+            if float(product.stock) < qty:
                 return JsonResponse({
                     'success': False,
-                    'message': f"Insufficient stock for '{product.name}'. Available: {product.stock}, Requested: {qty}"
+                    'message': f"Insufficient stock for '{product.name}'. Available: {product.stock} {product.unit}, Requested: {qty} {product.unit}"
                 })
             items_to_process.append((product, qty))
 
@@ -268,6 +269,7 @@ def generate_bill(request):
                 'product': product,
                 'name': product.name,
                 'qty': qty,
+                'unit': product.unit,
                 'price': selling_price,
                 'subtotal': item_subtotal,
                 'tax': item_tax,
@@ -292,7 +294,7 @@ def generate_bill(request):
         for item in bill_items_data:
             product = item['product']
             qty = item['qty']
-            product.stock -= qty
+            product.stock = float(product.stock) - qty
             product.save()
             StockLog.objects.create(
                 product=product,
@@ -305,6 +307,7 @@ def generate_bill(request):
                 product=product,
                 product_name=item['name'],
                 quantity=qty,
+                unit=item['unit'],
                 price=item['price'],
                 subtotal=item['subtotal']
             )
@@ -335,7 +338,7 @@ def generate_bill(request):
             'grand_total': grand_total,
             'credit_applied': credit_applied,
             'customer_name': customer_name,
-            'items': [{'name': i['name'], 'qty': i['qty'], 'price': i['price'], 'subtotal': i['subtotal'], 'tax': i['tax'], 'tax_percentage': i['tax_percentage']} for i in bill_items_data],
+            'items': [{'name': i['name'], 'qty': i['qty'], 'unit': i['unit'], 'price': i['price'], 'subtotal': i['subtotal'], 'tax': i['tax'], 'tax_percentage': i['tax_percentage']} for i in bill_items_data],
             'date': timezone.localtime(bill.created_at).strftime("%d-%b-%Y %I:%M %p")
         })
 

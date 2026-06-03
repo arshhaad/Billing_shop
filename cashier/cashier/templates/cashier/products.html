@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products & Stock - eBilling</title>
+    
+    <!-- Favicons -->
+    {% load static %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicons/favicon.svg' %}">
+    <link rel="alternate icon" href="{% static 'img/favicons/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicons/apple-touch-icon.svg' %}">
+    <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+    <meta name="theme-color" content="#2563EB">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -598,9 +607,9 @@
                         <div class="info-row">
                             <span class="info-label">Stock</span>
                             {% if product.stock > 10 %}
-                            <span class="stock-badge stock-in">{{ product.stock }} units</span>
+                            <span class="stock-badge stock-in">{{ product.stock|floatformat:-1 }} {{ product.get_unit_display }}</span>
                             {% elif product.stock > 0 %}
-                            <span class="stock-badge stock-low">{{ product.stock }} units</span>
+                            <span class="stock-badge stock-low">{{ product.stock|floatformat:-1 }} {{ product.get_unit_display }}</span>
                             {% else %}
                             <span class="stock-badge stock-out">Out of Stock</span>
                             {% endif %}

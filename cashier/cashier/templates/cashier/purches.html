@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>eBilling | Cashier POS</title>
+
+<!-- Favicons -->
+{% load static %}
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicons/favicon.svg' %}">
+<link rel="alternate icon" href="{% static 'img/favicons/favicon.ico' %}">
+<link rel="apple-touch-icon" href="{% static 'img/favicons/apple-touch-icon.svg' %}">
+<link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+<meta name="theme-color" content="#2563EB">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
 <style>
@@ -82,12 +91,64 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
 .cart-table tbody tr:hover{background:#F8FAFC;}
 .product-name{font-weight:600;color:#1E293B;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .product-cat{font-size:0.7rem;color:#94A3B8;margin-top:2px;}
-.qty-ctrl{display:flex;align-items:center;gap:6px;}
-.qty-btn{width:32px;height:32px;border-radius:9px;border:none;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);color:#2563EB;font-size:1.1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 2px 6px rgba(37,99,235,0.15);}
-.qty-btn:hover{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;transform:translateY(-2px);box-shadow:0 4px 10px rgba(37,99,235,0.3);}
-.qty-btn:active{transform:translateY(0);box-shadow:0 2px 6px rgba(37,99,235,0.2);}
-.qty-input{width:44px;text-align:center;border:1.5px solid #E2E8F0;border-radius:8px;padding:4px 2px;font-size:0.875rem;font-family:'Inter',sans-serif;color:#1E293B;background:#fff;outline:none;}
-.qty-input:focus{border-color:#2563EB;}
+.qty-ctrl{display:flex;align-items:center;gap:8px;}
+.qty-btn{
+  width:36px;height:36px;border-radius:12px;border:2px solid #E5E7EB;
+  background:linear-gradient(135deg,#F8FAFC 0%,#EFF6FF 100%);
+  color:#374151;font-size:1.2rem;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 2px 4px rgba(0,0,0,0.05),0 1px 2px rgba(0,0,0,0.1);
+  position:relative;overflow:hidden;
+}
+.qty-btn:before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(59,130,246,0.1) 0%,rgba(37,99,235,0.1) 100%);
+  opacity:0;transition:opacity 0.25s ease;
+}
+.qty-btn:hover{
+  background:linear-gradient(135deg,#3B82F6 0%,#2563EB 100%);
+  color:#FFFFFF;border-color:#2563EB;
+  transform:translateY(-2px) scale(1.05);
+  box-shadow:0 8px 16px rgba(59,130,246,0.3),0 4px 8px rgba(59,130,246,0.2);
+}
+.qty-btn:hover:before{opacity:1;}
+.qty-btn:active{
+  transform:translateY(-1px) scale(1.02);
+  box-shadow:0 4px 8px rgba(59,130,246,0.25),0 2px 4px rgba(59,130,246,0.15);
+}
+.qty-btn.minus{
+  background:linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%);
+  border-color:#F59E0B;color:#D97706;
+}
+.qty-btn.minus:hover{
+  background:linear-gradient(135deg,#F59E0B 0%,#D97706 100%);
+  border-color:#D97706;color:#FFFFFF;
+  box-shadow:0 8px 16px rgba(245,158,11,0.3),0 4px 8px rgba(245,158,11,0.2);
+}
+.qty-btn.plus{
+  background:linear-gradient(135deg,#DCFCE7 0%,#BBF7D0 100%);
+  border-color:#16A34A;color:#15803D;
+}
+.qty-btn.plus:hover{
+  background:linear-gradient(135deg,#16A34A 0%,#15803D 100%);
+  border-color:#15803D;color:#FFFFFF;
+  box-shadow:0 8px 16px rgba(22,163,74,0.3),0 4px 8px rgba(22,163,74,0.2);
+}
+.qty-input{
+  width:60px;text-align:center;border:2px solid #E5E7EB;border-radius:10px;
+  padding:8px 4px;font-size:0.875rem;font-family:'Inter',sans-serif;
+  font-weight:600;color:#1F2937;background:#FFFFFF;outline:none;
+  transition:all 0.2s ease;
+}
+.qty-input:focus{
+  border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);
+  background:#F8FAFC;
+}
+.qty-unit{
+  font-size:0.75rem;color:#6B7280;font-weight:500;
+  min-width:32px;text-align:left;
+}
 .btn-remove{width:30px;height:30px;border-radius:8px;border:1.5px solid #FECACA;background:#FEF2F2;color:#EF4444;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-weight:700;}
 .btn-remove:hover{background:#EF4444;border-color:#EF4444;color:#fff;}
 .empty-cart{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:#CBD5E1;}
@@ -432,7 +493,7 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
             <tr>
               <th>Product</th>
               <th>Unit Price</th>
-              <th>Qty</th>
+              <th>Quantity</th>
               <th>Subtotal</th>
               <th></th>
             </tr>
@@ -698,21 +759,30 @@ function fetchProduct(barcode) {
 /*  ADD TO CART  */
 function addToCart(product) {
   const existing = cart.find(i => i.id === product.id);
+  const qtyStep = product.unit === 'kg' || product.unit === 'liter' || product.unit === 'gram' || product.unit === 'ml' ? 0.1 : 1;
+  
   if (existing) {
-    if (existing.qty >= product.stock) {
-      showToast(`Max stock reached for "${product.name}" (${product.stock} available)`, 'error'); return;
+    const newQty = parseFloat(existing.qty) + qtyStep;
+    if (newQty > parseFloat(product.stock)) {
+      showToast(`Max stock reached for "${product.name}" (${product.stock} ${product.unit || 'units'} available)`, 'error'); 
+      return;
     }
-    existing.qty++;
+    existing.qty = newQty;
     existing.stock = product.stock;
+    existing.unit = product.unit || 'piece';
   } else {
-    if (product.stock <= 0) { showToast(`"${product.name}" is out of stock`, 'error'); return; }
+    if (parseFloat(product.stock) <= 0) { 
+      showToast(`"${product.name}" is out of stock`, 'error'); 
+      return; 
+    }
     cart.push({ 
       id: product.id, 
       name: product.name, 
       category: product.category || '', 
       price: product.selling_price, 
-      qty: 1, 
+      qty: qtyStep, 
       stock: product.stock,
+      unit: product.unit || 'piece',
       tax_percentage: product.tax_percentage || 0
     });
   }
@@ -725,7 +795,7 @@ function renderCart() {
   const tbody = document.getElementById('cartTbody');
   const empty = document.getElementById('emptyCart');
   const badge = document.getElementById('cartCountBadge');
-  badge.textContent = cart.reduce((s, i) => s + i.qty, 0);
+  badge.textContent = cart.reduce((s, i) => s + parseFloat(i.qty), 0).toFixed(1);
 
   if (cart.length === 0) {
     tbody.innerHTML = '';
@@ -735,7 +805,12 @@ function renderCart() {
   }
   empty.style.display = 'none';
 
-  tbody.innerHTML = cart.map(item => `
+  tbody.innerHTML = cart.map(item => {
+    const qtyStep = item.unit === 'kg' || item.unit === 'liter' || item.unit === 'gram' || item.unit === 'ml' ? 0.1 : 1;
+    const qtyMin = qtyStep;
+    const displayUnit = item.unit || 'piece';
+    
+    return `
     <tr>
       <td>
         <div class="product-name" title="${escHtml(item.name)}">${escHtml(item.name)}</div>
@@ -744,16 +819,19 @@ function renderCart() {
       <td>₹${item.price.toFixed(2)}</td>
       <td>
         <div class="qty-ctrl">
-          <button class="qty-btn" onclick="updateQty(${item.id}, -1)"></button>
-          <input class="qty-input" type="number" value="${item.qty}" min="1" max="${item.stock}"
+          <button class="qty-btn minus" onclick="updateQty(${item.id}, -${qtyStep})">−</button>
+          <input class="qty-input" type="number" value="${parseFloat(item.qty).toFixed(qtyStep === 1 ? 0 : 1)}" 
+            min="${qtyMin}" max="${item.stock}" step="${qtyStep}"
             onchange="setQty(${item.id}, this.value)" />
-          <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+          <div class="qty-unit">${displayUnit}</div>
+          <button class="qty-btn plus" onclick="updateQty(${item.id}, ${qtyStep})">+</button>
         </div>
       </td>
-      <td>₹${(item.price * item.qty).toFixed(2)}</td>
-      <td><button class="btn-remove" onclick="removeFromCart(${item.id})"></button></td>
+      <td>₹${(item.price * parseFloat(item.qty)).toFixed(2)}</td>
+      <td><button class="btn-remove" onclick="removeFromCart(${item.id})" title="Remove item">×</button></td>
     </tr>
-  `).join('');
+    `;
+  }).join('');
 
   updateTotals();
 }
@@ -762,8 +840,15 @@ function renderCart() {
 function updateQty(id, delta) {
   const item = cart.find(i => i.id === id);
   if (!item) return;
-  const newQty = Math.max(1, Math.min(item.stock, item.qty + delta));
-  if (delta > 0 && item.qty >= item.stock) { showToast('Max stock reached', 'error'); return; }
+  
+  const currentQty = parseFloat(item.qty);
+  const newQty = Math.max(0.1, Math.min(parseFloat(item.stock), currentQty + delta));
+  
+  if (delta > 0 && currentQty >= parseFloat(item.stock)) { 
+    showToast('Max stock reached', 'error'); 
+    return; 
+  }
+  
   item.qty = newQty;
   renderCart();
 }
@@ -771,9 +856,16 @@ function updateQty(id, delta) {
 function setQty(id, val) {
   const item = cart.find(i => i.id === id);
   if (!item) return;
-  let qty = parseInt(val);
-  if (isNaN(qty) || qty < 1) qty = 1;
-  if (qty > item.stock) { showToast(`Only ${item.stock} in stock`, 'error'); qty = item.stock; }
+  
+  let qty = parseFloat(val);
+  if (isNaN(qty) || qty <= 0) qty = 0.1;
+  
+  const maxStock = parseFloat(item.stock);
+  if (qty > maxStock) { 
+    showToast(`Only ${maxStock} ${item.unit || 'units'} in stock`, 'error'); 
+    qty = maxStock; 
+  }
+  
   item.qty = qty;
   renderCart();
 }
@@ -925,7 +1017,7 @@ function showReceipt(data) {
   tbody.innerHTML = data.items.map(i => `
     <tr>
       <td>${escHtml(i.name)}${i.tax_percentage > 0 ? ` <small style="color:#D97706;">(+${i.tax_percentage}% tax)</small>` : ''}</td>
-      <td>${i.qty}</td>
+      <td>${parseFloat(i.qty).toFixed(i.unit === 'kg' || i.unit === 'liter' || i.unit === 'gram' || i.unit === 'ml' ? 1 : 0)} ${i.unit || 'pc'}</td>
       <td>₹${parseFloat(i.price).toFixed(2)}</td>
       <td>₹${parseFloat(i.subtotal).toFixed(2)}</td>
     </tr>
