@@ -1,27 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#2563EB"/>
+      <stop offset="50%" style="stop-color:#1D4ED8"/>
+      <stop offset="100%" style="stop-color:#0EA5E9"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.25"/>
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0"/>
     </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#1E3A8A" flood-opacity="0.4"/>
+    </filter>
   </defs>
-  
-  <!-- Background Circle -->
-  <circle cx="16" cy="16" r="15" fill="url(#bg)" stroke="#1E3A8A" stroke-width="2"/>
-  
-  <!-- Invoice Icon -->
-  <rect x="8" y="7" width="16" height="18" rx="2" fill="#FFFFFF" opacity="0.95"/>
-  <rect x="8" y="7" width="16" height="4" rx="2" fill="url(#accent)"/>
-  
-  <!-- Text Lines -->
-  <rect x="10" y="13" width="8" height="1.5" rx="0.75" fill="#64748B"/>
-  <rect x="10" y="16" width="10" height="1.5" rx="0.75" fill="#64748B"/>
-  <rect x="10" y="19" width="6" height="1.5" rx="0.75" fill="#64748B"/>
-  
-  <!-- Currency Symbol -->
-  <text x="20" y="23" font-family="Arial" font-size="8" font-weight="bold" fill="url(#accent)">₹</text>
+
+  <!-- Rounded square background -->
+  <rect x="1" y="1" width="30" height="30" rx="7" fill="url(#bg)" filter="url(#shadow)"/>
+  <!-- Shine overlay -->
+  <rect x="1" y="1" width="30" height="15" rx="7" fill="url(#shine)"/>
+
+  <!-- Receipt/bill icon -->
+  <!-- Paper body -->
+  <rect x="8" y="6" width="14" height="18" rx="2" fill="#FFFFFF" opacity="0.97"/>
+  <!-- Header bar accent -->
+  <rect x="8" y="6" width="14" height="5" rx="2" fill="#60A5FA"/>
+  <rect x="8" y="9" width="14" height="2" fill="#60A5FA"/>
+
+  <!-- Lines representing bill items -->
+  <rect x="10" y="13.5" width="6" height="1.2" rx="0.6" fill="#94A3B8"/>
+  <rect x="10" y="16"   width="8" height="1.2" rx="0.6" fill="#94A3B8"/>
+  <rect x="10" y="18.5" width="5" height="1.2" rx="0.6" fill="#94A3B8"/>
+
+  <!-- Rupee symbol (₹) bottom-right -->
+  <text x="17.5" y="23" font-family="Arial,sans-serif" font-size="7" font-weight="900" fill="#2563EB">₹</text>
 </svg>

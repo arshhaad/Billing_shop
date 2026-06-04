@@ -203,37 +203,260 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
 .btn-stop-scan{padding:12px 28px;background:#EF4444;color:#fff;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
 .scanner-hint{font-size:0.875rem;color:#64748B;}
 
-/*  RECEIPT MODAL  */
-.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+/*  RECEIPT MODAL — ENHANCED PROFESSIONAL STYLING  */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(15,23,42,0.7);
+  backdrop-filter:blur(12px);
+  z-index:300;display:none;
+  align-items:center;justify-content:center;
+  padding:20px;
+}
 .modal-overlay.open{display:flex;}
-.modal-card{background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.18);padding:32px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;}
-@keyframes popIn{from{opacity:0;transform:scale(0.92);}to{opacity:1;transform:scale(1);}}
-.receipt-header{text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed #E2E8F0;}
-.receipt-brand{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#2563EB,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px;}
-.receipt-sub{font-size:0.78rem;color:#94A3B8;font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px;}
-.receipt-meta{font-size:0.8rem;color:#64748B;margin-top:8px;}
-.receipt-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:16px;}
-.receipt-table th{color:#64748B;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.4px;padding:6px 8px;border-bottom:1px solid #E2E8F0;text-align:left;}
-.receipt-table td{padding:7px 8px;border-bottom:1px solid #F1F5F9;color:#1E293B;}
-.receipt-totals{background:#F8FAFC;border-radius:10px;padding:12px;font-size:0.85rem;}
-.receipt-total-row{display:flex;justify-content:space-between;padding:4px 0;color:#64748B;}
-.receipt-total-row.grand{font-weight:800;font-size:1rem;color:#2563EB;border-top:1px solid #E2E8F0;margin-top:6px;padding-top:8px;}
-.receipt-credit-note{margin-top:12px;padding:10px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;font-size:0.8rem;color:#1D4ED8;font-weight:500;}
-.receipt-actions{display:flex;gap:10px;margin-top:20px;}
-.btn-print{flex:1;padding:12px;background:linear-gradient(135deg,#2563EB,#0EA5E9);color:#fff;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;}
-.btn-new-sale{flex:1;padding:12px;background:#F1F5F9;color:#1E293B;border:none;border-radius:10px;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.18s;}
-.btn-new-sale:hover{background:#E2E8F0;}
+.modal-card{
+  background:#FFFFFF;
+  border-radius:24px;
+  box-shadow:
+    0 0 0 1px rgba(37,99,235,0.1),
+    0 4px 6px rgba(0,0,0,0.05),
+    0 20px 25px rgba(0,0,0,0.1),
+    0 40px 80px rgba(37,99,235,0.15);
+  padding:36px;width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;
+  animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  position:relative;
+}
+.modal-card::before{
+  content:'';position:absolute;
+  top:0;left:50%;transform:translateX(-50%);
+  width:60px;height:4px;
+  background:linear-gradient(135deg,#2563EB,#0EA5E9);
+  border-radius:0 0 8px 8px;
+}
+@keyframes popIn{
+  from{opacity:0;transform:scale(0.88) translateY(20px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+.receipt-header{
+  text-align:center;margin-bottom:28px;
+  padding:24px 0 20px;
+  border-bottom:2px dashed #E5E7EB;
+  position:relative;
+}
+.receipt-header::after{
+  content:'';position:absolute;
+  bottom:-1px;left:50%;transform:translateX(-50%);
+  width:80px;height:1px;
+  background:linear-gradient(135deg,#2563EB,#0EA5E9);
+}
+.receipt-brand{
+  font-size:2rem;font-weight:900;
+  background:linear-gradient(135deg,#2563EB 0%,#0EA5E9 50%,#7C3AED 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;letter-spacing:-1.5px;
+  margin-bottom:6px;text-shadow:0 2px 4px rgba(37,99,235,0.1);
+}
+.receipt-sub{
+  font-size:0.8rem;color:#64748B;font-weight:600;
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:12px;
+}
+.receipt-meta{
+  font-size:0.85rem;color:#475569;font-weight:500;
+  background:linear-gradient(135deg,#F8FAFC 0%,#EFF6FF 100%);
+  padding:8px 16px;border-radius:12px;
+  border:1px solid #E2E8F0;display:inline-block;
+}
+.receipt-table{
+  width:100%;border-collapse:collapse;
+  font-size:0.85rem;margin-bottom:20px;
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+.receipt-table th{
+  background:linear-gradient(135deg,#F1F5F9 0%,#E2E8F0 100%);
+  color:#475569;font-size:0.75rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.6px;
+  padding:12px 10px;border-bottom:2px solid #CBD5E1;
+  text-align:left;position:relative;
+}
+.receipt-table th::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:1px;background:linear-gradient(135deg,#2563EB,#0EA5E9);
+}
+.receipt-table td{
+  padding:10px;border-bottom:1px solid #F1F5F9;
+  color:#1E293B;font-weight:500;
+  vertical-align:middle;
+}
+.receipt-table tbody tr:last-child td{border-bottom:none;}
+.receipt-table tbody tr:hover{background:rgba(37,99,235,0.02);}
+.receipt-totals{
+  background:linear-gradient(135deg,#FAFBFC 0%,#F1F5F9 100%);
+  border:2px solid #E5E7EB;border-radius:16px;
+  padding:20px;font-size:0.9rem;
+  position:relative;overflow:hidden;
+}
+.receipt-totals::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:2px;background:linear-gradient(135deg,#2563EB,#0EA5E9);
+}
+.receipt-total-row{
+  display:flex;justify-content:space-between;
+  align-items:center;padding:6px 0;
+  color:#64748B;font-weight:500;
+}
+.receipt-total-row .label{font-weight:600;}
+.receipt-total-row .value{font-weight:700;color:#1E293B;}
+.receipt-total-row.grand{
+  font-weight:800;font-size:1.15rem;
+  color:#2563EB;border-top:2px solid #E2E8F0;
+  margin-top:10px;padding-top:12px;
+  background:linear-gradient(135deg,rgba(37,99,235,0.05) 0%,rgba(14,165,233,0.05) 100%);
+  margin:-4px -8px 0;padding:16px 8px 4px;
+  border-radius:12px;
+}
+.receipt-total-row.grand .value{
+  font-size:1.3rem;font-weight:900;
+  text-shadow:0 1px 2px rgba(37,99,235,0.2);
+}
+.receipt-credit-note{
+  margin-top:16px;padding:14px 18px;
+  background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 100%);
+  border:2px solid #BFDBFE;border-radius:14px;
+  font-size:0.85rem;color:#1D4ED8;font-weight:600;
+  position:relative;
+}
+.receipt-credit-note::before{
+  content:'💳';position:absolute;
+  top:-8px;left:16px;
+  background:#FFFFFF;padding:4px 8px;
+  border-radius:8px;border:2px solid #BFDBFE;
+  font-size:0.9rem;
+}
+.receipt-actions{
+  display:flex;gap:12px;margin-top:24px;
+}
+.btn-print{
+  flex:1;padding:14px 20px;
+  background:linear-gradient(135deg,#2563EB 0%,#0EA5E9 100%);
+  color:#FFFFFF;border:none;border-radius:14px;
+  font-size:0.9rem;font-weight:700;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  transition:all 0.3s ease;
+  box-shadow:0 4px 14px rgba(37,99,235,0.3);
+  position:relative;overflow:hidden;
+}
+.btn-print:before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.2) 0%,transparent 100%);
+  opacity:0;transition:opacity 0.3s;
+}
+.btn-print:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 25px rgba(37,99,235,0.4);
+}
+.btn-print:hover:before{opacity:1;}
+.btn-new-sale{
+  flex:1;padding:14px 20px;
+  background:#F8FAFC;color:#374151;
+  border:2px solid #E5E7EB;border-radius:14px;
+  font-size:0.9rem;font-weight:600;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  transition:all 0.3s ease;
+}
+.btn-new-sale:hover{
+  background:#F1F5F9;border-color:#D1D5DB;
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
 
-/*  CREDIT CONFIRMATION MODAL  */
-.credit-modal-card{background:#fff;border:2px solid #7C3AED;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,0.18);padding:32px;width:100%;max-width:400px;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;}
-.credit-title{font-size:1.1rem;font-weight:700;color:#1E293B;margin-bottom:4px;}
-.credit-sub{font-size:0.85rem;color:#64748B;margin-bottom:18px;}
-.credit-summary{background:#F5F3FF;border:1px solid #DDD6FE;border-radius:10px;padding:14px;margin-bottom:18px;font-size:0.875rem;}
-.credit-summary-row{display:flex;justify-content:space-between;padding:3px 0;color:#4C1D95;}
-.credit-summary-row.total{font-weight:700;font-size:1rem;border-top:1px solid #DDD6FE;margin-top:6px;padding-top:8px;}
-.credit-actions{display:flex;gap:10px;}
-.btn-confirm-credit{flex:1;padding:12px;background:linear-gradient(135deg,#6366F1,#A855F7);color:#fff;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;}
-.btn-cancel-credit{flex:1;padding:12px;background:#F1F5F9;color:#374151;border:none;border-radius:10px;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+/*  CREDIT CONFIRMATION MODAL — ENHANCED STYLING  */
+.credit-modal-card{
+  background:#FFFFFF;
+  border:3px solid #7C3AED;border-radius:24px;
+  box-shadow:
+    0 0 0 4px rgba(124,58,237,0.1),
+    0 20px 25px rgba(0,0,0,0.1),
+    0 40px 80px rgba(124,58,237,0.2);
+  padding:36px;width:100%;max-width:420px;
+  animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  position:relative;overflow:hidden;
+}
+.credit-modal-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:6px;
+  background:linear-gradient(135deg,#7C3AED 0%,#A855F7 50%,#EC4899 100%);
+}
+.credit-title{
+  font-size:1.2rem;font-weight:800;color:#1E293B;
+  margin-bottom:6px;display:flex;align-items:center;gap:10px;
+}
+.credit-title::before{
+  content:'📝';font-size:1.4rem;
+}
+.credit-sub{
+  font-size:0.9rem;color:#64748B;margin-bottom:22px;
+  font-weight:500;line-height:1.5;
+}
+.credit-summary{
+  background:linear-gradient(135deg,#F5F3FF 0%,#EDE9FE 100%);
+  border:2px solid #DDD6FE;border-radius:16px;
+  padding:20px;margin-bottom:22px;font-size:0.9rem;
+  position:relative;
+}
+.credit-summary::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(135deg,#7C3AED,#A855F7);
+}
+.credit-summary-row{
+  display:flex;justify-content:space-between;
+  padding:6px 0;color:#4C1D95;font-weight:600;
+}
+.credit-summary-row .value{font-weight:700;}
+.credit-summary-row.total{
+  font-weight:800;font-size:1.1rem;
+  border-top:2px solid #DDD6FE;
+  margin-top:10px;padding-top:12px;
+  color:#6B21A8;
+}
+.credit-summary-row.total .value{
+  font-size:1.25rem;font-weight:900;
+}
+.credit-actions{display:flex;gap:12px;}
+.btn-confirm-credit{
+  flex:1;padding:14px 20px;
+  background:linear-gradient(135deg,#6366F1 0%,#8B5CF6 50%,#A855F7 100%);
+  color:#FFFFFF;border:none;border-radius:14px;
+  font-size:0.9rem;font-weight:700;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  transition:all 0.3s ease;
+  box-shadow:0 4px 14px rgba(99,102,241,0.3);
+  position:relative;overflow:hidden;
+}
+.btn-confirm-credit:before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.2) 0%,transparent 100%);
+  opacity:0;transition:opacity 0.3s;
+}
+.btn-confirm-credit:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 25px rgba(99,102,241,0.4);
+}
+.btn-confirm-credit:hover:before{opacity:1;}
+.btn-cancel-credit{
+  flex:1;padding:14px 20px;
+  background:#F8FAFC;color:#374151;
+  border:2px solid #E5E7EB;border-radius:14px;
+  font-size:0.9rem;font-weight:600;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  transition:all 0.3s ease;
+}
+.btn-cancel-credit:hover{
+  background:#F1F5F9;border-color:#D1D5DB;
+  transform:translateY(-1px);
+}
 
 /*  TOAST  */
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
@@ -580,7 +803,7 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
   <button class="btn-stop-scan" onclick="closeScanner()"> Stop Scanning</button>
 </div>
 
-<!--  RECEIPT MODAL  -->
+<!--  RECEIPT MODAL — ENHANCED STRUCTURE  -->
 <div class="modal-overlay" id="receiptOverlay">
   <div class="modal-card">
     <div class="receipt-header">
@@ -600,32 +823,61 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
       <tbody id="receiptItemsTbody"></tbody>
     </table>
     <div class="receipt-totals">
-      <div class="receipt-total-row"><span>Subtotal</span><span id="rSubtotal">₹0.00</span></div>
-      <div class="receipt-total-row"><span id="rDiscLabel">Discount</span><span id="rDiscount">-₹0.00</span></div>
-      <div class="receipt-total-row" id="rTaxRow" style="display:none;"><span>Tax (inc. in items)</span><span id="rTax">+₹0.00</span></div>
-      <div class="receipt-total-row grand"><span>Grand Total</span><span id="rGrand">₹0.00</span></div>
+      <div class="receipt-total-row">
+        <span class="label">Subtotal</span>
+        <span class="value" id="rSubtotal">₹0.00</span>
+      </div>
+      <div class="receipt-total-row">
+        <span class="label" id="rDiscLabel">Discount</span>
+        <span class="value" id="rDiscount">-₹0.00</span>
+      </div>
+      <div class="receipt-total-row" id="rTaxRow" style="display:none;">
+        <span class="label">Tax (inc. in items)</span>
+        <span class="value" id="rTax">+₹0.00</span>
+      </div>
+      <div class="receipt-total-row grand">
+        <span class="label">Grand Total</span>
+        <span class="value" id="rGrand">₹0.00</span>
+      </div>
     </div>
     <div class="receipt-credit-note" id="receiptCreditNote" style="display:none;"></div>
     <div class="receipt-actions">
-      <button class="btn-print" onclick="window.print()"> Print</button>
-      <button class="btn-new-sale" onclick="closeReceiptModal()">New Sale</button>
+      <button class="btn-print" onclick="window.print()">
+        🖨️ Print Receipt
+      </button>
+      <button class="btn-new-sale" onclick="closeReceiptModal()">
+        ➕ New Sale
+      </button>
     </div>
   </div>
 </div>
 
-<!--  CREDIT CONFIRM MODAL  -->
+<!--  CREDIT CONFIRM MODAL — ENHANCED STRUCTURE  -->
 <div class="modal-overlay" id="creditOverlay">
   <div class="credit-modal-card">
-    <div class="credit-title"> Add to Credit Book</div>
-    <div class="credit-sub">This amount will be added to the customer's outstanding balance.</div>
+    <div class="credit-title">Add to Credit Book</div>
+    <div class="credit-sub">This amount will be added to the customer's outstanding balance and can be paid later.</div>
     <div class="credit-summary">
-      <div class="credit-summary-row"><span>Customer</span><span id="cModalCustomer">—</span></div>
-      <div class="credit-summary-row"><span>Items</span><span id="cModalItems">0</span></div>
-      <div class="credit-summary-row total"><span>Amount Due</span><span id="cModalAmount">₹0.00</span></div>
+      <div class="credit-summary-row">
+        <span class="label">Customer</span>
+        <span class="value" id="cModalCustomer">—</span>
+      </div>
+      <div class="credit-summary-row">
+        <span class="label">Items</span>
+        <span class="value" id="cModalItems">0</span>
+      </div>
+      <div class="credit-summary-row total">
+        <span class="label">Amount Due</span>
+        <span class="value" id="cModalAmount">₹0.00</span>
+      </div>
     </div>
     <div class="credit-actions">
-      <button class="btn-confirm-credit" id="btnConfirmCredit" onclick="confirmCredit()">Confirm</button>
-      <button class="btn-cancel-credit" onclick="closeCreditModal()">Cancel</button>
+      <button class="btn-confirm-credit" id="btnConfirmCredit" onclick="confirmCredit()">
+        ✓ Confirm Credit
+      </button>
+      <button class="btn-cancel-credit" onclick="closeCreditModal()">
+        ✕ Cancel
+      </button>
     </div>
   </div>
 </div>
@@ -675,63 +927,115 @@ function escHtml(str) {
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/*  BARCODE STATE  */
+/*  BARCODE INPUT & VALIDATION — ENHANCED  */
 const BARCODE_RE = /^[A-Za-z0-9\-_]+$/;
 
+document.getElementById('barcodeInput').addEventListener('input', function(e) {
+  const value = e.target.value.trim();
+  
+  // Clear status when input is empty
+  if (!value) {
+    setBarcodeState('', '');
+    return;
+  }
+  
+  // Real-time validation feedback
+  if (value.length < 4) {
+    setBarcodeState('invalid', 'Barcode too short (minimum 4 characters)');
+    return;
+  }
+  
+  if (value.length > 30) {
+    setBarcodeState('invalid', 'Barcode too long (maximum 30 characters)');
+    return;
+  }
+  
+  if (!/^[A-Za-z0-9\-_]+$/.test(value)) {
+    setBarcodeState('invalid', 'Invalid characters (only letters, numbers, hyphens, underscores allowed)');
+    return;
+  }
+  
+  // Valid format
+  setBarcodeState('valid', 'Valid barcode format - press Enter to search');
+});
+
+document.getElementById('barcodeInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const barcode = e.target.value.trim();
+    
+    if (!barcode) {
+      showToast('Please enter a barcode', 'error');
+      return;
+    }
+    
+    // Final validation before search
+    if (barcode.length < 4 || barcode.length > 30) {
+      showToast('Invalid barcode length', 'error');
+      return;
+    }
+    
+    if (!/^[A-Za-z0-9\-_]+$/.test(barcode)) {
+      showToast('Invalid barcode characters', 'error');
+      return;
+    }
+    
+    setBarcodeState('checking', 'Looking up product...');
+    fetchProduct(barcode);
+  }
+});
+
+/*  ENHANCED BARCODE STATUS WITH ICONS  */
 function setBarcodeState(state, msg) {
   const inp = document.getElementById('barcodeInput');
   const status = document.getElementById('barcodeStatus');
+  
+  // Reset classes
   inp.className = '';
   status.className = '';
-  status.innerHTML = ''; // Changed from textContent to innerHTML
+  status.innerHTML = '';
   
   if (!msg) {
     status.innerHTML = '';
     return;
   }
   
-  // Icons for different states
-  const icons = {
-    checking: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
-    valid: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-    invalid: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-    notfound: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
-    outofstock: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+  // Enhanced icons and styling for different states
+  const stateConfig = {
+    checking: {
+      icon: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
+      class: 'status-checking',
+      inputClass: 'state-checking'
+    },
+    valid: {
+      icon: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      class: 'status-valid',
+      inputClass: 'state-valid'
+    },
+    invalid: {
+      icon: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      class: 'status-invalid',
+      inputClass: 'state-invalid'
+    },
+    notfound: {
+      icon: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+      class: 'status-notfound',
+      inputClass: 'state-invalid'
+    },
+    outofstock: {
+      icon: '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      class: 'status-outofstock',
+      inputClass: 'state-invalid'
+    }
   };
   
-  status.innerHTML = (icons[state] || '') + '<span>' + msg + '</span>';
-  
-  if (state === 'checking')   { inp.classList.add('state-checking');  status.classList.add('status-checking'); }
-  if (state === 'valid')      { inp.classList.add('state-valid');     status.classList.add('status-valid'); }
-  if (state === 'invalid')    { inp.classList.add('state-invalid');   status.classList.add('status-invalid'); }
-  if (state === 'notfound')   { status.classList.add('status-notfound'); }
-  if (state === 'outofstock') { status.classList.add('status-outofstock'); }
+  const config = stateConfig[state];
+  if (config) {
+    inp.classList.add(config.inputClass);
+    status.className = config.class;
+    status.innerHTML = `${config.icon}<span>${msg}</span>`;
+  }
 }
-
-/*  LIVE VALIDATION  */
-document.getElementById('barcodeInput').addEventListener('input', function() {
-  const val = this.value.trim();
-  if (!val) { setBarcodeState('idle', ''); return; }
-  if (val.length < 4 || val.length > 30) {
-    setBarcodeState('invalid', `Length ${val.length}/30 — must be 4-30 chars`); return;
-  }
-  if (!BARCODE_RE.test(val)) {
-    setBarcodeState('invalid', 'Only letters, digits, - and _ allowed'); return;
-  }
-  setBarcodeState('idle', '');
-});
-
-/*  ENTER KEY  */
-document.getElementById('barcodeInput').addEventListener('keydown', function(e) {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const val = this.value.trim();
-  if (!val) return;
-  if (val.length < 4 || val.length > 30) { setBarcodeState('invalid', 'Invalid barcode length'); return; }
-  if (!BARCODE_RE.test(val)) { setBarcodeState('invalid', 'Invalid characters in barcode'); return; }
-  setBarcodeState('checking', 'Looking up product');
-  fetchProduct(val);
-});
 
 /*  FETCH PRODUCT  */
 function fetchProduct(barcode) {
@@ -968,7 +1272,11 @@ function submitBill(creditCustomerId) {
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const discPct = parseFloat(document.getElementById('discountPct').value) || 0;
   const discountAmt = subtotal * discPct / 100;
-  const taxAmt = cart.reduce((s, i) => s + i.price * i.qty * GST_RATE, 0);
+  // Per-product tax (no global GST_RATE)
+  const taxAmt = cart.reduce((s, i) => {
+    const itemSubtotal = i.price * i.qty;
+    return s + itemSubtotal * ((i.tax_percentage || 0) / 100);
+  }, 0);
 
   const payload = {
     cart: cart.map(i => ({ id: i.id, qty: i.qty })),
@@ -1059,41 +1367,151 @@ function closeReceiptModal() {
   document.getElementById('barcodeInput').focus();
 }
 
-/*  CAMERA / QUAGGA  */
+/*  CAMERA / QUAGGA — ENHANCED BARCODE SCANNING  */
 function openScanner() {
+  // Check if device has camera support
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('Camera not supported on this device', 'error');
+    return;
+  }
+  
   document.getElementById('cameraOverlay').classList.add('open');
+  
   Quagga.init({
     inputStream: {
       name: 'Live',
       type: 'LiveStream',
       target: document.querySelector('#interactive'),
-      constraints: { facingMode: 'environment' }
+      constraints: { 
+        facingMode: 'environment', // Use back camera
+        width: { min: 320, ideal: 640, max: 1920 },
+        height: { min: 240, ideal: 480, max: 1080 }
+      }
     },
     decoder: {
-      readers: ['ean_reader','ean_8_reader','code_128_reader','upc_reader','upc_e_reader','code_39_reader']
+      readers: [
+        'ean_reader',     // EAN-13, EAN-8
+        'ean_8_reader',   // EAN-8 specific
+        'code_128_reader', // Code 128
+        'code_39_reader',  // Code 39
+        'code_93_reader',  // Code 93
+        'upc_reader',      // UPC-A
+        'upc_e_reader',    // UPC-E
+        'codabar_reader',  // Codabar
+        'i2of5_reader'     // Interleaved 2 of 5
+      ],
+      debug: {
+        drawBoundingBox: false,
+        showFrequency: false,
+        drawScanline: false,
+        showPattern: false
+      }
+    },
+    locate: true,
+    locator: {
+      halfSample: true,
+      patchSize: 'medium',
+      debug: {
+        showCanvas: false,
+        showPatches: false,
+        showFoundPatches: false,
+        showSkeleton: false,
+        showLabels: false,
+        showPatchLabels: false,
+        showRemainingPatchLabels: false,
+        boxFromPatches: {
+          showTransformed: false,
+          showTransformedBox: false,
+          showBB: false
+        }
+      }
     }
   }, err => {
-    if (err) { showToast('Camera error: ' + err, 'error'); closeScanner(); return; }
+    if (err) {
+      console.error('Camera initialization error:', err);
+      let errorMsg = 'Camera error: ';
+      if (err.name === 'NotAllowedError') {
+        errorMsg += 'Camera access denied. Please allow camera access and try again.';
+      } else if (err.name === 'NotFoundError') {
+        errorMsg += 'No camera found on this device.';
+      } else if (err.name === 'NotReadableError') {
+        errorMsg += 'Camera is being used by another application.';
+      } else {
+        errorMsg += err.message || 'Unknown camera error';
+      }
+      showToast(errorMsg, 'error');
+      closeScanner();
+      return;
+    }
     Quagga.start();
   });
 
   let lastCode = '';
   let lastTime = 0;
+  let scanAttempts = 0;
+  
+  // Enhanced barcode detection with quality checking
   Quagga.onDetected(result => {
     const code = result.codeResult.code;
     const now = Date.now();
+    
+    // Ignore rapid duplicate scans
     if (code === lastCode && now - lastTime < 2000) return;
+    
+    // Basic quality check - ensure decent confidence
+    if (result.codeResult && result.codeResult.decodedCodes) {
+      const avgQuality = result.codeResult.decodedCodes.reduce((sum, code) => {
+        return sum + (code.error || 0);
+      }, 0) / result.codeResult.decodedCodes.length;
+      
+      // Only accept if error rate is below threshold
+      if (avgQuality > 0.3) {
+        scanAttempts++;
+        if (scanAttempts < 5) return; // Allow few more attempts for better quality
+      }
+    }
+    
     lastCode = code;
     lastTime = now;
     closeScanner();
-    setBarcodeState('checking', 'Looking up product');
+    
+    // Validate barcode format before lookup
+    if (!code || code.length < 4 || code.length > 30) {
+      showToast('Invalid barcode format scanned', 'error');
+      return;
+    }
+    
+    if (!/^[A-Za-z0-9\-_]+$/.test(code)) {
+      showToast('Barcode contains invalid characters', 'error');
+      return;
+    }
+    
+    setBarcodeState('checking', 'Looking up scanned product');
+    document.getElementById('barcodeInput').value = code;
     fetchProduct(code);
   });
+  
+  // Auto-close scanner after 30 seconds to save battery
+  setTimeout(() => {
+    if (document.getElementById('cameraOverlay').classList.contains('open')) {
+      closeScanner();
+      showToast('Scanner closed automatically after 30 seconds', 'info');
+    }
+  }, 30000);
 }
 
 function closeScanner() {
   document.getElementById('cameraOverlay').classList.remove('open');
-  try { Quagga.stop(); } catch(e) {}
+  try { 
+    Quagga.stop(); 
+    // Also stop all video tracks to release camera
+    const video = document.querySelector('#interactive video');
+    if (video && video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+    }
+  } catch(e) {
+    console.warn('Error stopping camera:', e);
+  }
 }
 
 /*  INIT  */
