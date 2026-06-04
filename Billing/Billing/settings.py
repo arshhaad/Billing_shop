@@ -118,7 +118,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'eBilling_db',
+            'NAME': 'ebilling_db',
             'USER': 'ebilling',
             'PASSWORD': '[PASSWORD]',
             'HOST': 'localhost',  
