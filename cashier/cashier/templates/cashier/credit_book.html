@@ -651,7 +651,7 @@ function appendCard(d){
 function viewCustomerDetail(id){
   document.getElementById('detailBody').innerHTML='<div class="detail-loading"><div class="spin"></div><br>Loading&hellip;</div>';
   document.getElementById('detailModal').classList.add('open');
-  fetch('/cashier/credit-book/'+id+'/')
+  fetch('/credit-book/'+id+'/')
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(renderDetail)
     .catch(function(err){
@@ -748,7 +748,7 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
   var method = document.getElementById('payMethod').value;
   var notes  = document.getElementById('payNotes').value.trim();
 
-  fetch('/cashier/credit-book/' + cid + '/receive-payment/', {
+  fetch('/credit-book/' + cid + '/receive-payment/', {
     method: 'POST',
     headers: { 'Content-Type':'application/json', 'X-CSRFToken': getCsrf() },
     body: JSON.stringify({ amount: amt.toFixed(2), payment_method: method, notes: notes })
