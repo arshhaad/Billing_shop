@@ -74,9 +74,11 @@ class CustomerCredit(models.Model):
     address = models.TextField(null=True, blank=True)
     total_due = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
 
 class CreditLog(models.Model):
     customer = models.ForeignKey(CustomerCredit, on_delete=models.CASCADE, related_name='credit_logs')
@@ -86,3 +88,42 @@ class CreditLog(models.Model):
 
     def __str__(self):
         return f"{self.customer.name} - {self.amount}"
+
+
+class CreditPaymentHistory(models.Model):
+    """Full audit trail for every payment received against a customer's credit."""
+
+    PAYMENT_METHOD_CHOICES = [
+        ('cash',   'Cash'),
+        ('upi',    'UPI'),
+        ('card',   'Card'),
+        ('bank',   'Bank Transfer'),
+        ('cheque', 'Cheque'),
+        ('other',  'Other'),
+    ]
+
+    customer          = models.ForeignKey(
+                            CustomerCredit, on_delete=models.CASCADE,
+                            related_name='payment_history')
+    previous_balance  = models.DecimalField(max_digits=10, decimal_places=2)
+    paid_amount       = models.DecimalField(max_digits=10, decimal_places=2)
+    remaining_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method    = models.CharField(
+                            max_length=20,
+                            choices=PAYMENT_METHOD_CHOICES,
+                            default='cash')
+    notes             = models.TextField(null=True, blank=True)
+    received_by       = models.ForeignKey(
+                            User, on_delete=models.SET_NULL,
+                            null=True, related_name='payments_received')
+    reference_number  = models.CharField(max_length=100, null=True, blank=True)
+    created_at        = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return (
+            f"Payment ₹{self.paid_amount} from {self.customer.name} "
+            f"on {self.created_at:%d-%b-%Y}"
+        )

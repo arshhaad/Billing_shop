@@ -74,9 +74,31 @@ body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:fle
 .info-row{display:flex;align-items:center;gap:8px;font-size:0.825rem;color:#64748B;}
 .info-row svg{width:15px;height:15px;stroke:#94A3B8;fill:none;flex-shrink:0;}
 .info-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* RECEIVE PAYMENT BUTTON */
 .balance-badge{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%);border-radius:12px;border:1px solid #FCD34D;}
 .balance-badge .bal-label{font-size:0.75rem;font-weight:600;color:#92400E;text-transform:uppercase;letter-spacing:0.5px;}
 .balance-badge .bal-amount{font-size:1.15rem;font-weight:800;color:#B45309;}
+/* Paid badge shown when balance reaches zero */
+.balance-badge.paid{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-color:#86EFAC;}
+.balance-badge.paid .bal-label{color:#166534;}
+.balance-badge.paid .bal-amount{color:#16A34A;}
+.paid-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#DCFCE7;border:1px solid #86EFAC;border-radius:20px;font-size:0.72rem;font-weight:700;color:#16A34A;margin-left:6px;vertical-align:middle;}
+/* Receive payment button on card */
+.btn-receive{width:100%;margin-top:10px;padding:10px 16px;
+  background:linear-gradient(135deg,#10B981,#059669);
+  color:#fff;border:none;border-radius:12px;
+  font-size:0.82rem;font-weight:700;font-family:'Inter',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all 0.2s ease;box-shadow:0 3px 8px rgba(16,185,129,0.3);}
+.btn-receive:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(16,185,129,0.4);}
+.btn-receive:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.btn-receive svg{stroke:#fff;fill:none;width:15px;height:15px;flex-shrink:0;}
+/* Payment modal accent green */
+.modal-accent.green{background:linear-gradient(90deg,#10B981,#059669);}
+/* Readonly input style */
+.field-input[readonly]{background:#F1F5F9;color:#475569;cursor:default;}
+/* Payment method select */
+select.field-input{cursor:pointer;}
 /* EMPTY STATE */
 .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;background:#FFFFFF;border-radius:20px;border:2px dashed #E2E8F0;}
 .empty-icon{width:96px;height:96px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
@@ -293,10 +315,17 @@ textarea.field-input{resize:vertical;min-height:80px;}
         </div>
         {% endif %}
       </div>
-      <div class="balance-badge">
-        <span class="bal-label">Total Due</span>
-        <span class="bal-amount">&#8377;{{ customer.total_due }}</span>
+      <div class="balance-badge" id="badge-{{ customer.id }}" {% if customer.total_due == 0 %}style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-color:#86EFAC;"{% endif %}>
+        <span class="bal-label" style="{% if customer.total_due == 0 %}color:#166534;{% endif %}">{% if customer.total_due == 0 %}Paid{% else %}Total Due{% endif %}</span>
+        <span class="bal-amount" id="bal-{{ customer.id }}" style="{% if customer.total_due == 0 %}color:#16A34A;{% endif %}">&#8377;{{ customer.total_due }}</span>
       </div>
+      {% if customer.total_due > 0 %}
+      <button class="btn-receive" id="paybtn-{{ customer.id }}"
+              onclick="event.stopPropagation(); openPaymentModal({{ customer.id }}, '{{ customer.name|escapejs }}', {{ customer.total_due }})">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Receive Payment
+      </button>
+      {% endif %}
     </div>
     {% empty %}
     <div class="empty-state" id="emptyState">
@@ -316,6 +345,79 @@ textarea.field-input{resize:vertical;min-height:80px;}
     <p>Try a different name, phone number or address.</p>
   </div>
 </main>
+<!-- RECEIVE PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box">
+    <div class="modal-accent green"></div>
+    <div class="modal-inner">
+      <div class="modal-head">
+        <h3>Receive Payment</h3>
+        <button class="modal-close" onclick="closePaymentModal()" aria-label="Close">&#10005;</button>
+      </div>
+      <form id="paymentForm" novalidate>
+        <input type="hidden" id="payCustomerId" value="">
+
+        <div class="field-group">
+          <label class="field-label">Customer</label>
+          <input type="text" id="payCustomerName" class="field-input" readonly>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Outstanding Balance</label>
+          <input type="text" id="payOutstanding" class="field-input" readonly
+                 style="font-weight:700;color:#B45309;">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="payAmount">
+            Payment Amount <span class="req">*</span>
+          </label>
+          <input type="number" id="payAmount" class="field-input"
+                 placeholder="Enter amount" min="0.01" step="0.01"
+                 autocomplete="off" inputmode="decimal">
+          <div class="field-hint">Enter amount between ₹0.01 and the outstanding balance.</div>
+          <div class="field-error" id="errPayAmount">&#9888;&nbsp;<span id="errPayAmountMsg"></span></div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="payMethod">Payment Method</label>
+          <select id="payMethod" class="field-input">
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+            <option value="card">Card</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="cheque">Cheque</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="payNotes">
+            Notes <span style="font-weight:400;color:#94A3B8;">(optional)</span>
+          </label>
+          <textarea id="payNotes" class="field-input"
+                    placeholder="e.g. Partial payment, receipt no. 123"
+                    rows="2"></textarea>
+        </div>
+
+        <div class="field-error" id="errPayServer"
+             style="padding:10px 12px;background:#FEF2F2;border-radius:8px;margin-bottom:8px;">
+          &#9888;&nbsp;<span id="errPayServerMsg"></span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
+          <button type="submit" class="btn-submit"
+                  id="paySubmitBtn"
+                  style="background:linear-gradient(135deg,#10B981,#059669);box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+            <span id="paySubmitText">Save Payment</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- ADD CUSTOMER MODAL -->
 <div class="modal-overlay" id="addModal">
   <div class="modal-box">
@@ -541,7 +643,7 @@ function appendCard(d){
   card.dataset.id=d.id||'';card.dataset.name=(d.name||'').toLowerCase();
   card.dataset.phone=(d.phone||'').toLowerCase();card.dataset.address=(d.address||'').toLowerCase();
   card.setAttribute('onclick','viewCustomerDetail('+parseInt(d.id||0)+')');
-  card.innerHTML='<div class="card-top"><div class="card-avatar" style="background:'+col+'">'+escHtml((d.name||' ').charAt(0).toUpperCase())+'</div><div class="card-name-wrap"><div class="cust-name">'+escHtml(d.name)+'</div><div class="cust-sub">Credit Account</div></div></div><div class="card-info">'+ph+ah+'</div><div class="balance-badge"><span class="bal-label">Total Due</span><span class="bal-amount">&#8377;0.00</span></div>';
+  card.innerHTML='<div class="card-top"><div class="card-avatar" style="background:'+col+'">'+escHtml((d.name||' ').charAt(0).toUpperCase())+'</div><div class="card-name-wrap"><div class="cust-name">'+escHtml(d.name)+'</div><div class="cust-sub">Credit Account</div></div></div><div class="card-info">'+ph+ah+'</div><div class="balance-badge" id="badge-'+escHtml(String(d.id||0))+'"><span class="bal-label">Total Due</span><span class="bal-amount" id="bal-'+escHtml(String(d.id||0))+'">&#8377;0.00</span></div>';
   grid.insertBefore(card,grid.firstChild);
 }
 
@@ -579,6 +681,146 @@ function renderDetail(data){
 /* close on overlay click */
 document.getElementById('addModal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
 document.getElementById('detailModal').addEventListener('click',function(e){if(e.target===this)closeDetailModal();});
+document.getElementById('paymentModal').addEventListener('click',function(e){if(e.target===this)closePaymentModal();});
+
+/* ── RECEIVE PAYMENT ───────────────────────────────────────── */
+var _payOutstanding = 0;
+var _paySubmitting  = false;
+
+function openPaymentModal(customerId, customerName, outstanding) {
+  _payOutstanding = parseFloat(outstanding) || 0;
+  _paySubmitting  = false;
+  document.getElementById('payCustomerId').value   = customerId;
+  document.getElementById('payCustomerName').value = customerName;
+  document.getElementById('payOutstanding').value  = '\u20b9' + _payOutstanding.toFixed(2);
+  document.getElementById('payAmount').value        = '';
+  document.getElementById('payMethod').value        = 'cash';
+  document.getElementById('payNotes').value         = '';
+  document.getElementById('payAmount').classList.remove('is-error','is-valid');
+  document.getElementById('errPayAmount').classList.remove('show');
+  document.getElementById('errPayServer').classList.remove('show');
+  document.getElementById('paySubmitBtn').disabled = false;
+  document.getElementById('paySubmitText').textContent = 'Save Payment';
+  document.getElementById('paymentModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('payAmount').focus(); }, 120);
+}
+function closePaymentModal() {
+  document.getElementById('paymentModal').classList.remove('open');
+  _paySubmitting = false;
+}
+
+document.getElementById('payAmount').addEventListener('input', function() {
+  this.classList.remove('is-error','is-valid');
+  document.getElementById('errPayAmount').classList.remove('show');
+  document.getElementById('errPayServer').classList.remove('show');
+  var v = parseFloat(this.value);
+  if (!isNaN(v) && v > 0 && v <= _payOutstanding) this.classList.add('is-valid');
+});
+
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (_paySubmitting) return;
+
+  var amountEl = document.getElementById('payAmount');
+  var raw = amountEl.value.trim();
+
+  function amtErr(msg) {
+    amountEl.classList.add('is-error'); amountEl.classList.remove('is-valid');
+    document.getElementById('errPayAmountMsg').textContent = msg;
+    document.getElementById('errPayAmount').classList.add('show');
+  }
+
+  if (!raw)                        { amtErr('Payment amount is required.'); return; }
+  var amt = parseFloat(raw);
+  if (isNaN(amt))                  { amtErr('Payment amount must be a valid number.'); return; }
+  if (amt <= 0)                    { amtErr('Payment amount must be greater than zero.'); return; }
+  if (amt > _payOutstanding)       {
+    amtErr('Payment amount cannot exceed the outstanding balance (\u20b9' + _payOutstanding.toFixed(2) + ').');
+    return;
+  }
+
+  _paySubmitting = true;
+  var btn = document.getElementById('paySubmitBtn');
+  btn.disabled = true;
+  document.getElementById('paySubmitText').textContent = 'Saving\u2026';
+
+  var cid    = document.getElementById('payCustomerId').value;
+  var method = document.getElementById('payMethod').value;
+  var notes  = document.getElementById('payNotes').value.trim();
+
+  fetch('/cashier/credit-book/' + cid + '/receive-payment/', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'X-CSRFToken': getCsrf() },
+    body: JSON.stringify({ amount: amt.toFixed(2), payment_method: method, notes: notes })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      closePaymentModal();
+      applyPaymentToCard(cid, data.remaining_balance, data.paid_amount);
+      recalcOutstanding();
+      showToast(
+        'Payment of \u20b9' + parseFloat(data.paid_amount).toFixed(2) +
+        ' received. Remaining: \u20b9' + parseFloat(data.remaining_balance).toFixed(2),
+        'success'
+      );
+    } else {
+      document.getElementById('errPayServerMsg').textContent = data.message || 'Payment failed. Please try again.';
+      document.getElementById('errPayServer').classList.add('show');
+      btn.disabled = false;
+      document.getElementById('paySubmitText').textContent = 'Save Payment';
+      _paySubmitting = false;
+    }
+  })
+  .catch(function() {
+    document.getElementById('errPayServerMsg').textContent = 'Network error — please try again.';
+    document.getElementById('errPayServer').classList.add('show');
+    btn.disabled = false;
+    document.getElementById('paySubmitText').textContent = 'Save Payment';
+    _paySubmitting = false;
+  });
+});
+
+function applyPaymentToCard(customerId, remainingBalance, paidAmount) {
+  var remaining = parseFloat(remainingBalance) || 0;
+  var badge  = document.getElementById('badge-'  + customerId);
+  var balEl  = document.getElementById('bal-'    + customerId);
+  var payBtn = document.getElementById('paybtn-' + customerId);
+  var card   = document.querySelector('.customer-card[data-id="' + customerId + '"]');
+
+  if (balEl) balEl.textContent = '\u20b9' + remaining.toFixed(2);
+
+  if (remaining <= 0) {
+    if (badge) {
+      badge.style.background  = 'linear-gradient(135deg,#F0FDF4,#DCFCE7)';
+      badge.style.borderColor = '#86EFAC';
+      var lbl = badge.querySelector('.bal-label');
+      if (lbl) { lbl.textContent = 'Paid'; lbl.style.color = '#166534'; }
+      if (balEl) balEl.style.color = '#16A34A';
+    }
+    if (payBtn && payBtn.parentNode) payBtn.parentNode.removeChild(payBtn);
+  } else {
+    /* update button's onclick with fresh balance */
+    if (payBtn && card) {
+      var nameEl  = card.querySelector('.cust-name');
+      var newName = nameEl ? nameEl.textContent.trim() : '';
+      payBtn.setAttribute('onclick',
+        'event.stopPropagation(); openPaymentModal(' + customerId + ',' +
+        JSON.stringify(newName) + ',' + remaining + ')');
+    }
+    /* update outstanding field if modal opened for same customer again */
+    _payOutstanding = remaining;
+  }
+}
+
+function recalcOutstanding() {
+  var total = 0;
+  document.querySelectorAll('.bal-amount').forEach(function(el) {
+    total += parseFloat(el.textContent.replace(/[^\d.]/g,'')) || 0;
+  });
+  var el = document.getElementById('statOutstanding');
+  if (el) el.textContent = total.toFixed(2);
+}
 
 /* avatar colours for server-rendered cards */
 (function(){

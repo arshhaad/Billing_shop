@@ -4,10 +4,15 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.contrib import messages
+from django.db import transaction
+from decimal import Decimal, InvalidOperation
 import json
 import random
 
-from shop_admins.models import Product, StockLog, Bill, BillItem, CustomerCredit, CreditLog
+from shop_admins.models import (
+    Product, StockLog, Bill, BillItem,
+    CustomerCredit, CreditLog, CreditPaymentHistory,
+)
 
 # ── Auth Decorator ──────────────────────────────────────────────────────────
 
@@ -140,6 +145,192 @@ def credit_customer_detail(request, pk):
             for log in logs
         ]
     })
+
+
+# ── Credit Payment Service ───────────────────────────────────────────────────
+
+VALID_PAYMENT_METHODS = {'cash', 'upi', 'card', 'bank', 'cheque', 'other'}
+
+
+class CreditPaymentService:
+    """
+    Encapsulates all business logic for receiving a payment against
+    a customer's outstanding credit balance.
+
+    Usage:
+        result = CreditPaymentService().receive_payment(
+            customer_id=5, amount=Decimal('500.00'),
+            payment_method='cash', notes='Partial payment',
+            received_by=request.user,
+        )
+    """
+
+    def receive_payment(
+        self,
+        customer_id: int,
+        amount: Decimal,
+        payment_method: str,
+        notes: str,
+        received_by,
+    ) -> dict:
+        """
+        Validate, record, and apply a payment against the customer's balance.
+
+        Returns a dict with keys: success, message, and on success:
+            previous_balance, paid_amount, remaining_balance.
+
+        Raises nothing — all exceptions are caught and returned as
+        {'success': False, 'message': ...}.
+        """
+        # ── 1. Validate amount (pre-DB) ──────────────────────────────────
+        if amount is None:
+            return {'success': False, 'message': 'Payment amount is required.'}
+        if not isinstance(amount, Decimal):
+            return {'success': False, 'message': 'Payment amount must be numeric.'}
+        if amount <= Decimal('0'):
+            return {'success': False, 'message': 'Payment amount must be greater than zero.'}
+
+        # ── 2. Validate payment method ───────────────────────────────────
+        method = (payment_method or 'cash').strip().lower()
+        if method not in VALID_PAYMENT_METHODS:
+            return {
+                'success': False,
+                'message': (
+                    f'Invalid payment method "{payment_method}". '
+                    f'Allowed: {", ".join(VALID_PAYMENT_METHODS)}.'
+                ),
+            }
+
+        # ── 3. Database transaction with row-level lock ──────────────────
+        try:
+            with transaction.atomic():
+                # SELECT … FOR UPDATE prevents race conditions when two
+                # concurrent requests try to pay the same customer.
+                customer = (
+                    CustomerCredit.objects
+                    .select_for_update()
+                    .get(pk=customer_id)
+                )
+
+                previous_balance: Decimal = customer.total_due
+
+                if previous_balance <= Decimal('0'):
+                    return {
+                        'success': False,
+                        'message': 'No outstanding balance available.',
+                    }
+
+                if amount > previous_balance:
+                    return {
+                        'success': False,
+                        'message': (
+                            f'Payment amount (₹{amount:.2f}) cannot exceed '
+                            f'the outstanding balance (₹{previous_balance:.2f}).'
+                        ),
+                    }
+
+                remaining_balance: Decimal = previous_balance - amount
+
+                # 4. Insert payment history record
+                CreditPaymentHistory.objects.create(
+                    customer=customer,
+                    previous_balance=previous_balance,
+                    paid_amount=amount,
+                    remaining_balance=remaining_balance,
+                    payment_method=method,
+                    notes=(notes or '').strip() or None,
+                    received_by=received_by,
+                )
+
+                # 5. Insert audit log into CreditLog (negative = payment)
+                CreditLog.objects.create(
+                    customer=customer,
+                    amount=-amount,
+                    description=f'Payment received ({method.upper()}) — ₹{amount:.2f}',
+                )
+
+                # 6. Update customer balance
+                customer.total_due = remaining_balance
+                customer.save(update_fields=['total_due', 'updated_at'])
+
+            # ── 7. Commit succeeded ──────────────────────────────────────
+            return {
+                'success': True,
+                'message': 'Payment received successfully.',
+                'previous_balance': float(previous_balance),
+                'paid_amount': float(amount),
+                'remaining_balance': float(remaining_balance),
+            }
+
+        except CustomerCredit.DoesNotExist:
+            return {'success': False, 'message': 'Customer not found.'}
+        except Exception as exc:
+            # transaction.atomic() rolls back automatically on any exception
+            return {
+                'success': False,
+                'message': f'A database error occurred. Please try again. ({exc})',
+            }
+
+
+# ── Receive Payment Endpoint ─────────────────────────────────────────────────
+
+@csrf_exempt
+@cashier_required
+def receive_payment(request, pk: int):
+    """
+    POST /cashier/credit-book/<pk>/receive-payment/
+
+    Body (JSON):
+        {
+            "amount": "500.00",
+            "payment_method": "cash",
+            "notes": "Partial payment"          // optional
+        }
+
+    Response (JSON):
+        {
+            "success": true,
+            "message": "Payment received successfully.",
+            "previous_balance": 1200.00,
+            "paid_amount": 500.00,
+            "remaining_balance": 700.00
+        }
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required.'}, status=405)
+
+    # ── Parse JSON body ───────────────────────────────────────────────────
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'message': 'Invalid JSON body.'}, status=400)
+
+    # ── Validate & coerce amount ──────────────────────────────────────────
+    raw_amount = data.get('amount', '').strip() if isinstance(data.get('amount'), str) else data.get('amount')
+
+    if raw_amount is None or str(raw_amount).strip() == '':
+        return JsonResponse({'success': False, 'message': 'Payment amount is required.'}, status=400)
+
+    try:
+        amount = Decimal(str(raw_amount))
+    except (InvalidOperation, ValueError):
+        return JsonResponse({'success': False, 'message': 'Payment amount must be a valid number.'}, status=400)
+
+    payment_method = data.get('payment_method', 'cash')
+    notes          = data.get('notes', '')
+
+    # ── Delegate to service ───────────────────────────────────────────────
+    service = CreditPaymentService()
+    result  = service.receive_payment(
+        customer_id=pk,
+        amount=amount,
+        payment_method=payment_method,
+        notes=notes,
+        received_by=request.user,
+    )
+
+    status_code = 200 if result.get('success') else 400
+    return JsonResponse(result, status=status_code)
 
 # ── Today's Sales Report ─────────────────────────────────────────────────────
 
