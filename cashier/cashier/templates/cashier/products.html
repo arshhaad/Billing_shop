@@ -1,700 +1,418 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products & Stock - eBilling</title>
-    
-    <!-- Favicons -->
-    {% load static %}
-    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicons/favicon.svg' %}">
-    <link rel="alternate icon" href="{% static 'img/favicons/favicon.ico' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/favicons/apple-touch-icon.svg' %}">
-    <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
-    <meta name="theme-color" content="#2563EB">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
-            min-height: 100vh;
-            color: #1E293B;
-        }
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            min-width: 260px;
-            background: #FFFFFF;
-            border-right: 1px solid #E2E8F0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow-y: auto;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
-            position: fixed;
-            z-index: 100;
-        }
-        .sidebar-brand {
-            padding: 24px 20px;
-            border-bottom: 2px solid #F1F5F9;
-            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
-        }
-        .sidebar-brand .logo {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #2563EB, #0EA5E9);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-            margin-bottom: 2px;
-        }
-        .sidebar-brand .pos-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #64748B;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-        .cashier-card {
-            margin: 16px 12px;
-            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-            border: 2px solid #BFDBFE;
-            border-radius: 14px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .cashier-card .avatar {
-            width: 42px;
-            height: 42px;
-            min-width: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2563EB, #0EA5E9);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
-        }
-        .cashier-info-text {
-            flex: 1;
-            min-width: 0;
-        }
-        .cashier-card .cashier-name {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #1E40AF;
-            line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .cashier-card .cashier-label {
-            font-size: 0.7rem;
-            color: #3B82F6;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-        .sidebar-nav {
-            padding: 8px 12px;
-            flex: 1;
-        }
-        .nav-section-label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #94A3B8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 12px 14px 6px;
-            margin-top: 4px;
-        }
-        .nav-menu {
-            list-style: none;
-        }
-        .nav-item {
-            margin: 0;
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 11px 14px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #64748B;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 3px;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .nav-link:hover {
-            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
-            color: #1E293B;
-            transform: translateX(3px);
-        }
-        .nav-link.active {
-            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
-        }
-        .nav-link.active .nav-icon {
-            stroke: #fff;
-        }
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            min-width: 20px;
-            stroke: #64748B;
-            transition: stroke 0.2s;
-        }
-        .nav-link:hover .nav-icon {
-            stroke: #2563EB;
-        }
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 2px solid #F1F5F9;
-            background: #F8FAFC;
-        }
-        .btn-logout {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 2px solid #FEE2E2;
-            background: linear-gradient(135deg, #FFF 0%, #FEF2F2 100%);
-            color: #DC2626;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        .btn-logout:hover {
-            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
-            border-color: #FCA5A5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220,38,38,0.2);
-        }
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 2rem;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            background: white;
-            padding: 1.5rem 2rem;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        }
-        .header h2 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1E293B;
-        }
-        .search-bar {
-            position: relative;
-            width: 400px;
-        }
-        .search-bar input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 3rem;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            font-size: 0.9375rem;
-            transition: all 0.3s;
-        }
-        .search-bar input:focus {
-            outline: none;
-            border-color: #2563EB;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            color: #94A3B8;
-        }
-        /* Filter Tabs */
-        .filter-tabs {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            flex-wrap: wrap;
-        }
-        .filter-tab {
-            padding: 0.625rem 1.25rem;
-            border: 2px solid #E2E8F0;
-            background: white;
-            border-radius: 10px;
-            font-weight: 500;
-            font-size: 0.875rem;
-            color: #64748B;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .filter-tab:hover {
-            border-color: #2563EB;
-            color: #2563EB;
-        }
-        .filter-tab.active {
-            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-            color: white;
-            border-color: transparent;
-        }
-        /* Products Grid */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .product-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            transition: all 0.3s;
-        }
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        }
-        .product-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-        }
-        .product-name {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #1E293B;
-            margin-bottom: 0.25rem;
-        }
-        .product-category {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: #EFF6FF;
-            color: #2563EB;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .product-info {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #E2E8F0;
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        .info-label {
-            font-size: 0.875rem;
-            color: #64748B;
-        }
-        .info-value {
-            font-weight: 600;
-            color: #1E293B;
-            font-size: 0.9375rem;
-        }
-        .price-tag {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2563EB;
-        }
-        .stock-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.375rem 0.875rem;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        .stock-in { background: #DCFCE7; color: #16A34A; }
-        .stock-low { background: #FEF3C7; color: #D97706; }
-        .stock-out { background: #FEE2E2; color: #DC2626; }
-        .barcode {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8125rem;
-            color: #64748B;
-            background: #F8FAFC;
-            padding: 0.5rem;
-            border-radius: 6px;
-            margin-top: 0.75rem;
-            text-align: center;
-        }
-        .no-products {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: #64748B;
-        }
-        .no-products-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 1200px) {
-            .main-content { padding: 1.5rem; }
-            .sidebar { width: 240px; }
-            .main-content { margin-left: 240px; }
-            .search-bar { width: 300px; }
-        }
-        
-        @media (max-width: 900px) {
-            .sidebar {
-                position: fixed;
-                left: -260px;
-                transition: left 0.3s ease;
-                z-index: 1000;
-            }
-            .sidebar.show {
-                left: 0;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
-            .search-bar {
-                width: 100%;
-            }
-            .filter-tabs {
-                justify-content: center;
-            }
-            .products-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1rem;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .main-content { padding: 0.75rem; }
-            .header {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            .header h2 {
-                font-size: 1.5rem;
-            }
-            .filter-tabs {
-                padding: 0.75rem;
-                gap: 0.5rem;
-            }
-            .filter-tab {
-                padding: 0.5rem 1rem;
-                font-size: 0.8125rem;
-            }
-            .products-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .product-card {
-                padding: 1rem;
-            }
-            .product-name {
-                font-size: 1rem;
-            }
-            .search-bar input {
-                padding: 0.75rem 1rem 0.75rem 2.5rem;
-                font-size: 0.875rem;
-            }
-            .search-icon {
-                left: 0.75rem;
-                width: 16px;
-                height: 16px;
-            }
-        }
-        
-        /* Mobile Menu Toggle */
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1001;
-            background: #2563EB;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        @media (max-width: 900px) {
-            .mobile-menu-toggle {
-                display: block;
-            }
-        }
-        
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        
-        @media (max-width: 900px) {
-            .sidebar-overlay.show {
-                display: block;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBilling | Products & Stock</title>
+{% load static %}
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicons/favicon.svg' %}">
+<link rel="alternate icon" href="{% static 'img/favicons/favicon-32x32.png' %}">
+<link rel="apple-touch-icon" href="{% static 'img/favicons/apple-touch-icon.svg' %}">
+<link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+<meta name="theme-color" content="#2563EB">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;}
+body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sidebar{width:260px;min-width:260px;background:#FFFFFF;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;height:100vh;overflow-y:auto;box-shadow:2px 0 12px rgba(0,0,0,0.06);position:fixed;top:0;left:0;z-index:200;transition:left 0.3s ease;}
+.sidebar-brand{padding:24px 20px;border-bottom:2px solid #F1F5F9;background:linear-gradient(135deg,#F8FAFC,#EFF6FF);}
+.sidebar-brand .logo{font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#2563EB,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:2px;}
+.sidebar-brand .pos-label{font-size:0.7rem;font-weight:600;color:#64748B;letter-spacing:0.8px;text-transform:uppercase;}
+.cashier-card{margin:16px 12px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:2px solid #BFDBFE;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;}
+.cashier-card .avatar{width:42px;height:42px;min-width:42px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#0EA5E9);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.cashier-info-text{flex:1;min-width:0;}
+.cashier-card .cashier-name{font-size:0.95rem;font-weight:700;color:#1E40AF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cashier-card .cashier-label{font-size:0.7rem;color:#3B82F6;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.sidebar-nav{padding:8px 12px;flex:1;}
+.nav-section-label{font-size:0.65rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;padding:12px 14px 6px;margin-top:4px;}
+.nav-menu{list-style:none;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;text-decoration:none;color:#64748B;font-size:0.875rem;font-weight:500;margin-bottom:3px;transition:all 0.2s ease;}
+.nav-link:hover{background:linear-gradient(135deg,#F1F5F9,#E2E8F0);color:#1E293B;transform:translateX(3px);}
+.nav-link.active{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(37,99,235,0.25);}
+.nav-link.active svg,.nav-link.active .nav-icon{stroke:#fff;}
+.nav-icon{width:20px;height:20px;min-width:20px;stroke:#64748B;fill:none;transition:stroke 0.2s;}
+.nav-link:hover .nav-icon{stroke:#2563EB;}
+.sidebar-footer{padding:12px;border-top:2px solid #F1F5F9;background:#F8FAFC;}
+.btn-logout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 14px;border-radius:12px;border:2px solid #FEE2E2;background:linear-gradient(135deg,#FFF,#FEF2F2);color:#DC2626;font-size:0.875rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s ease;}
+.btn-logout:hover{background:linear-gradient(135deg,#FEE2E2,#FECACA);border-color:#FCA5A5;transform:translateY(-2px);}
+/* MAIN */
+.main-content{flex:1;margin-left:260px;padding:28px 32px;min-height:100vh;}
+/* PAGE HEADER */
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;background:#FFFFFF;padding:20px 28px;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;}
+.page-header-left h1{font-size:1.65rem;font-weight:800;color:#1E293B;letter-spacing:-0.3px;}
+.page-header-left p{font-size:0.8125rem;color:#64748B;margin-top:3px;}
+/* STATS BAR */
+.stats-bar{display:flex;gap:16px;margin-bottom:24px;}
+.stat-card{flex:1;background:#FFFFFF;border-radius:14px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;display:flex;align-items:center;gap:14px;}
+.stat-ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-ic.blue{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);}
+.stat-ic.green{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);}
+.stat-ic.amber{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);}
+.stat-ic.red{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);}
+.stat-ic svg{fill:none;}
+.stat-lbl{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:#94A3B8;margin-bottom:3px;}
+.stat-val{font-size:1.4rem;font-weight:800;color:#1E293B;line-height:1;}
+/* CONTROLS */
+.controls-wrap{background:#FFFFFF;border-radius:14px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+.search-inner{position:relative;flex:1;min-width:220px;}
+.search-inner svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;stroke:#94A3B8;fill:none;width:18px;height:18px;}
+#searchInput{width:100%;padding:10px 14px 10px 38px;border:2px solid #E2E8F0;border-radius:11px;font-size:0.875rem;font-family:'Inter',sans-serif;color:#1E293B;outline:none;transition:all 0.2s;background:#F8FAFC;}
+#searchInput::placeholder{color:#CBD5E1;}
+#searchInput:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.1);background:#fff;}
+.filter-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{padding:8px 16px;border:2px solid #E2E8F0;border-radius:20px;font-size:0.8rem;font-weight:600;color:#64748B;cursor:pointer;transition:all 0.2s;background:#fff;font-family:'Inter',sans-serif;}
+.pill:hover{border-color:#2563EB;color:#2563EB;}
+.pill.active{background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border-color:transparent;box-shadow:0 3px 8px rgba(37,99,235,0.25);}
+/* PRODUCT TABLE */
+.table-wrap{background:#FFFFFF;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;overflow:hidden;}
+.table-head{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid #F1F5F9;}
+.table-head h3{font-size:0.95rem;font-weight:700;color:#1E293B;}
+.results-count{font-size:0.8rem;color:#94A3B8;font-weight:500;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:#F8FAFC;color:#64748B;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;padding:12px 20px;border-bottom:1px solid #E2E8F0;text-align:left;white-space:nowrap;}
+thead th:first-child{padding-left:24px;}
+thead th:last-child{padding-right:24px;text-align:right;}
+tbody td{padding:14px 20px;border-bottom:1px solid #F8FAFC;font-size:0.875rem;color:#1E293B;vertical-align:middle;}
+tbody td:first-child{padding-left:24px;}
+tbody td:last-child{padding-right:24px;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{transition:background 0.15s;}
+tbody tr:hover{background:#FAFBFC;}
+.prod-thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid #E2E8F0;flex-shrink:0;}
+.prod-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;border:1px solid #BFDBFE;}
+.prod-cell{display:flex;align-items:center;gap:12px;}
+.prod-name{font-weight:600;color:#1E293B;margin-bottom:2px;}
+.prod-cat{font-size:0.72rem;color:#94A3B8;font-weight:500;}
+.price-val{font-weight:700;color:#2563EB;font-size:1rem;}
+.barcode-val{font-family:'Courier New',monospace;font-size:0.8rem;color:#64748B;background:#F1F5F9;padding:4px 8px;border-radius:6px;letter-spacing:1px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;}
+.badge-green{background:#DCFCE7;color:#16A34A;}
+.badge-amber{background:#FEF3C7;color:#D97706;}
+.badge-red{background:#FEE2E2;color:#DC2626;}
+/* EMPTY */
+.empty-row td{text-align:center;padding:80px 24px!important;}
+.empty-inner{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.empty-ic{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;}
+.empty-ic svg{width:40px;height:40px;stroke:#3B82F6;fill:none;}
+.empty-inner h4{font-size:1.05rem;font-weight:700;color:#1E293B;}
+.empty-inner p{font-size:0.875rem;color:#64748B;max-width:280px;text-align:center;line-height:1.5;}
+/* PAGINATION */
+.pagination-wrap{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid #F1F5F9;background:#FAFBFC;}
+.pag-info{font-size:0.8125rem;color:#94A3B8;font-weight:500;}
+.pag-btns{display:flex;gap:4px;align-items:center;}
+.pag-btn{min-width:36px;height:36px;padding:0 10px;border:1.5px solid #E2E8F0;background:#fff;border-radius:8px;font-size:0.8125rem;font-weight:600;color:#64748B;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;display:flex;align-items:center;justify-content:center;}
+.pag-btn:hover:not(:disabled){border-color:#2563EB;color:#2563EB;}
+.pag-btn.active{background:linear-gradient(135deg,#2563EB,#1D4ED8);border-color:#2563EB;color:#fff;box-shadow:0 3px 8px rgba(37,99,235,0.25);}
+.pag-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.pag-dots{width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:0.875rem;}
+/* HAMBURGER */
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:300;background:#2563EB;color:#fff;border:none;border-radius:10px;padding:9px;cursor:pointer;box-shadow:0 2px 8px rgba(37,99,235,0.35);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:199;}
+/* RESPONSIVE */
+@media(max-width:1100px){.main-content{padding:20px;}}
+@media(max-width:900px){
+  .sidebar{left:-270px;}.sidebar.open{left:0;}
+  .sidebar-overlay.open{display:block;}
+  .main-content{margin-left:0;padding:72px 16px 24px;}
+  .hamburger{display:flex;align-items:center;justify-content:center;}
+  .stats-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .page-header{flex-direction:column;gap:10px;align-items:flex-start;}
+  thead th:nth-child(3),tbody td:nth-child(3){display:none;}
+}
+@media(max-width:640px){
+  .main-content{padding:70px 10px 20px;}
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .controls-wrap{flex-direction:column;gap:10px;}
+  .search-inner{min-width:100%;width:100%;}
+  thead th:nth-child(4),tbody td:nth-child(4),thead th:nth-child(5),tbody td:nth-child(5){display:none;}
+  .pagination-wrap{flex-direction:column;gap:10px;}
+}
+</style>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-    </button>
-    
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
-    
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand">
-                <div class="logo">eBilling</div>
-                <div class="pos-label">Point of Sale System</div>
-            </div>
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-            <div class="cashier-card">
-                <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
-                <div class="cashier-info-text">
-                    <div class="cashier-name">{{ request.user.username }}</div>
-                    <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <div class="nav-section-label">OPERATIONS</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:billing' %}" class="nav-link">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            <span>Checkout</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:products' %}" class="nav-link active">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                            </svg>
-                            <span>Products</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="nav-section-label" style="margin-top: 1rem;">RECORDS</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:credit_book' %}" class="nav-link">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            <span>Credit Book</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:sales_report' %}" class="nav-link">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <span>Sales Report</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <div class="sidebar-footer">
-                <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    <span>Logout</span>
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="header">
-                <h2>📦 Products & Stock</h2>
-                <div class="search-bar">
-                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <input type="text" id="searchInput" placeholder="Search products...">
-                </div>
-            </div>
-
-            <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Products</button>
-                <button class="filter-tab" data-filter="in-stock">In Stock</button>
-                <button class="filter-tab" data-filter="low-stock">Low Stock</button>
-                <button class="filter-tab" data-filter="out-of-stock">Out of Stock</button>
-            </div>
-
-            <div class="products-grid" id="productsGrid">
-                {% for product in products %}
-                <div class="product-card" 
-                     data-category="{{ product.category }}" 
-                     data-stock="{{ product.stock }}" 
-                     data-name="{{ product.name|lower }}">
-                    <div class="product-header">
-                        <div>
-                            <div class="product-name">{{ product.name }}</div>
-                            <span class="product-category">{{ product.category }}</span>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <div class="info-row">
-                            <span class="info-label">Price</span>
-                            <span class="price-tag">₹{{ product.selling_price }}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Stock</span>
-                            {% if product.stock > 10 %}
-                            <span class="stock-badge stock-in">{{ product.stock|floatformat:-1 }} {% if product.unit %}{{ product.get_unit_display }}{% else %}units{% endif %}</span>
-                            {% elif product.stock > 0 %}
-                            <span class="stock-badge stock-low">{{ product.stock|floatformat:-1 }} {% if product.unit %}{{ product.get_unit_display }}{% else %}units{% endif %}</span>
-                            {% else %}
-                            <span class="stock-badge stock-out">Out of Stock</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="barcode">{{ product.barcode }}</div>
-                </div>
-                {% empty %}
-                <div class="no-products">
-                    <div class="no-products-icon">📦</div>
-                    <h3>No products found</h3>
-                    <p>Products will appear here once added by admin</p>
-                </div>
-                {% endfor %}
-            </div>
-        </main>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">eBilling</div>
+    <div class="pos-label">Point of Sale System</div>
+  </div>
+  <div class="cashier-card">
+    <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
+    <div class="cashier-info-text">
+      <div class="cashier-name">{{ request.user.username }}</div>
+      <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
     </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">OPERATIONS</div>
+    <ul class="nav-menu">
+      <li><a href="{% url 'cashier:billing' %}" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Checkout</span>
+      </a></li>
+      <li><a href="{% url 'cashier:products' %}" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products</span>
+      </a></li>
+    </ul>
+    <div class="nav-section-label" style="margin-top:12px;">RECORDS</div>
+    <ul class="nav-menu">
+      <li><a href="{% url 'cashier:credit_book' %}" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Credit Book</span>
+      </a></li>
+      <li><a href="{% url 'cashier:sales_report' %}" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Sales Report</span>
+      </a></li>
+    </ul>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
 
-    <script>
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        const productsGrid = document.getElementById('productsGrid');
-        const productCards = productsGrid.querySelectorAll('.product-card');
-        const filterTabs = document.querySelectorAll('.filter-tab');
+<main class="main-content">
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Products &amp; Stock</h1>
+      <p>Browse all available products and their current stock levels</p>
+    </div>
+  </div>
 
-        let currentFilter = 'all';
+  <!-- Stats bar — counts computed by JS after DOM loads -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-ic blue"><svg width="24" height="24" stroke="#2563EB" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
+      <div><div class="stat-lbl">Total Products</div><div class="stat-val" id="sc-total">0</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ic green"><svg width="24" height="24" stroke="#16A34A" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div><div class="stat-lbl">In Stock</div><div class="stat-val" id="sc-in">0</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ic amber"><svg width="24" height="24" stroke="#D97706" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+      <div><div class="stat-lbl">Low Stock</div><div class="stat-val" id="sc-low">0</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ic red"><svg width="24" height="24" stroke="#DC2626" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>
+      <div><div class="stat-lbl">Out of Stock</div><div class="stat-val" id="sc-out">0</div></div>
+    </div>
+  </div>
 
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filterProducts(searchTerm, currentFilter);
-        });
+  <!-- Controls -->
+  <div class="controls-wrap">
+    <div class="search-inner">
+      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" id="searchInput" placeholder="Search products, categories, barcodes…" oninput="onSearch()" autocomplete="off">
+    </div>
+    <div class="filter-pills">
+      <button class="pill active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="pill" data-filter="in" onclick="setFilter('in',this)">In Stock</button>
+      <button class="pill" data-filter="low" onclick="setFilter('low',this)">Low Stock</button>
+      <button class="pill" data-filter="out" onclick="setFilter('out',this)">Out of Stock</button>
+    </div>
+  </div>
 
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                filterTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                currentFilter = tab.dataset.filter;
-                filterProducts(searchInput.value.toLowerCase(), currentFilter);
-            });
-        });
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <h3>Product Catalogue</h3>
+      <span class="results-count" id="resultsCount">— items</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Barcode</th>
+        </tr>
+      </thead>
+      <tbody id="productTbody">
+        {% for product in products %}
+        <tr class="product-row"
+            data-name="{{ product.name|lower }}"
+            data-cat="{{ product.category|lower }}"
+            data-barcode="{{ product.barcode }}"
+            data-stock="{{ product.stock }}">
+          <td>
+            <div class="prod-cell">
+              {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="prod-thumb">
+              {% else %}
+              <div class="prod-icon">📦</div>
+              {% endif %}
+              <div>
+                <div class="prod-name">{{ product.name }}</div>
+                <div class="prod-cat">{{ product.unit|default:"piece" }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span style="background:#EFF6FF;color:#2563EB;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;">{{ product.category }}</span></td>
+          <td><span class="price-val">&#8377;{{ product.selling_price }}</span></td>
+          <td>
+            {% if product.stock == 0 %}
+            <span class="badge badge-red">Out of Stock</span>
+            {% elif product.stock < 10 %}
+            <span class="badge badge-amber">Low — {{ product.stock|floatformat:"-1" }}</span>
+            {% else %}
+            <span class="badge badge-green">{{ product.stock|floatformat:"-1" }}</span>
+            {% endif %}
+          </td>
+          <td><span class="barcode-val">{{ product.barcode }}</span></td>
+        </tr>
+        {% empty %}
+        <tr class="empty-row"><td colspan="5">
+          <div class="empty-inner">
+            <div class="empty-ic"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
+            <h4>No products available</h4>
+            <p>Products will appear here once added by the admin.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <div class="pagination-wrap" id="paginationWrap">
+      <span class="pag-info" id="pagInfo"></span>
+      <div class="pag-btns" id="pagBtns"></div>
+    </div>
+  </div>
+</main>
+<script>
+var PER_PAGE = 12;
+var currentPage = 1;
+var currentFilter = 'all';
+var currentSearch = '';
+var allRows = [];
 
-        function filterProducts(searchTerm, stockFilter) {
-            let visibleCount = 0;
-            productCards.forEach(card => {
-                const name = card.dataset.name;
-                const stock = parseInt(card.dataset.stock);
-                
-                let matchesSearch = name.includes(searchTerm);
-                let matchesFilter = true;
+function init() {
+  allRows = Array.from(document.querySelectorAll('.product-row'));
+  computeStats();
+  renderPage();
+}
 
-                if (stockFilter === 'in-stock') {
-                    matchesFilter = stock > 10;
-                } else if (stockFilter === 'low-stock') {
-                    matchesFilter = stock > 0 && stock <= 10;
-                } else if (stockFilter === 'out-of-stock') {
-                    matchesFilter = stock === 0;
-                }
+function computeStats() {
+  var total = allRows.length, inS = 0, low = 0, out = 0;
+  allRows.forEach(function(r) {
+    var s = parseFloat(r.dataset.stock) || 0;
+    if (s <= 0) out++;
+    else if (s < 10) low++;
+    else inS++;
+  });
+  document.getElementById('sc-total').textContent = total;
+  document.getElementById('sc-in').textContent = inS;
+  document.getElementById('sc-low').textContent = low;
+  document.getElementById('sc-out').textContent = out;
+}
 
-                if (matchesSearch && matchesFilter) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
+function filtered() {
+  var q = currentSearch.toLowerCase();
+  return allRows.filter(function(r) {
+    var matchQ = !q || r.dataset.name.includes(q) || r.dataset.cat.includes(q) || r.dataset.barcode.toLowerCase().includes(q);
+    var s = parseFloat(r.dataset.stock) || 0;
+    var matchF = currentFilter === 'all' ||
+      (currentFilter === 'in' && s > 10) ||
+      (currentFilter === 'low' && s > 0 && s <= 10) ||
+      (currentFilter === 'out' && s <= 0);
+    return matchQ && matchF;
+  });
+}
 
-        // Mobile menu functionality
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-        }
+function renderPage() {
+  var rows = filtered();
+  var total = rows.length;
+  var totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  if (currentPage > totalPages) currentPage = totalPages;
 
-        // Close mobile menu when clicking on main content
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-menu-toggle');
-            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                sidebar.classList.remove('show');
-                document.getElementById('sidebarOverlay').classList.remove('show');
-            }
-        });
-    </script>
+  var start = (currentPage - 1) * PER_PAGE;
+  var end = Math.min(start + PER_PAGE, total);
+
+  // Hide all, show current page
+  allRows.forEach(function(r) { r.style.display = 'none'; });
+  rows.slice(start, end).forEach(function(r) { r.style.display = ''; });
+
+  // Empty state
+  var tbody = document.getElementById('productTbody');
+  var existingEmpty = tbody.querySelector('.js-empty');
+  if (existingEmpty) tbody.removeChild(existingEmpty);
+  if (total === 0) {
+    var tr = document.createElement('tr');
+    tr.className = 'empty-row js-empty';
+    tr.innerHTML = '<td colspan="5"><div class="empty-inner"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div><h4>No products found</h4><p>Try a different search or filter.</p></div></td>';
+    tbody.appendChild(tr);
+  }
+
+  // Pagination info
+  document.getElementById('resultsCount').textContent = total + ' product' + (total !== 1 ? 's' : '');
+  document.getElementById('pagInfo').textContent = total === 0 ? '' :
+    'Showing ' + (start + 1) + '\u2013' + end + ' of ' + total;
+
+  // Pagination buttons
+  var btns = document.getElementById('pagBtns');
+  btns.innerHTML = '';
+  if (totalPages <= 1) { document.getElementById('paginationWrap').style.display = 'none'; return; }
+  document.getElementById('paginationWrap').style.display = 'flex';
+
+  function mkBtn(label, page, disabled, active) {
+    var b = document.createElement('button');
+    b.className = 'pag-btn' + (active ? ' active' : '');
+    b.textContent = label;
+    b.disabled = disabled;
+    if (!disabled) b.onclick = function() { currentPage = page; renderPage(); };
+    return b;
+  }
+  function mkDots() {
+    var d = document.createElement('span');
+    d.className = 'pag-dots'; d.textContent = '…'; return d;
+  }
+
+  btns.appendChild(mkBtn('‹ Prev', currentPage - 1, currentPage === 1));
+  var pages = [];
+  for (var i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) pages.push(i);
+  }
+  var prev = 0;
+  pages.forEach(function(p) {
+    if (prev && p - prev > 1) btns.appendChild(mkDots());
+    btns.appendChild(mkBtn(p, p, false, p === currentPage));
+    prev = p;
+  });
+  btns.appendChild(mkBtn('Next ›', currentPage + 1, currentPage === totalPages));
+}
+
+function onSearch() {
+  currentSearch = document.getElementById('searchInput').value;
+  currentPage = 1;
+  renderPage();
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  currentPage = 1;
+  document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
+  el.classList.add('active');
+  renderPage();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
- 

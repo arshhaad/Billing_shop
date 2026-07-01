@@ -222,17 +222,25 @@
     {% if page_obj.has_other_pages %}
     <div class="pagination-container">
         <span style="font-size: 0.9rem; color: #6B7280">
-            Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} products
         </span>
         <ul class="pagination">
             {% if page_obj.has_previous %}
-            <li><a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">&laquo; Prev</a></li>
+            <li><a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">&lsaquo; Prev</a></li>
             {% endif %}
-            
-            <li><span class="current-page">{{ page_obj.number }}</span></li>
-            
+
+            {% for p in page_obj.paginator.page_range %}
+              {% if p == page_obj.number %}
+              <li><span class="current-page">{{ p }}</span></li>
+              {% elif p == 1 or p == page_obj.paginator.num_pages or p >= page_obj.number|add:"-2" and p <= page_obj.number|add:"2" %}
+              <li><a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">{{ p }}</a></li>
+              {% elif p == page_obj.number|add:"-3" or p == page_obj.number|add:"3" %}
+              <li><span style="color:#6B7280;padding:8px 6px;">…</span></li>
+              {% endif %}
+            {% endfor %}
+
             {% if page_obj.has_next %}
-            <li><a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">Next &raquo;</a></li>
+            <li><a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_stock_status %}&stock_status={{ selected_stock_status }}{% endif %}">Next &rsaquo;</a></li>
             {% endif %}
         </ul>
     </div>

@@ -263,41 +263,41 @@ def stock_management(request):
     products = Product.objects.all().order_by('name')
     history = StockLog.objects.all().order_by('-created_at')[:30]
 
+    history = StockLog.objects.all().order_by('-created_at')
+
     if request.method == "POST":
         product_id = request.POST.get('product_id')
         change_type = request.POST.get('change_type') # 'ADD' or 'REMOVE'
-        quantity = int(request.POST.get('quantity'))
-        reason = request.POST.get('reason').strip()
+        try:
+            quantity = float(request.POST.get('quantity', 0))
+        except (ValueError, TypeError):
+            quantity = 0
+        reason = (request.POST.get('reason') or '').strip()
 
         product = get_object_or_404(Product, id=product_id)
 
         if change_type == 'ADD':
-            product.stock += quantity
+            product.stock = float(product.stock) + quantity
             product.save()
-            StockLog.objects.create(
-                product=product,
-                change_type='ADD',
-                quantity=quantity,
-                reason=reason
-            )
-            messages.success(request, f"Successfully added {quantity} units to '{product.name}' stock.")
+            StockLog.objects.create(product=product, change_type='ADD', quantity=quantity, reason=reason)
+            messages.success(request, f"Added {quantity} to '{product.name}' stock.")
         elif change_type == 'REMOVE':
-            if product.stock < quantity:
-                messages.error(request, f"Cannot remove {quantity} units. Only {product.stock} units available.")
+            if float(product.stock) < quantity:
+                messages.error(request, f"Cannot remove {quantity}. Only {product.stock} available.")
             else:
-                product.stock -= quantity
+                product.stock = float(product.stock) - quantity
                 product.save()
-                StockLog.objects.create(
-                    product=product,
-                    change_type='REMOVE',
-                    quantity=quantity,
-                    reason=reason
-                )
-                messages.success(request, f"Successfully removed {quantity} units from '{product.name}' stock.")
-        
+                StockLog.objects.create(product=product, change_type='REMOVE', quantity=quantity, reason=reason)
+                messages.success(request, f"Removed {quantity} from '{product.name}' stock.")
+
         return redirect('shop_admins:stock_management')
 
-    return render(request, 'shop_admins/stock.html', {'products': products, 'history': history})
+    # Pagination for history
+    paginator = Paginator(history, 15)
+    page_number = request.GET.get('page')
+    history_page = paginator.get_page(page_number)
+
+    return render(request, 'shop_admins/stock.html', {'products': products, 'history': history_page})
 
 # Sales Reports
 @admin_required

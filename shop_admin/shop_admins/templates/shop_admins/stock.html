@@ -1,138 +1,226 @@
 {% extends 'shop_admins/base.html' %}
-
-{% block title %}Inventory Management - eBilling Admin{% endblock %}
+{% block title %}Inventory Management — eBilling Admin{% endblock %}
 
 {% block extra_styles %}
-.grid-layout {
-    display: grid;
-    grid-template-columns: 2fr 3fr;
-    gap: 30px;
-}
-
-.messages {
-    margin-bottom: 20px;
-}
-
-.message {
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-.message.success {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #6ee7b7;
-}
-
-.message.error {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #fca5a5;
-}
-
-@media (max-width: 768px) {
-    .grid-layout { grid-template-columns: 1fr; gap: 20px; }
+/* ── Layout ── */
+.inv-grid{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start;}
+/* ── Form card ── */
+.form-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;position:sticky;top:0;}
+.form-card-head{padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:12px;}
+.form-card-head .head-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(129,140,248,0.15),rgba(192,132,252,0.15));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.form-card-head h3{font-size:1.05rem;font-weight:700;color:#F1F5F9;}
+.form-card-head p{font-size:0.78rem;color:#6B7280;margin-top:2px;}
+.form-card-body{padding:20px 24px 24px;}
+/* custom select */
+.type-toggle{display:flex;gap:8px;margin-bottom:4px;}
+.type-btn{flex:1;padding:10px 8px;border:2px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.03);color:#9CA3AF;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;text-align:center;}
+.type-btn.add.selected{background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.35);color:#34D399;}
+.type-btn.remove.selected{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.35);color:#F87171;}
+/* History panel */
+.hist-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;}
+.hist-head{padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;}
+.hist-head h3{font-size:1.05rem;font-weight:700;color:#F1F5F9;}
+.hist-head .tx-count{font-size:0.78rem;color:#6B7280;background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:20px;}
+.hist-table-wrap{overflow-x:auto;}
+.hist-table{width:100%;border-collapse:collapse;}
+.hist-table th{padding:11px 18px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#6B7280;border-bottom:1px solid rgba(255,255,255,0.06);text-align:left;white-space:nowrap;background:rgba(0,0,0,0.2);}
+.hist-table td{padding:13px 18px;font-size:0.875rem;color:#CBD5E1;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+.hist-table tbody tr:last-child td{border-bottom:none;}
+.hist-table tbody tr:hover{background:rgba(255,255,255,0.03);}
+.prod-name-cell{font-weight:600;color:#E2E8F0;}
+.qty-cell{font-weight:700;color:#F1F5F9;}
+.time-cell{font-size:0.78rem;color:#6B7280;}
+.reason-cell{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#9CA3AF;}
+/* pagination */
+.hist-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.1);}
+.hist-footer .info{font-size:0.78rem;color:#6B7280;}
+.pag{display:flex;gap:4px;}
+.pag a,.pag span{display:flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 8px;border-radius:7px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.18s;}
+.pag a{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);color:#94A3B8;}
+.pag a:hover{background:rgba(129,140,248,0.15);border-color:rgba(129,140,248,0.3);color:#818CF8;}
+.pag span.cur{background:linear-gradient(135deg,#818CF8,#6366F1);color:#fff;border:1px solid #818CF8;}
+.pag span.dots{background:transparent;border:none;color:#4B5563;}
+/* empty hist */
+.empty-hist{text-align:center;padding:60px 24px;color:#4B5563;}
+.empty-hist svg{width:48px;height:48px;stroke:#374151;margin:0 auto 12px;display:block;}
+/* messages */
+.msg-bar{margin-bottom:20px;}
+.msg{padding:12px 16px;border-radius:10px;font-weight:500;font-size:0.875rem;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.msg.success{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#6EE7B7;}
+.msg.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5;}
+@media(max-width:900px){.inv-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){
+  .hist-table th:nth-child(4),.hist-table td:nth-child(4){display:none;}
+  .hist-footer{flex-direction:column;gap:10px;}
 }
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <div>
-        <h1>📦 Inventory Management</h1>
-        <p>Add or remove stock items manually and view transaction logs</p>
-    </div>
+  <div>
+    <h1>Inventory Management</h1>
+    <p>Adjust stock levels and view the full transaction history</p>
+  </div>
 </div>
 
 {% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="message {{ message.tags }}">
-        {{ message }}
-    </div>
-    {% endfor %}
+<div class="msg-bar">
+  {% for message in messages %}
+  <div class="msg {{ message.tags }}">
+    {% if message.tags == 'success' %}
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    {% else %}
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+    {% endif %}
+    {{ message }}
+  </div>
+  {% endfor %}
 </div>
 {% endif %}
 
-<div class="grid-layout">
-    <!-- Form Card -->
-    <div class="card">
-        <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 12px;">Adjust Stock Level</h3>
-        <form method="POST" action="{% url 'shop_admins:stock_management' %}">
-            {% csrf_token %}
+<div class="inv-grid">
 
-            <div class="form-group">
-                <label for="product_id" class="form-label">Select Product</label>
-                <select id="product_id" name="product_id" class="form-input" required>
-                    <option value="">-- Choose Product --</option>
-                    {% for p in products %}
-                    <option value="{{ p.id }}">{{ p.name }} (Current: {{ p.stock }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="change_type" class="form-label">Adjustment Type</label>
-                <select id="change_type" name="change_type" class="form-input" required>
-                    <option value="ADD">Add Stock (+)</option>
-                    <option value="REMOVE">Remove Stock (-)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="quantity" class="form-label">Quantity</label>
-                <input type="number" id="quantity" name="quantity" class="form-input" min="1" required placeholder="e.g. 10">
-            </div>
-
-            <div class="form-group">
-                <label for="reason" class="form-label">Reason / Comment</label>
-                <input type="text" id="reason" name="reason" class="form-input" placeholder="e.g. Restock shipment, damaged goods">
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Adjustment</button>
-        </form>
+  <!-- ── Adjust Stock Form ── -->
+  <div class="form-card">
+    <div class="form-card-head">
+      <div class="head-icon">
+        <svg width="20" height="20" fill="none" stroke="#818CF8" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      </div>
+      <div>
+        <h3>Adjust Stock Level</h3>
+        <p>Add or remove inventory for any product</p>
+      </div>
     </div>
+    <div class="form-card-body">
+      <form method="POST" action="{% url 'shop_admins:stock_management' %}">
+        {% csrf_token %}
 
-    <!-- History Logs Card -->
-    <div class="card">
-        <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 12px;">Transaction History</h3>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Type</th>
-                        <th>Quantity</th>
-                        <th>Reason</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in history %}
-                    <tr>
-                        <td style="font-weight: 600">{{ log.product.name }}</td>
-                        <td>
-                            {% if log.change_type == 'ADD' %}
-                            <span class="badge badge-green">ADD</span>
-                            {% else %}
-                            <span class="badge badge-red">REMOVE</span>
-                            {% endif %}
-                        </td>
-                        <td><strong>{{ log.quantity }}</strong></td>
-                        <td>{{ log.reason|default:"-" }}</td>
-                        <td style="font-size: 0.85rem; color: #6B7280">{{ log.created_at|date:"d M, h:i A" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: #6B7280; padding: 40px;">
-                            No stock transactions recorded yet.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="form-group">
+          <label class="form-label" for="product_id">Select Product</label>
+          <select id="product_id" name="product_id" class="form-input" required>
+            <option value="">— Choose a product —</option>
+            {% for p in products %}
+            <option value="{{ p.id }}">{{ p.name }} &nbsp;·&nbsp; Stock: {{ p.stock }} {{ p.unit }}</option>
+            {% endfor %}
+          </select>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Adjustment Type</label>
+          <div class="type-toggle">
+            <button type="button" class="type-btn add selected" id="btnAdd" onclick="selectType('ADD')">+ Add Stock</button>
+            <button type="button" class="type-btn remove" id="btnRemove" onclick="selectType('REMOVE')">− Remove Stock</button>
+          </div>
+          <input type="hidden" name="change_type" id="changeTypeInput" value="ADD">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="quantity">Quantity</label>
+          <input type="number" id="quantity" name="quantity" class="form-input" min="0.001" step="0.001" required placeholder="e.g. 10 or 2.5 for kg">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reason">Reason / Comment <span style="color:#4B5563;font-weight:400;">(optional)</span></label>
+          <input type="text" id="reason" name="reason" class="form-input" placeholder="e.g. Monthly restock, Damaged goods">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:0.95rem;margin-top:4px;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          Submit Adjustment
+        </button>
+      </form>
     </div>
+  </div>
+
+  <!-- ── Transaction History ── -->
+  <div class="hist-card">
+    <div class="hist-head">
+      <h3>Transaction History</h3>
+      <span class="tx-count">
+        Page {{ history.number }} of {{ history.paginator.num_pages }}
+      </span>
+    </div>
+
+    <div class="hist-table-wrap">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Type</th>
+            <th>Qty</th>
+            <th>Reason</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in history %}
+          <tr>
+            <td class="prod-name-cell">{{ log.product.name }}</td>
+            <td>
+              {% if log.change_type == 'ADD' %}
+              <span class="badge badge-green">+ ADD</span>
+              {% else %}
+              <span class="badge badge-red">− REMOVE</span>
+              {% endif %}
+            </td>
+            <td class="qty-cell">{{ log.quantity }}</td>
+            <td class="reason-cell" title="{{ log.reason|default:'' }}">{{ log.reason|default:"—" }}</td>
+            <td class="time-cell">{{ log.created_at|date:"d M, h:i A" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="empty-hist">
+                <svg viewBox="0 0 24 24" fill="none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <p>No stock transactions recorded yet.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if history.has_other_pages %}
+    <div class="hist-footer">
+      <span class="info">
+        Showing {{ history.start_index }}–{{ history.end_index }} of {{ history.paginator.count }} records
+      </span>
+      <div class="pag">
+        {% if history.has_previous %}
+        <a href="?page={{ history.previous_page_number }}">&lsaquo; Prev</a>
+        {% endif %}
+
+        {% for p in history.paginator.page_range %}
+          {% if p == history.number %}
+          <span class="cur">{{ p }}</span>
+          {% elif p == 1 or p == history.paginator.num_pages or p >= history.number|add:"-2" and p <= history.number|add:"2" %}
+          <a href="?page={{ p }}">{{ p }}</a>
+          {% elif p == history.number|add:"-3" or p == history.number|add:"3" %}
+          <span class="dots">…</span>
+          {% endif %}
+        {% endfor %}
+
+        {% if history.has_next %}
+        <a href="?page={{ history.next_page_number }}">Next &rsaquo;</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
 </div>
+
+<script>
+function selectType(type) {
+  document.getElementById('changeTypeInput').value = type;
+  var add = document.getElementById('btnAdd');
+  var rem = document.getElementById('btnRemove');
+  if (type === 'ADD') {
+    add.classList.add('selected'); rem.classList.remove('selected');
+  } else {
+    rem.classList.add('selected'); add.classList.remove('selected');
+  }
+}
+</script>
 {% endblock %}
