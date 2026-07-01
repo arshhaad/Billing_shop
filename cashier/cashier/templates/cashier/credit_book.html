@@ -1,1035 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Book - eBilling</title>
-    
-    <!-- Favicons -->
-    {% load static %}
-    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicons/favicon.svg' %}">
-    <link rel="alternate icon" href="{% static 'img/favicons/favicon.ico' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/favicons/apple-touch-icon.svg' %}">
-    <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
-    <meta name="theme-color" content="#2563EB">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
-            min-height: 100vh;
-            color: #1E293B;
-        }
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            min-width: 260px;
-            background: #FFFFFF;
-            border-right: 1px solid #E2E8F0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow-y: auto;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
-            position: fixed;
-            z-index: 100;
-        }
-        .sidebar-brand {
-            padding: 24px 20px;
-            border-bottom: 2px solid #F1F5F9;
-            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
-        }
-        .sidebar-brand .logo {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #2563EB, #0EA5E9);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-            margin-bottom: 2px;
-        }
-        .sidebar-brand .pos-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #64748B;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-        .cashier-card {
-            margin: 16px 12px;
-            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-            border: 2px solid #BFDBFE;
-            border-radius: 14px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .cashier-card .avatar {
-            width: 42px;
-            height: 42px;
-            min-width: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2563EB, #0EA5E9);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.3);
-        }
-        .cashier-info-text {
-            flex: 1;
-            min-width: 0;
-        }
-        .cashier-card .cashier-name {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #1E40AF;
-            line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .cashier-card .cashier-label {
-            font-size: 0.7rem;
-            color: #3B82F6;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-        .sidebar-nav {
-            padding: 8px 12px;
-            flex: 1;
-        }
-        .nav-section-label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #94A3B8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 12px 14px 6px;
-            margin-top: 4px;
-        }
-        .nav-menu {
-            list-style: none;
-        }
-        .nav-item {
-            margin: 0;
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 11px 14px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #64748B;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 3px;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .nav-link:hover {
-            background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
-            color: #1E293B;
-            transform: translateX(3px);
-        }
-        .nav-link.active {
-            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
-        }
-        .nav-link.active .nav-icon {
-            stroke: #fff;
-        }
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            min-width: 20px;
-            stroke: #64748B;
-            transition: stroke 0.2s;
-        }
-        .nav-link:hover .nav-icon {
-            stroke: #2563EB;
-        }
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 2px solid #F1F5F9;
-            background: #F8FAFC;
-        }
-        .btn-logout {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 2px solid #FEE2E2;
-            background: linear-gradient(135deg, #FFF 0%, #FEF2F2 100%);
-            color: #DC2626;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        .btn-logout:hover {
-            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
-            border-color: #FCA5A5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220,38,38,0.2);
-        }
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 2rem;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            background: white;
-            padding: 1.5rem 2rem;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        }
-        .header h2 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1E293B;
-        }
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.9375rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
-        }
-        /* Search Bar */
-        .search-section {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            margin-bottom: 2rem;
-        }
-        .search-bar {
-            position: relative;
-            width: 100%;
-        }
-        .search-bar input {
-            width: 100%;
-            padding: 0.875rem 1rem 0.875rem 3rem;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            font-size: 0.9375rem;
-            transition: all 0.3s;
-        }
-        .search-bar input:focus {
-            outline: none;
-            border-color: #2563EB;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            color: #94A3B8;
-        }
-        /* Customers Grid */
-        .customers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
-        .customer-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        .customer-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        }
-        .customer-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1E293B;
-            margin-bottom: 1rem;
-        }
-        .customer-info {
-            margin-bottom: 1rem;
-        }
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: #64748B;
-        }
-        .info-icon {
-            width: 16px;
-            height: 16px;
-        }
-        .balance {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-            border-radius: 12px;
-            margin-top: 1rem;
-        }
-        .balance-label {
-            font-size: 0.875rem;
-            color: #92400E;
-            font-weight: 500;
-        }
-        .balance-amount {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #B45309;
-        }
-        .no-customers {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: #64748B;
-            grid-column: 1 / -1;
-        }
-        .no-customers-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1E293B;
-        }
-        .close-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: #F1F5F9;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        .close-btn:hover {
-            background: #E2E8F0;
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-        }
-        .form-input {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            font-size: 0.9375rem;
-            transition: all 0.3s;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #2563EB;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        textarea.form-input {
-            resize: vertical;
-            min-height: 80px;
-        }
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .btn-secondary {
-            background: #F1F5F9;
-            color: #475569;
-        }
-        .btn-secondary:hover {
-            background: #E2E8F0;
-        }
-        /* Detail Modal */
-        .detail-section {
-            margin-bottom: 1.5rem;
-        }
-        .detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .detail-balance {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #B45309;
-        }
-        .transaction-log {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .transaction-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: #F8FAFC;
-            border-radius: 12px;
-            margin-bottom: 0.75rem;
-        }
-        .transaction-date {
-            font-size: 0.8125rem;
-            color: #64748B;
-        }
-        .transaction-desc {
-            font-size: 0.875rem;
-            color: #1E293B;
-            font-weight: 500;
-            margin-top: 0.25rem;
-        }
-        .transaction-amount {
-            font-size: 1.125rem;
-            font-weight: 700;
-        }
-        .amount-positive {
-            color: #DC2626;
-        }
-        .amount-negative {
-            color: #16A34A;
-        }
-        
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 1200px) {
-            .main-content { padding: 1.5rem; }
-            .sidebar { width: 240px; }
-            .main-content { margin-left: 240px; }
-        }
-        
-        @media (max-width: 900px) {
-            .sidebar {
-                position: fixed;
-                left: -260px;
-                transition: left 0.3s ease;
-                z-index: 1000;
-            }
-            .sidebar.show {
-                left: 0;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
-            .customers-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1rem;
-            }
-            .modal-content {
-                width: 95%;
-                margin: 1rem;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .main-content { padding: 0.75rem; }
-            .header {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            .header h2 {
-                font-size: 1.5rem;
-            }
-            .search-section {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            .customers-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .customer-card {
-                padding: 1rem;
-            }
-            .customer-name {
-                font-size: 1.125rem;
-            }
-            .modal-content {
-                padding: 1.5rem;
-            }
-            .modal-title {
-                font-size: 1.25rem;
-            }
-            .form-actions {
-                flex-direction: column;
-            }
-            .btn {
-                padding: 0.875rem 1.25rem;
-            }
-        }
-        
-        /* Mobile Menu Toggle */
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1001;
-            background: #2563EB;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        @media (max-width: 900px) {
-            .mobile-menu-toggle {
-                display: block;
-            }
-        }
-        
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        
-        @media (max-width: 900px) {
-            .sidebar-overlay.show {
-                display: block;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eBilling | Credit Book</title>
+{% load static %}
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicons/favicon.svg' %}">
+<link rel="alternate icon" href="{% static 'img/favicons/favicon-32x32.png' %}">
+<link rel="apple-touch-icon" href="{% static 'img/favicons/apple-touch-icon.svg' %}">
+<link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+<meta name="theme-color" content="#2563EB">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;}
+body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sidebar{width:260px;min-width:260px;background:#FFFFFF;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;height:100vh;overflow-y:auto;box-shadow:2px 0 12px rgba(0,0,0,0.06);position:fixed;top:0;left:0;z-index:200;transition:left 0.3s ease;}
+.sidebar-brand{padding:24px 20px;border-bottom:2px solid #F1F5F9;background:linear-gradient(135deg,#F8FAFC 0%,#EFF6FF 100%);}
+.sidebar-brand .logo{font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#2563EB,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:2px;}
+.sidebar-brand .pos-label{font-size:0.7rem;font-weight:600;color:#64748B;letter-spacing:0.8px;text-transform:uppercase;}
+.cashier-card{margin:16px 12px;background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 100%);border:2px solid #BFDBFE;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;}
+.cashier-card .avatar{width:42px;height:42px;min-width:42px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#0EA5E9);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.cashier-info-text{flex:1;min-width:0;}
+.cashier-card .cashier-name{font-size:0.95rem;font-weight:700;color:#1E40AF;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cashier-card .cashier-label{font-size:0.7rem;color:#3B82F6;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.sidebar-nav{padding:8px 12px;flex:1;}
+.nav-section-label{font-size:0.65rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;padding:12px 14px 6px;margin-top:4px;}
+.nav-menu{list-style:none;}
+.nav-link{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;text-decoration:none;color:#64748B;font-size:0.875rem;font-weight:500;margin-bottom:3px;transition:all 0.2s ease;}
+.nav-link:hover{background:linear-gradient(135deg,#F1F5F9 0%,#E2E8F0 100%);color:#1E293B;transform:translateX(3px);}
+.nav-link.active{background:linear-gradient(135deg,#2563EB 0%,#1D4ED8 100%);color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(37,99,235,0.25);}
+.nav-link.active .nav-icon,.nav-link.active svg{stroke:#fff;}
+.nav-icon{width:20px;height:20px;min-width:20px;stroke:#64748B;fill:none;transition:stroke 0.2s;}
+.nav-link:hover .nav-icon{stroke:#2563EB;}
+.sidebar-footer{padding:12px;border-top:2px solid #F1F5F9;background:#F8FAFC;}
+.btn-logout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 14px;border-radius:12px;border:2px solid #FEE2E2;background:linear-gradient(135deg,#FFF 0%,#FEF2F2 100%);color:#DC2626;font-size:0.875rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s ease;}
+.btn-logout:hover{background:linear-gradient(135deg,#FEE2E2 0%,#FECACA 100%);border-color:#FCA5A5;transform:translateY(-2px);box-shadow:0 4px 12px rgba(220,38,38,0.2);}
+/* MAIN */
+.main-content{flex:1;margin-left:260px;padding:28px 32px;min-height:100vh;}
+/* PAGE HEADER */
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;background:#FFFFFF;padding:20px 28px;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;}
+.page-header-left h1{font-size:1.65rem;font-weight:800;color:#1E293B;letter-spacing:-0.3px;line-height:1.2;}
+.page-header-left p{font-size:0.8125rem;color:#64748B;font-weight:500;margin-top:3px;}
+.btn-add{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:linear-gradient(135deg,#2563EB 0%,#1D4ED8 100%);color:#fff;border:none;border-radius:12px;font-size:0.9rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,0.3);transition:all 0.2s ease;}
+.btn-add:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(37,99,235,0.4);}
+.btn-add svg{stroke:#fff;fill:none;}
+/* STATS BAR */
+.stats-bar{display:flex;gap:16px;margin-bottom:24px;}
+.stat-card{flex:1;background:#FFFFFF;border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;display:flex;align-items:center;gap:16px;}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon.blue{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);}
+.stat-icon.amber{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);}
+.stat-info .lbl{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:#94A3B8;margin-bottom:4px;}
+.stat-info .val{font-size:1.6rem;font-weight:800;color:#1E293B;line-height:1;}
+.stat-info .val.amber-val{color:#B45309;}
+/* SEARCH */
+.search-wrap{background:#FFFFFF;border-radius:14px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;margin-bottom:24px;}
+.search-inner{position:relative;}
+.search-inner svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;stroke:#94A3B8;fill:none;width:18px;height:18px;}
+#searchInput{width:100%;padding:11px 16px 11px 42px;border:2px solid #E2E8F0;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;color:#1E293B;outline:none;transition:all 0.2s;background:#F8FAFC;}
+#searchInput::placeholder{color:#CBD5E1;}
+#searchInput:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.1);background:#fff;}
+/* CUSTOMER CARDS */
+.customers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.customer-card{background:#FFFFFF;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.04);border:1px solid #F1F5F9;cursor:pointer;transition:all 0.25s ease;display:flex;flex-direction:column;}
+.customer-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,0.1);border-color:#BFDBFE;}
+.card-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.card-avatar{width:48px;height:48px;min-width:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+.card-name-wrap .cust-name{font-size:1.05rem;font-weight:700;color:#1E293B;line-height:1.3;}
+.card-name-wrap .cust-sub{font-size:0.72rem;font-weight:500;color:#94A3B8;margin-top:2px;}
+.card-info{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;flex:1;}
+.info-row{display:flex;align-items:center;gap:8px;font-size:0.825rem;color:#64748B;}
+.info-row svg{width:15px;height:15px;stroke:#94A3B8;fill:none;flex-shrink:0;}
+.info-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.balance-badge{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%);border-radius:12px;border:1px solid #FCD34D;}
+.balance-badge .bal-label{font-size:0.75rem;font-weight:600;color:#92400E;text-transform:uppercase;letter-spacing:0.5px;}
+.balance-badge .bal-amount{font-size:1.15rem;font-weight:800;color:#B45309;}
+/* EMPTY STATE */
+.empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;background:#FFFFFF;border-radius:20px;border:2px dashed #E2E8F0;}
+.empty-icon{width:96px;height:96px;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.empty-icon svg{width:48px;height:48px;stroke:#3B82F6;fill:none;}
+.empty-state h3{font-size:1.25rem;font-weight:700;color:#1E293B;margin-bottom:8px;}
+.empty-state p{font-size:0.9rem;color:#64748B;text-align:center;max-width:360px;line-height:1.6;}
+#noResults{display:none;margin-top:0;}
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#FFFFFF;border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);animation:modalIn 0.28s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes modalIn{from{opacity:0;transform:translateY(-18px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-accent{height:5px;background:linear-gradient(90deg,#2563EB,#0EA5E9);border-radius:20px 20px 0 0;}
+.modal-inner{padding:28px;}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.modal-head h3{font-size:1.35rem;font-weight:800;color:#1E293B;line-height:1.3;}
+.modal-close{width:32px;height:32px;border:none;background:#F1F5F9;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748B;font-size:1rem;transition:all 0.2s;flex-shrink:0;}
+.modal-close:hover{background:#E2E8F0;color:#1E293B;}
+.field-group{margin-bottom:18px;}
+.field-label{display:block;font-size:0.825rem;font-weight:600;color:#475569;margin-bottom:6px;}
+.field-label .req{color:#EF4444;margin-left:2px;}
+.field-input{width:100%;padding:11px 14px;border:2px solid #E2E8F0;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;color:#1E293B;outline:none;transition:all 0.2s;background:#F8FAFC;}
+.field-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.1);background:#fff;}
+.field-input.is-error{border-color:#EF4444;box-shadow:0 0 0 3px rgba(239,68,68,0.1);background:#FEF2F2;}
+.field-input.is-valid{border-color:#22C55E;background:#F0FDF4;}
+textarea.field-input{resize:vertical;min-height:80px;}
+.field-hint{font-size:0.72rem;color:#94A3B8;margin-top:4px;}
+.field-error{font-size:0.75rem;color:#EF4444;margin-top:5px;display:none;align-items:center;gap:4px;font-weight:500;}
+.field-error.show{display:flex;}
+.modal-actions{display:flex;gap:12px;margin-top:24px;}
+.btn-cancel{flex:1;padding:12px;border:2px solid #E2E8F0;background:#F8FAFC;color:#64748B;border-radius:12px;font-size:0.9rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;}
+.btn-cancel:hover{background:#E2E8F0;border-color:#CBD5E1;color:#1E293B;}
+.btn-submit{flex:2;padding:12px;border:none;background:linear-gradient(135deg,#2563EB 0%,#1D4ED8 100%);color:#fff;border-radius:12px;font-size:0.9rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(37,99,235,0.4);}
+.btn-submit:disabled{opacity:0.65;cursor:not-allowed;transform:none;}
+/* DETAIL MODAL */
+.detail-box{max-width:600px;}
+.detail-profile{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.detail-avatar{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:#fff;flex-shrink:0;}
+.detail-profile-info h2{font-size:1.25rem;font-weight:800;color:#1E293B;margin-bottom:4px;}
+.detail-meta{display:flex;flex-direction:column;gap:5px;margin-top:2px;}
+.detail-meta-row{display:flex;align-items:center;gap:6px;font-size:0.825rem;color:#64748B;}
+.detail-balance-card{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid #FCD34D;border-radius:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.detail-bal-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:#92400E;}
+.detail-bal-amount{font-size:2rem;font-weight:900;color:#B45309;letter-spacing:-0.5px;}
+.tx-section h4{font-size:0.825rem;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:#64748B;margin-bottom:12px;}
+.tx-list{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#F8FAFC;border-radius:12px;border:1px solid #F1F5F9;}
+.tx-left .tx-desc{font-size:0.875rem;font-weight:600;color:#1E293B;}
+.tx-left .tx-date{font-size:0.72rem;color:#94A3B8;margin-top:2px;}
+.tx-amount{font-size:1.05rem;font-weight:700;}
+.tx-debit{color:#DC2626;}
+.tx-credit{color:#16A34A;}
+.tx-empty{text-align:center;padding:32px;color:#94A3B8;font-size:0.875rem;}
+.detail-loading{text-align:center;padding:40px;color:#64748B;}
+.spin{display:inline-block;width:24px;height:24px;border:3px solid #E2E8F0;border-top-color:#2563EB;border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* TOAST */
+#toastContainer{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px;border:1.5px solid;font-size:0.875rem;font-weight:500;font-family:'Inter',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,0.12);pointer-events:all;min-width:260px;max-width:360px;animation:toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:translateX(0);}}
+.toast.fade-out{animation:toastOut 0.3s ease forwards;}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px);}}
+.toast.success{background:#F0FDF4;border-color:#BBF7D0;color:#15803D;}
+.toast.error{background:#FEF2F2;border-color:#FECACA;color:#DC2626;}
+.toast svg{flex-shrink:0;}
+/* HAMBURGER / MOBILE */
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:300;background:#2563EB;color:#fff;border:none;border-radius:10px;padding:9px;cursor:pointer;box-shadow:0 2px 8px rgba(37,99,235,0.35);transition:all 0.2s;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:199;}
+/* RESPONSIVE */
+@media(max-width:1024px){.main-content{padding:20px;}.stats-bar{gap:12px;}}
+@media(max-width:900px){
+  .sidebar{left:-270px;}.sidebar.open{left:0;}
+  .sidebar-overlay.open{display:block;}
+  .main-content{margin-left:0;padding:72px 16px 24px;}
+  .hamburger{display:flex;align-items:center;justify-content:center;}
+  .stats-bar{flex-direction:column;gap:10px;}
+  .page-header{flex-direction:column;gap:12px;align-items:flex-start;}
+}
+@media(max-width:600px){
+  .main-content{padding:70px 12px 20px;}
+  .customers-grid{grid-template-columns:1fr;gap:12px;}
+  .modal-box{border-radius:16px;}.modal-inner{padding:20px;}
+  .modal-actions{flex-direction:column;}.btn-cancel,.btn-submit{flex:none;width:100%;}
+}
+</style>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
+<!-- Hamburger -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">eBilling</div>
+    <div class="pos-label">Point of Sale System</div>
+  </div>
+  <div class="cashier-card">
+    <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
+    <div class="cashier-info-text">
+      <div class="cashier-name">{{ request.user.username }}</div>
+      <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">OPERATIONS</div>
+    <ul class="nav-menu">
+      <li><a href="{% url 'cashier:billing' %}" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Checkout</span>
+      </a></li>
+      <li><a href="{% url 'cashier:products' %}" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products</span>
+      </a></li>
+    </ul>
+    <div class="nav-section-label" style="margin-top:12px;">RECORDS</div>
+    <ul class="nav-menu">
+      <li><a href="{% url 'cashier:credit_book' %}" class="nav-link active">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>Credit Book</span>
+      </a></li>
+      <li><a href="{% url 'cashier:sales_report' %}" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Sales Report</span>
+      </a></li>
+    </ul>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Credit Book</h1>
+      <p>Manage customer credit accounts and outstanding balances</p>
+    </div>
+    <button class="btn-add" onclick="openAddModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+      Add Customer
     </button>
-    
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
-    
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand">
-                <div class="logo">eBilling</div>
-                <div class="pos-label">Point of Sale System</div>
-            </div>
+  </div>
 
-            <div class="cashier-card">
-                <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
-                <div class="cashier-info-text">
-                    <div class="cashier-name">{{ request.user.username }}</div>
-                    <div class="cashier-label">ID: {{ request.user.cashier_profile.cashier_id }}</div>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <div class="nav-section-label">OPERATIONS</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:billing' %}" class="nav-link">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            <span>Checkout</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:products' %}" class="nav-link">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                            </svg>
-                            <span>Products</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="nav-section-label" style="margin-top: 1rem;">RECORDS</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:credit_book' %}" class="nav-link active">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            <span>Credit Book</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'cashier:sales_report' %}" class="nav-link">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <span>Sales Report</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <div class="sidebar-footer">
-                <a href="{% url 'auth_cashier:logout' %}" class="btn-logout">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    <span>Logout</span>
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="header">
-                <h2>📖 Credit Book</h2>
-                <button class="btn btn-primary" onclick="openAddModal()">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Add Customer
-                </button>
-            </div>
-
-            <div class="search-section">
-                <div class="search-bar">
-                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <input type="text" id="searchInput" placeholder="Search customers...">
-                </div>
-            </div>
-
-            <div class="customers-grid" id="customersGrid">
-                {% for customer in customers %}
-                <div class="customer-card" data-name="{{ customer.name|lower }}" onclick="viewCustomerDetail({{ customer.id }})">
-                    <div class="customer-name">{{ customer.name }}</div>
-                    <div class="customer-info">
-                        {% if customer.phone %}
-                        <div class="info-item">
-                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                            </svg>
-                            {{ customer.phone }}
-                        </div>
-                        {% endif %}
-                        {% if customer.address %}
-                        <div class="info-item">
-                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            {{ customer.address|truncatewords:6 }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="balance">
-                        <span class="balance-label">Total Due</span>
-                        <span class="balance-amount">₹{{ customer.total_due }}</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="no-customers">
-                    <div class="no-customers-icon">📖</div>
-                    <h3>No customers in credit book</h3>
-                    <p>Click "Add Customer" to create your first credit entry</p>
-                </div>
-                {% endfor %}
-            </div>
-        </main>
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <svg width="26" height="26" fill="none" stroke="#2563EB" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="lbl">Total Customers</div>
+        <div class="val" id="statCount">{{ customers|length }}</div>
+      </div>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <svg width="26" height="26" fill="none" stroke="#D97706" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="stat-info">
+        <div class="lbl">Total Outstanding</div>
+        <div class="val amber-val">&#8377;<span id="statOutstanding">{% if customers %}{{ customers|length }}{% else %}0{% endif %}</span></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Add Customer Modal -->
-    <div class="modal" id="addModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Add New Customer</h3>
-                <button class="close-btn" onclick="closeAddModal()">✕</button>
-            </div>
-            <form id="addCustomerForm">
-                <div class="form-group">
-                    <label class="form-label">Customer Name *</label>
-                    <input type="text" class="form-input" id="customerName" required minlength="2" maxlength="255" pattern="[a-zA-Z\s.-]+" title="Only letters, spaces, dots and hyphens allowed">
-                    <small style="font-size: 0.75rem; color: #64748B; margin-top: 0.25rem; display: block;">At least 2 characters, letters only</small>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-input" id="customerPhone" pattern="[\d\s\-()]+" title="Only digits, spaces, hyphens and parentheses allowed" minlength="10" maxlength="20">
-                    <small style="font-size: 0.75rem; color: #64748B; margin-top: 0.25rem; display: block;">At least 10 digits (optional)</small>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Address</label>
-                    <textarea class="form-input" id="customerAddress" minlength="5" maxlength="500"></textarea>
-                    <small style="font-size: 0.75rem; color: #64748B; margin-top: 0.25rem; display: block;">At least 5 characters (optional)</small>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Customer</button>
-                </div>
-            </form>
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-inner">
+      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by name, phone or address…" oninput="filterCustomers(this.value)" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Customer Grid -->
+  <div class="customers-grid" id="customersGrid">
+    {% for customer in customers %}
+    <div class="customer-card"
+         data-id="{{ customer.id }}"
+         data-name="{{ customer.name|lower }}"
+         data-phone="{{ customer.phone|lower }}"
+         data-address="{{ customer.address|lower }}"
+         onclick="viewCustomerDetail({{ customer.id }})">
+      <div class="card-top">
+        <div class="card-avatar">{{ customer.name|slice:":1"|upper }}</div>
+        <div class="card-name-wrap">
+          <div class="cust-name">{{ customer.name }}</div>
+          <div class="cust-sub">Credit Account</div>
         </div>
-    </div>
-
-    <!-- Customer Detail Modal -->
-    <div class="modal" id="detailModal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="detailCustomerName">Customer Details</h3>
-                <button class="close-btn" onclick="closeDetailModal()">✕</button>
-            </div>
-            <div class="detail-section">
-                <div class="detail-header">
-                    <div>
-                        <div class="info-item" id="detailPhone"></div>
-                        <div class="info-item" id="detailAddress"></div>
-                    </div>
-                    <div class="detail-balance" id="detailBalance">₹0.00</div>
-                </div>
-            </div>
-            <div class="detail-section">
-                <h4 style="margin-bottom: 1rem; color: #475569;">Transaction History</h4>
-                <div class="transaction-log" id="transactionLog">
-                    <p style="text-align: center; color: #94A3B8;">No transactions yet</p>
-                </div>
-            </div>
+      </div>
+      <div class="card-info">
+        {% if customer.phone %}
+        <div class="info-row">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          <span>{{ customer.phone }}</span>
         </div>
+        {% endif %}
+        {% if customer.address %}
+        <div class="info-row">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>{{ customer.address|truncatewords:6 }}</span>
+        </div>
+        {% endif %}
+      </div>
+      <div class="balance-badge">
+        <span class="bal-label">Total Due</span>
+        <span class="bal-amount">&#8377;{{ customer.total_due }}</span>
+      </div>
     </div>
+    {% empty %}
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <h3>No customers yet</h3>
+      <p>Click "Add Customer" to create your first credit entry.</p>
+    </div>
+    {% endfor %}
+  </div>
+  <div id="noResults" class="empty-state" style="margin-top:0;">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    </div>
+    <h3>No results found</h3>
+    <p>Try a different name, phone number or address.</p>
+  </div>
+</main>
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-accent"></div>
+    <div class="modal-inner">
+      <div class="modal-head">
+        <h3>Add New Customer</h3>
+        <button class="modal-close" onclick="closeAddModal()">&#10005;</button>
+      </div>
+      <form id="addCustomerForm" novalidate>
+        <div class="field-group">
+          <label class="field-label" for="fieldName">Customer Name <span class="req">*</span></label>
+          <input type="text" id="fieldName" class="field-input" placeholder="e.g. Ramesh Kumar" maxlength="255" autocomplete="off">
+          <div class="field-hint">Min 2 chars &middot; letters, spaces, dots and hyphens only</div>
+          <div class="field-error" id="errName">&#9888; <span id="errNameMsg"></span></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="fieldPhone">Phone Number <span style="font-weight:400;color:#94A3B8;">(optional)</span></label>
+          <input type="tel" id="fieldPhone" class="field-input" placeholder="e.g. 9876543210" maxlength="20" autocomplete="off">
+          <div class="field-hint">10&ndash;15 digits; Indian mobile must start with 6&ndash;9</div>
+          <div class="field-error" id="errPhone">&#9888; <span id="errPhoneMsg"></span></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="fieldAddress">Address <span style="font-weight:400;color:#94A3B8;">(optional)</span></label>
+          <textarea id="fieldAddress" class="field-input" placeholder="e.g. 12, Market Street, Pune" maxlength="500"></textarea>
+          <div class="field-hint">5&ndash;500 characters</div>
+          <div class="field-error" id="errAddress">&#9888; <span id="errAddressMsg"></span></div>
+        </div>
+        <div class="field-error" id="errServer" style="padding:10px 12px;background:#FEF2F2;border-radius:8px;margin-bottom:8px;">&#9888; <span id="errServerMsg"></span></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span id="submitBtnText">Add Customer</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        const customersGrid = document.getElementById('customersGrid');
-        const customerCards = customersGrid.querySelectorAll('.customer-card');
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box detail-box">
+    <div class="modal-accent"></div>
+    <div class="modal-inner">
+      <div class="modal-head">
+        <h3 id="detailModalTitle">Customer Details</h3>
+        <button class="modal-close" onclick="closeDetailModal()">&#10005;</button>
+      </div>
+      <div id="detailBody">
+        <div class="detail-loading"><div class="spin"></div><br>Loading&hellip;</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            customerCards.forEach(card => {
-                const name = card.dataset.name;
-                card.style.display = name.includes(searchTerm) ? 'block' : 'none';
-            });
-        });
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+<script>
+/* ── utils ── */
+function escHtml(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getCsrf(){var m=document.cookie.match(/(?:^|; )csrftoken=([^;]*)/);return m?decodeURIComponent(m[1]):'';}
+var COLORS=['#2563EB','#7C3AED','#DB2777','#DC2626','#D97706','#16A34A','#0891B2','#0D9488','#EA580C','#4F46E5'];
+function avatarBg(id){return COLORS[Math.abs(parseInt(id)||0)%COLORS.length];}
 
-        // Add Customer Modal
-        function openAddModal() {
-            document.getElementById('addModal').classList.add('active');
-            document.getElementById('customerName').focus();
-        }
+/* ── toast ── */
+function showToast(msg,type){
+  type=type||'success';
+  var svgs={success:'<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>',
+            error:'<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>'};
+  var t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML=(svgs[type]||svgs.success)+'<span>'+escHtml(msg)+'</span>';
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(function(){t.classList.add('fade-out');t.addEventListener('animationend',function(){t.parentNode&&t.parentNode.removeChild(t);});},3500);
+}
 
-        function closeAddModal() {
-            document.getElementById('addModal').classList.remove('active');
-            document.getElementById('addCustomerForm').reset();
-        }
+/* ── sidebar toggle ── */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
 
-        document.getElementById('addCustomerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const address = document.getElementById('customerAddress').value.trim();
+/* ── search ── */
+function filterCustomers(q){
+  q=(q||'').trim().toLowerCase();
+  var cards=document.querySelectorAll('#customersGrid .customer-card');
+  var visible=0;
+  cards.forEach(function(c){
+    var match=!q||(c.dataset.name||'').includes(q)||(c.dataset.phone||'').includes(q)||(c.dataset.address||'').includes(q);
+    c.style.display=match?'':'none';
+    if(match)visible++;
+  });
+  var nr=document.getElementById('noResults');
+  if(nr)nr.style.display=(cards.length>0&&visible===0)?'flex':'none';
+}
 
-            // Frontend validation
-            if (!name || name.length < 2) {
-                alert('Customer name must be at least 2 characters long.');
-                return;
-            }
+/* ── validation helpers ── */
+function vName(v){
+  if(!v||!v.trim())return'Customer name is required.';
+  v=v.trim();if(v.length<2)return'Name must be at least 2 characters.';
+  if(v.length>255)return'Name is too long (max 255 characters).';
+  if(!/^[a-zA-Z\s.\-]+$/.test(v))return'Only letters, spaces, dots and hyphens allowed.';
+  return null;
+}
+function vPhone(v){
+  if(!v||!v.trim())return null;
+  var d=v.replace(/[\s\-()+]/g,'');
+  if(!/^\d+$/.test(d))return'Phone must contain digits only.';
+  if(d.length<10)return'Must be at least 10 digits.';
+  if(d.length>15)return'Must be 15 digits or fewer.';
+  if(d.length===10&&!/^[6-9]/.test(d))return'Indian 10-digit number must start with 6, 7, 8 or 9.';
+  return null;
+}
+function vAddress(v){
+  if(!v||!v.trim())return null;
+  if(v.trim().length<5)return'Address must be at least 5 characters.';
+  if(v.trim().length>500)return'Address is too long (max 500 characters).';
+  return null;
+}
+function showFE(inputId,errId,msgId,msg){
+  var i=document.getElementById(inputId),e=document.getElementById(errId),m=document.getElementById(msgId);
+  i.classList.add('is-error');i.classList.remove('is-valid');
+  m.textContent=msg;e.classList.add('show');
+}
+function clearFE(inputId,errId){
+  document.getElementById(inputId).classList.remove('is-error');
+  document.getElementById(errId).classList.remove('show');
+}
+function markValid(inputId){
+  var i=document.getElementById(inputId);
+  i.classList.remove('is-error');i.classList.add('is-valid');
+}
 
-            if (name.length > 255) {
-                alert('Customer name is too long (max 255 characters).');
-                return;
-            }
+/* ── add modal ── */
+function openAddModal(){
+  resetForm();document.getElementById('addModal').classList.add('open');
+  setTimeout(function(){document.getElementById('fieldName').focus();},120);
+}
+function closeAddModal(){document.getElementById('addModal').classList.remove('open');}
+function resetForm(){
+  document.getElementById('addCustomerForm').reset();
+  ['fieldName','fieldPhone','fieldAddress'].forEach(function(id){var el=document.getElementById(id);el.classList.remove('is-error','is-valid');});
+  ['errName','errPhone','errAddress','errServer'].forEach(function(id){document.getElementById(id).classList.remove('show');});
+  var btn=document.getElementById('submitBtn');btn.disabled=false;
+  document.getElementById('submitBtnText').textContent='Add Customer';
+}
 
-            // Validate name characters
-            if (!/^[a-zA-Z\s.-]+$/.test(name)) {
-                alert('Customer name can only contain letters, spaces, dots and hyphens.');
-                return;
-            }
+/* blur validators */
+document.getElementById('fieldName').addEventListener('blur',function(){
+  var e=vName(this.value);
+  if(e)showFE('fieldName','errName','errNameMsg',e);else{clearFE('fieldName','errName');if(this.value.trim())markValid('fieldName');}
+});
+document.getElementById('fieldPhone').addEventListener('blur',function(){
+  var e=vPhone(this.value);
+  if(e)showFE('fieldPhone','errPhone','errPhoneMsg',e);else{clearFE('fieldPhone','errPhone');if(this.value.trim())markValid('fieldPhone');}
+});
+document.getElementById('fieldAddress').addEventListener('blur',function(){
+  var e=vAddress(this.value);
+  if(e)showFE('fieldAddress','errAddress','errAddressMsg',e);else{clearFE('fieldAddress','errAddress');if(this.value.trim())markValid('fieldAddress');}
+});
+['fieldName','fieldPhone','fieldAddress'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',function(){
+    this.classList.remove('is-error');
+    document.getElementById('errServer').classList.remove('show');
+  });
+});
 
-            // Validate phone if provided (Indian format)
-            if (phone) {
-                const phoneClean = phone.replace(/[-\s()]/g, '');
-                if (!/^\d+$/.test(phoneClean)) {
-                    alert('Phone number must contain only digits, spaces, and hyphens.');
-                    return;
-                }
-                if (phoneClean.length < 10) {
-                    alert('Phone number must be at least 10 digits.');
-                    return;
-                }
-                if (phoneClean.length > 15) {
-                    alert('Phone number is too long (max 15 digits).');
-                    return;
-                }
-                // Indian mobile number validation (should start with 6,7,8,9)
-                if (phoneClean.length === 10 && !'6789'.includes(phoneClean[0])) {
-                    alert('Indian mobile numbers should start with 6, 7, 8, or 9.');
-                    return;
-                }
-            }
+/* submit */
+document.getElementById('addCustomerForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var ne=vName(document.getElementById('fieldName').value);
+  var pe=vPhone(document.getElementById('fieldPhone').value);
+  var ae=vAddress(document.getElementById('fieldAddress').value);
+  var bad=false;
+  if(ne){showFE('fieldName','errName','errNameMsg',ne);bad=true;}else{clearFE('fieldName','errName');if(document.getElementById('fieldName').value.trim())markValid('fieldName');}
+  if(pe){showFE('fieldPhone','errPhone','errPhoneMsg',pe);bad=true;}else{clearFE('fieldPhone','errPhone');if(document.getElementById('fieldPhone').value.trim())markValid('fieldPhone');}
+  if(ae){showFE('fieldAddress','errAddress','errAddressMsg',ae);bad=true;}else{clearFE('fieldAddress','errAddress');if(document.getElementById('fieldAddress').value.trim())markValid('fieldAddress');}
+  if(bad)return;
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true;document.getElementById('submitBtnText').textContent='Adding\u2026';
+  fetch('{% url "cashier:add_credit_customer" %}',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},
+    body:JSON.stringify({
+      name:document.getElementById('fieldName').value.trim(),
+      phone:document.getElementById('fieldPhone').value.trim(),
+      address:document.getElementById('fieldAddress').value.trim()
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.success){
+      closeAddModal();
+      showToast('Customer "'+data.customer.name+'" added!','success');
+      appendCard(data.customer);
+      document.getElementById('statCount').textContent=
+        parseInt(document.getElementById('statCount').textContent||'0')+1;
+    }else{
+      var msg=data.message||'Something went wrong.';
+      if(msg.toLowerCase().includes('name'))showFE('fieldName','errName','errNameMsg',msg);
+      else if(msg.toLowerCase().includes('phone'))showFE('fieldPhone','errPhone','errPhoneMsg',msg);
+      else if(msg.toLowerCase().includes('address'))showFE('fieldAddress','errAddress','errAddressMsg',msg);
+      else{document.getElementById('errServerMsg').textContent=msg;document.getElementById('errServer').classList.add('show');}
+      btn.disabled=false;document.getElementById('submitBtnText').textContent='Add Customer';
+    }
+  })
+  .catch(function(){
+    document.getElementById('errServerMsg').textContent='Network error — please try again.';
+    document.getElementById('errServer').classList.add('show');
+    btn.disabled=false;document.getElementById('submitBtnText').textContent='Add Customer';
+  });
+});
 
-            // Validate address if provided
-            if (address) {
-                if (address.length < 5) {
-                    alert('Address must be at least 5 characters long.');
-                    return;
-                }
-                if (address.length > 500) {
-                    alert('Address is too long (max 500 characters).');
-                    return;
-                }
-            }
+function appendCard(d){
+  var empty=document.getElementById('emptyState');if(empty&&empty.parentNode)empty.parentNode.removeChild(empty);
+  document.getElementById('noResults').style.display='none';
+  var col=avatarBg(d.id);
+  var grid=document.getElementById('customersGrid');
+  var ph=d.phone?'<div class="info-row"><svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg><span>'+escHtml(d.phone)+'</span></div>':'';
+  var ah=d.address?'<div class="info-row"><svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>'+escHtml(d.address.split(' ').slice(0,6).join(' '))+'</span></div>':'';
+  var card=document.createElement('div');
+  card.className='customer-card';
+  card.dataset.id=d.id||'';card.dataset.name=(d.name||'').toLowerCase();
+  card.dataset.phone=(d.phone||'').toLowerCase();card.dataset.address=(d.address||'').toLowerCase();
+  card.setAttribute('onclick','viewCustomerDetail('+parseInt(d.id||0)+')');
+  card.innerHTML='<div class="card-top"><div class="card-avatar" style="background:'+col+'">'+escHtml((d.name||' ').charAt(0).toUpperCase())+'</div><div class="card-name-wrap"><div class="cust-name">'+escHtml(d.name)+'</div><div class="cust-sub">Credit Account</div></div></div><div class="card-info">'+ph+ah+'</div><div class="balance-badge"><span class="bal-label">Total Due</span><span class="bal-amount">&#8377;0.00</span></div>';
+  grid.insertBefore(card,grid.firstChild);
+}
 
-            try {
-                const response = await fetch('{% url "cashier:add_credit_customer" %}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, phone, address })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('Customer added successfully!');
-                    location.reload();
-                } else {
-                    alert(data.message || 'Failed to add customer');
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
+/* ── detail modal ── */
+function viewCustomerDetail(id){
+  document.getElementById('detailBody').innerHTML='<div class="detail-loading"><div class="spin"></div><br>Loading&hellip;</div>';
+  document.getElementById('detailModal').classList.add('open');
+  fetch('/cashier/credit-book/'+id+'/')
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(renderDetail)
+    .catch(function(err){
+      document.getElementById('detailBody').innerHTML='<div class="detail-loading" style="color:#DC2626">Failed to load details.<br><small>'+escHtml(err.message)+'</small></div>';
+    });
+}
+function closeDetailModal(){document.getElementById('detailModal').classList.remove('open');}
+function renderDetail(data){
+  var col=avatarBg(data.id||0);
+  var ph=data.customer&&data.customer.phone?'<div class="detail-meta-row"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#94A3B8" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>'+escHtml(data.customer.phone)+'</div>':'';
+  var ah=data.customer&&data.customer.address?'<div class="detail-meta-row"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#94A3B8" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'+escHtml(data.customer.address)+'</div>':'';
+  var logs=data.logs||[];
+  var txH=logs.length?logs.map(function(l){
+    var cls=parseFloat(l.amount)>0?'tx-debit':'tx-credit';
+    var sign=parseFloat(l.amount)>0?'+':'';
+    return '<div class="tx-item"><div class="tx-left"><div class="tx-desc">'+escHtml(l.description||'Transaction')+'</div><div class="tx-date">'+escHtml(l.date||'')+'</div></div><div class="tx-amount '+cls+'">'+sign+'&#8377;'+escHtml(String(Math.abs(parseFloat(l.amount)||0).toFixed(2)))+'</div></div>';
+  }).join(''):'<div class="tx-empty">No transactions recorded yet.</div>';
+  var cust=data.customer||{};
+  document.getElementById('detailModalTitle').textContent=cust.name||'Customer Details';
+  document.getElementById('detailBody').innerHTML=
+    '<div class="detail-profile"><div class="detail-avatar" style="background:'+col+'">'+escHtml((cust.name||' ').charAt(0).toUpperCase())+'</div>'
+    +'<div class="detail-profile-info"><h2>'+escHtml(cust.name||'')+'</h2><div class="detail-meta">'+ph+ah+'</div></div></div>'
+    +'<div class="detail-balance-card"><div class="detail-bal-label">Outstanding Balance</div><div class="detail-bal-amount">&#8377;'+escHtml(String(parseFloat(cust.total_due||0).toFixed(2)))+'</div></div>'
+    +'<div class="tx-section"><h4>Transaction History</h4><div class="tx-list">'+txH+'</div></div>';
+}
 
-        // Customer Detail Modal
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.remove('active');
-        }
+/* close on overlay click */
+document.getElementById('addModal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
+document.getElementById('detailModal').addEventListener('click',function(e){if(e.target===this)closeDetailModal();});
 
-        async function viewCustomerDetail(customerId) {
-            try {
-                const response = await fetch(`/cashier/credit-book/${customerId}/`);
-                const data = await response.json();
-                if (data.success) {
-                    const customer = data.customer;
-                    document.getElementById('detailCustomerName').textContent = customer.name;
-                    
-                    // Set phone and address
-                    const phoneElement = document.getElementById('detailPhone');
-                    const addressElement = document.getElementById('detailAddress');
-                    
-                    if (customer.phone) {
-                        phoneElement.innerHTML = `
-                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                            </svg>
-                            ${customer.phone}
-                        `;
-                    } else {
-                        phoneElement.innerHTML = '<span style="color: #94A3B8; font-style: italic;">No phone number</span>';
-                    }
-                    
-                    if (customer.address) {
-                        addressElement.innerHTML = `
-                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            ${customer.address}
-                        `;
-                    } else {
-                        addressElement.innerHTML = '<span style="color: #94A3B8; font-style: italic;">No address</span>';
-                    }
-                    
-                    // Set balance
-                    document.getElementById('detailBalance').textContent = `₹${customer.total_due}`;
-                    
-                    // Set transaction log
-                    const logContainer = document.getElementById('transactionLog');
-                    if (data.logs && data.logs.length > 0) {
-                        logContainer.innerHTML = data.logs.map(log => `
-                            <div class="transaction-item">
-                                <div>
-                                    <div class="transaction-date">${log.date}</div>
-                                    <div class="transaction-desc">${log.description}</div>
-                                </div>
-                                <div class="transaction-amount ${log.amount > 0 ? 'amount-positive' : 'amount-negative'}">
-                                    ${log.amount > 0 ? '+' : ''}₹${Math.abs(log.amount).toFixed(2)}
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        logContainer.innerHTML = '<p style="text-align: center; color: #94A3B8;">No transactions yet</p>';
-                    }
-                    
-                    // Show modal
-                    document.getElementById('detailModal').classList.add('active');
-                }
-            } catch (error) {
-                alert('Error loading customer details: ' + error.message);
-            }
-        }
-
-        // Mobile menu functionality
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-        }
-
-        // Close mobile menu when clicking on main content
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-menu-toggle');
-            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                sidebar.classList.remove('show');
-                document.getElementById('sidebarOverlay').classList.remove('show');
-            }
-        });
-                    document.getElementById('detailPhone').innerHTML = customer.phone 
-                        ? `<svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg> ${customer.phone}`
-                        : '';
-                    document.getElementById('detailAddress').innerHTML = customer.address
-                        ? `<svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> ${customer.address}`
-                        : '';
-                    document.getElementById('detailBalance').textContent = `₹${customer.total_due}`;
-
-                    const logContainer = document.getElementById('transactionLog');
-                    if (data.logs && data.logs.length > 0) {
-                        logContainer.innerHTML = data.logs.map(log => `
-                            <div class="transaction-item">
-                                <div>
-                                    <div class="transaction-date">${log.date}</div>
-                                    <div class="transaction-desc">${log.description || 'Credit transaction'}</div>
-                                </div>
-                                <div class="transaction-amount ${log.amount > 0 ? 'amount-positive' : 'amount-negative'}">
-                                    ${log.amount > 0 ? '+' : ''}₹${Math.abs(log.amount).toFixed(2)}
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        logContainer.innerHTML = '<p style="text-align: center; color: #94A3B8;">No transactions yet</p>';
-                    }
-
-                    document.getElementById('detailModal').classList.add('active');
-                } else {
-                    alert('Failed to load customer details');
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-
-        // Close modals on outside click
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
-            });
-        });
-    </script>
+/* avatar colours for server-rendered cards */
+(function(){
+  document.querySelectorAll('.customer-card .card-avatar').forEach(function(av){
+    var card=av.closest('.customer-card');if(card)av.style.background=avatarBg(card.dataset.id||0);
+  });
+  /* compute total outstanding */
+  var total=0;
+  document.querySelectorAll('.bal-amount').forEach(function(el){
+    var v=parseFloat(el.textContent.replace(/[^\d.]/g,''))||0;total+=v;
+  });
+  document.getElementById('statOutstanding').textContent=total.toFixed(2);
+})();
+</script>
 </body>
 </html>
